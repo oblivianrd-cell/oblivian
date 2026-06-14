@@ -224,7 +224,7 @@
   function upload(file, opts) {
     opts = opts || {};
     return processUpload(file, opts).then(function (m) {
-      var uploader = opts.uploader || (r2Configured() ? r2Upload : null);
+      var uploader = opts.uploader || (supabaseConfigured() ? supabaseUpload : (r2Configured() ? r2Upload : null));
       if (typeof uploader === "function") {
         return Promise.resolve(uploader(m))
           .then(function (url) { m.url = url || m.dataUrl; return m; })
@@ -235,9 +235,52 @@
     });
   }
 
+  /* ---- Supabase Storage (usa a sessão já autenticada; sem segredo no cliente) ----
+     Ativa com App.config.storage = { provider:"supabase", bucket:"media" } E
+     bucket criado no projeto. Chave do objeto = pasta/kind + hash (dedup nativo:
+     mesmo conteúdo → mesma chave → upsert sobrescreve, não duplica). */
+  function supabaseConfigured() {
+    var s = App.config && App.config.storage;
+    return !!(s && s.provider === "supabase" && s.bucket && App.repo && App.repo.sb && App.repo.sb.storage);
+  }
+  function storageKey(m) {
+    var dir = m.folder.replace(/^storage\//, "");        // ex.: users/avatar
+    return dir + "/" + m.id + "." + m.ext;               // users/avatar/eb2da2fe.webp
+  }
+  function supabaseUpload(m) {
+    var s = App.config.storage, sb = App.repo.sb, blob = dataUrlToBlob(m.dataUrl), key = storageKey(m);
+    return sb.storage.from(s.bucket).upload(key, blob, { contentType: m.mime, upsert: true })
+      .then(function (res) {
+        if (res && res.error) throw res.error;
+        // thumbnail (se houver) sobe ao lado: .../<id>.thumb.<ext>
+        if (m.thumbUrl) { try { sb.storage.from(s.bucket).upload(key.replace(/\.([a-z0-9]+)$/, ".thumb.$1"), dataUrlToBlob(m.thumbUrl), { contentType: m.mime, upsert: true }); } catch (e) {} }
+        var pub = sb.storage.from(s.bucket).getPublicUrl(key);
+        return (pub && pub.data && pub.data.publicUrl) || m.dataUrl;
+      });
+  }
+
   function r2Configured() { var r = App.config && App.config.r2; return !!(r && r.uploadEndpoint && r.uploadEndpoint.indexOf("SEU-WORKER") < 0); }
   function dataUrlToBlob(d) { var i = String(d||"").indexOf(","); var head=d.slice(0,i), b64=d.slice(i+1); var mime=(head.match(/data:([^;]+)/)||[])[1]||"application/octet-stream"; var bin=atob(b64), arr=new Uint8Array(bin.length); for(var j=0;j<bin.length;j++)arr[j]=bin.charCodeAt(j); return new Blob([arr],{type:mime}); }
   function r2Upload(m) { var ep=App.config.r2.uploadEndpoint; var blob=dataUrlToBlob(m.dataUrl); var tokP=(App.repo&&App.repo.getAccessToken)?App.repo.getAccessToken():Promise.resolve(null); return tokP.then(function(tok){ var headers={"x-kind":m.kind,"x-mime":m.mime}; if(tok)headers.authorization="Bearer "+tok; return fetch(ep,{method:"POST",headers:headers,body:blob}).then(function(r){if(!r.ok)throw new Error("upload "+r.status);return r.json();}).then(function(j){return j.url;}); }); }
+
+  /* APLICA globalmente: envolve App.util.downscaleImage p/ que TODA tela que já
+     o usa (createPost, profile, community, chat…) ganhe re-encode forçado + AVIF
+     + EXIF removido, sem editar cada arquivo. Mantém a assinatura (Promise<dataURL>),
+     respeita opts.mime (ex.: R2 pede webp) e preserva GIF/WebM (animação). */
+  (function patchDownscale() {
+    if (!util || typeof util.downscaleImage !== "function" || util.__storagePatched) return;
+    var orig = util.downscaleImage;
+    util.downscaleImage = function (file, opts) {
+      opts = opts || {};
+      var t = (file && file.type) || "";
+      if (t === "image/gif" || t === "video/webm") return orig.call(util, file, opts);   // anima: mantém
+      var mime = opts.mime || bestMime().mime;                                            // respeita mime pedido
+      return readDataUrl(file)
+        .then(function (raw) { return reencode(raw, { maxDim: opts.maxDim || 1600, quality: opts.quality || 0.82, mime: mime }); })
+        .catch(function () { return orig.call(util, file, opts); });                      // qualquer erro → caminho antigo
+    };
+    util.__storagePatched = true;
+  })();
 
   App.storage = {
     MAX_BYTES: MAX_BYTES, ALLOWED: ALLOWED, PRESETS: PRESETS, FOLDERS: FOLDERS, THUMB: THUMB,
