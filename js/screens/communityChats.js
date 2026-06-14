@@ -43,7 +43,7 @@
       var header = el("div", { class: "mychats__head" },
         el("button", { class: "mychats__back", type: "button", title: "Voltar", onClick: function () { App.router.navigate("/c/" + cid + "/featured"); } }, App.icon("back")),
         el("div", { class: "mychats__titlewrap" },
-          el("h1", { class: "mychats__title u-truncate" }, "Meus Chats"),
+          el("h1", { class: "mychats__title u-truncate" }, "Chats privados"),
           el("div", { class: "mychats__sub u-truncate" }, community.name)),
         createBtn);
 
