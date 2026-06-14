@@ -781,6 +781,7 @@
 
 /* chats públicos (grade estilo hangout) */
 .camino-chats { display: flex; flex-direction: column; }
+.camino-chats__head { display: flex; justify-content: flex-end; padding: var(--s-3) var(--s-3) 0; }
 .hangout-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-2); padding: var(--s-3); }
 .hangout-card { position: relative; aspect-ratio: 5/3; border-radius: var(--r-lg); overflow: hidden; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.3); }
 .hangout-card__bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(1px); transition: transform var(--t-fast); }
@@ -1112,72 +1113,62 @@
 .camino-more-imgs { color: var(--text-mute); font-size: var(--fs-sm); }
 
 /* ============================================================
-   Painel de criação (stack vertical, item central destacado)
+   Painel de criação (grade de círculos coloridos, estilo Amino)
    ============================================================ */
 .scrim--create {
   display: grid; place-items: center;
-  padding: 0 var(--s-4);
-  background: rgba(8,8,11,0.6);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  padding: var(--s-4);
+  background: rgba(8,8,11,0.62);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 }
 .scrim--create.is-closing { opacity: 0; transition: opacity 0.2s; }
 
-.create-stack {
-  width: min(440px, 92vw);
-  display: flex; flex-direction: column; gap: var(--s-2);
-  animation: stack-in 0.32s cubic-bezier(0.2,0.8,0.3,1.1) both;
+.create-sheet {
+  width: min(440px, 94vw);
+  display: flex; flex-direction: column; align-items: center; gap: var(--s-4);
+  animation: stack-in 0.3s cubic-bezier(0.2,0.8,0.3,1.05) both;
 }
-.create-stack__head { text-align: center; color: rgba(255,255,255,0.7); font-weight: var(--fw-bold); font-size: var(--fs-sm); text-transform: uppercase; letter-spacing: 0.08em; }
-
-/* lista rolável; pontas desvanecem (mask) e itens centralizam */
-.create-stack__list {
-  display: flex; flex-direction: column; gap: 8px;
-  max-height: 62vh; overflow-y: auto;
-  /* padding p/ primeiro/último item poderem chegar ao centro */
-  padding: 38vh 4px;
-  scroll-snap-type: y proximity;
-  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 28%, #000 72%, transparent);
-  mask-image: linear-gradient(to bottom, transparent, #000 28%, #000 72%, transparent);
+.create-sheet__card {
+  width: 100%;
+  background: color-mix(in srgb, var(--accent) 16%, rgba(20,20,26,0.92));
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 22px;
+  padding: var(--s-4) var(--s-3);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
 }
 
-.create-stack__item {
-  --prox: 0;
-  scroll-snap-align: center;
-  display: flex; align-items: center; gap: var(--s-3);
-  width: 100%; padding: var(--s-3) var(--s-4);
-  border-radius: var(--r-lg);
-  background: var(--c-item, var(--surface-2));
-  border: 1px solid rgba(255,255,255,0.08);
-  color: var(--text); font-weight: var(--fw-semibold);
-  /* proximidade do centro controla escala + opacidade */
-  opacity: calc(0.4 + 0.6 * var(--prox));
-  transform: scale(calc(0.92 + 0.08 * var(--prox)));
-  transform-origin: center;
-  transition: background var(--t-mid), box-shadow var(--t-mid), border-color var(--t-mid);
+/* grade de tipos: 4 colunas de círculos coloridos */
+.create-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3) var(--s-2); }
+.create-grid__item {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: none; border: 0; cursor: pointer;
+  color: #fff; font-weight: var(--fw-semibold); font-size: var(--fs-sm);
+  padding: 6px 2px; border-radius: var(--r-lg);
+  transition: transform var(--t-fast);
 }
-.create-stack__item.is-active {
-  background: var(--c-active, var(--surface-3));
-  border-color: var(--c-base, transparent);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 0 2px var(--c-base, transparent);
-  z-index: 2;
+.create-grid__item:active { transform: scale(0.92); }
+.create-grid__icon {
+  width: 58px; height: 58px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; color: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
 }
-.create-stack__icon {
-  width: 36px; height: 36px; border-radius: 10px;
-  display: grid; place-items: center; color: var(--text); flex: none;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  transition: width var(--t-mid), height var(--t-mid);
-}
-.create-stack__icon svg.icon { width: 18px; height: 18px; }
-.create-stack__label { font-size: var(--fs-md); }
-.create-stack__item.is-active .create-stack__label { font-size: var(--fs-xl); font-weight: var(--fw-bold); }
-.create-stack__item.is-active .create-stack__icon { width: 42px; height: 42px; border-radius: 12px; }
+.create-grid__icon svg.icon { width: 26px; height: 26px; }
+.create-grid__label { text-align: center; line-height: 1.1; }
 
-@keyframes stack-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
-@media (prefers-reduced-motion: reduce) {
-  .create-stack { animation: none; }
-  .create-stack__list { scroll-behavior: auto; }
+/* botão X (fechar), círculo branco abaixo do card */
+.create-grid__close {
+  width: 56px; height: 56px; border-radius: 50%; flex: none;
+  display: grid; place-items: center;
+  background: #fff; color: #111; border: 0; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  transition: transform var(--t-fast);
 }
+.create-grid__close:active { transform: scale(0.9); }
+.create-grid__close svg.icon { width: 24px; height: 24px; }
+
+@keyframes stack-in { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .create-sheet { animation: none; } }
 
 /* ============================================================
    Painel lateral (estilo Amino) — abre pelo "Menu" da dock

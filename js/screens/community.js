@@ -1462,61 +1462,31 @@
 
   /* painel de criação: lista vertical empilhada, item central destacado */
   function openCreateMenu(anchor, community) {
-    var types = ["blog", "image", "poll", "quiz", "link", "question", "wiki"];
-    var labels = { blog: "Blog", image: "Imagem", poll: "Enquete", quiz: "Quiz", link: "Link", question: "Pergunta", wiki: "Wiki" };
+    // grade estilo Amino: círculos coloridos por tipo + botão X p/ fechar
+    var types = ["text", "image", "link", "quiz", "question", "poll", "wiki", "blog"];
+    var labels = { text: "Post", image: "Imagem", link: "Link", quiz: "Quiz", question: "Pergunta", poll: "Enquete", wiki: "Wiki", blog: "Blog" };
+    var accent = (community.theme && community.theme.accent) || App.store.get("accent");
 
-    var list = el("div", { class: "create-stack__list" });
+    var grid = el("div", { class: "create-grid" });
     types.forEach(function (t) {
       var m = postMeta(t);
-      var row = el("button", { class: "create-stack__item", type: "button", "data-type": t },
-        el("span", { class: "create-stack__icon", style: { background: TYPE_COLOR[t] || "#888" } }, App.icon(m.icon, { size: "sm" })),
-        el("span", { class: "create-stack__label" }, labels[t]));
-      row.addEventListener("click", function () {
-        // clicar num item não-central só centraliza; central abre
-        if (row.classList.contains("is-active")) { close(); App.router.navigate("/c/" + community.id + "/criar-post?tipo=" + t); }
-        else centerOn(row);
-      });
-      list.appendChild(row);
+      var item = el("button", { class: "create-grid__item", type: "button" },
+        el("span", { class: "create-grid__icon", style: { background: TYPE_COLOR[t] || "#888" } }, App.icon(m.icon, { size: "lg" })),
+        el("span", { class: "create-grid__label" }, labels[t]));
+      item.addEventListener("click", function () { close(); App.router.navigate("/c/" + community.id + "/criar-post?tipo=" + t); });
+      grid.appendChild(item);
     });
 
-    var items = App.util.qsa(".create-stack__item", list);
+    var closeBtn = el("button", { class: "create-grid__close", type: "button", title: "Fechar", "aria-label": "Fechar" }, App.icon("close"));
+    closeBtn.addEventListener("click", function () { close(); });
 
-    /* item mais próximo do centro do viewport = ativo; distância controla escala/opacidade */
-    function update() {
-      var mid = list.scrollTop + list.clientHeight / 2;
-      var best = null, bestD = Infinity;
-      items.forEach(function (r) {
-        var c = r.offsetTop + r.offsetHeight / 2;
-        var d = Math.abs(c - mid);
-        if (d < bestD) { bestD = d; best = r; }
-        // proximidade 1 (centro) -> 0 (longe) em ~2 alturas
-        var prox = Math.max(0, 1 - d / (r.offsetHeight * 2.2));
-        r.style.setProperty("--prox", prox.toFixed(3));
-      });
-      items.forEach(function (r) { r.classList.toggle("is-active", r === best); });
-    }
-    function centerOn(row) {
-      list.scrollTo({ top: row.offsetTop - (list.clientHeight - row.offsetHeight) / 2, behavior: "smooth" });
-    }
-    list.addEventListener("scroll", function () { window.requestAnimationFrame(update); }, { passive: true });
-
-    var accent = (community.theme && community.theme.accent) || App.store.get("accent");
-    var panel = el("div", { class: "create-stack" },
-      el("div", { class: "create-stack__head" }, "Criar"),
-      list);
+    var panel = el("div", { class: "create-sheet" },
+      el("div", { class: "create-sheet__card" }, grid),
+      closeBtn);
     var scrim = el("div", { class: "scrim scrim--create" }, panel);
-    scrim.style.setProperty("--c-base", accent);
-    scrim.style.setProperty("--c-item", App.store.color.shade(accent, -38));
-    scrim.style.setProperty("--c-active", App.store.color.shade(accent, -12));
+    scrim.style.setProperty("--accent", accent);
     scrim.addEventListener("mousedown", function (e) { if (e.target === scrim) close(); });
-    function onKey(e) {
-      if (e.key === "Escape") return close();
-      var act = list.querySelector(".create-stack__item.is-active");
-      var idx = items.indexOf(act);
-      if (e.key === "ArrowDown" && idx < items.length - 1) { e.preventDefault(); centerOn(items[idx + 1]); }
-      if (e.key === "ArrowUp" && idx > 0) { e.preventDefault(); centerOn(items[idx - 1]); }
-      if (e.key === "Enter" && act) { close(); App.router.navigate("/c/" + community.id + "/criar-post?tipo=" + act.getAttribute("data-type")); }
-    }
+    function onKey(e) { if (e.key === "Escape") close(); }
     function close() {
       document.removeEventListener("keydown", onKey);
       scrim.classList.add("is-closing");
@@ -1524,8 +1494,6 @@
     }
     document.addEventListener("keydown", onKey);
     document.body.appendChild(scrim);
-    // centraliza no "Imagem" inicialmente + primeira medição
-    window.requestAnimationFrame(function () { centerOn(items[2] || items[0]); window.requestAnimationFrame(update); });
   }
 
   /* ---------------- Tela de Membros ---------------- */
