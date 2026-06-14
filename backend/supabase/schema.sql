@@ -1237,3 +1237,19 @@ begin
     returning * into n;
   return n;
 end $$;
+
+-- ============================================================
+-- EXCLUIR A PRÓPRIA CONTA (Configurações → Segurança, 2026-06-13)
+-- O cliente (anon key) NÃO pode apagar auth.users. RPC SECURITY DEFINER apaga só a
+-- conta do PRÓPRIO chamador (auth.uid()); profiles.id → auth.users(id) ON DELETE
+-- CASCADE, e todo o grafo referencia profiles(id) ON DELETE CASCADE → some tudo junto.
+-- ============================================================
+create or replace function public.delete_my_account()
+returns void language plpgsql security definer set search_path = public, auth as $$
+declare uid uuid := auth.uid();
+begin
+  if uid is null then raise exception 'auth required'; end if;
+  delete from auth.users where id = uid;   -- cascateia profiles + todo o conteúdo do usuário
+end $$;
+revoke execute on function public.delete_my_account() from public, anon;
+grant  execute on function public.delete_my_account() to authenticated;

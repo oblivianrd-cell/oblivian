@@ -182,17 +182,74 @@
   };
 
   /* ============ Auth + sessão ============ */
-  P.signUp = function (email, password) {
-    return this.sb.auth.signUp({ email: email, password: password }).then(function (r) { if (r.error) throw r.error; return r.data.user; });
+  // captcha opcional (Turnstile/hCaptcha): só vai no options se houver token.
+  // Supabase só EXIGE captcha se você ligar no painel; sem token o fluxo segue normal.
+  function authOpts(captchaToken) { return captchaToken ? { captchaToken: captchaToken } : {}; }
+
+  // Cadastro. Retorna { user, session }. Com "Confirm email" LIGADO no Supabase,
+  // session vem null e um código de 6 dígitos é enviado por e-mail (verifyEmailCode).
+  // Com a confirmação DESLIGADA, já vem session (login imediato). A UI detecta os dois.
+  P.signUp = function (email, password, captchaToken) {
+    return this.sb.auth.signUp({ email: email, password: password, options: authOpts(captchaToken) })
+      .then(function (r) { if (r.error) throw r.error; return r.data; });
   };
-  P.signIn = function (email, password) {
+  P.signIn = function (email, password, captchaToken) {
     var self = this;
-    return this.sb.auth.signInWithPassword({ email: email, password: password })
+    return this.sb.auth.signInWithPassword({ email: email, password: password, options: authOpts(captchaToken) })
       .then(function (r) { if (r.error) throw r.error; return self._prime().then(function () { return self._me; }); });
+  };
+  // confirma o código de 6 dígitos do cadastro → cria a sessão e prepara o app.
+  // Supabase valida server-side: hash do código, expiração (10 min), uso único, nº de tentativas.
+  P.verifyEmailCode = function (email, token) {
+    var self = this;
+    return this.sb.auth.verifyOtp({ email: email, token: String(token == null ? "" : token).trim(), type: "signup" })
+      .then(function (r) { if (r.error) throw r.error; return self._prime().then(function () { return self._me; }); });
+  };
+  // reenvia o código do cadastro. O LIMITE de reenvio é aplicado pelo Supabase (server-side).
+  P.resendEmailCode = function (email, captchaToken) {
+    return this.sb.auth.resend({ type: "signup", email: email, options: authOpts(captchaToken) })
+      .then(function (r) { if (r && r.error) throw r.error; return true; });
   };
   P.signOut = function () { var self = this; self._loggingOut = true; this.leavePresence(); this.unsubscribeNotifications(); return this.sb.auth.signOut().then(function () { self._meId = null; self._me = null; self._unread = 0; self._unreadConvos = 0; self._convoUnread = {}; }); };
   // recuperação de senha: envia e-mail com link (fluxo padrão do Supabase)
   P.resetPassword = function (email) { return this.sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }).then(function (r) { if (r && r.error) throw r.error; return true; }); };
+
+  /* ===== Segurança da conta (tela de Configurações) ===== */
+  // info da sessão p/ a UI: e-mail atual + se está verificado
+  P.getAuthInfo = function () {
+    return this.sb.auth.getUser().then(function (r) {
+      var u = (r.data && r.data.user) || {};
+      return { email: u.email || "", emailConfirmed: !!u.email_confirmed_at, createdAt: ms(u.created_at), provider: (u.app_metadata && u.app_metadata.provider) || "email" };
+    });
+  };
+  // troca de e-mail: Supabase envia confirmação p/ o NOVO (e aviso p/ o antigo). Só efetiva após confirmar.
+  P.changeEmail = function (newEmail) {
+    return this.sb.auth.updateUser({ email: String(newEmail || "").trim() }, { emailRedirectTo: location.origin + location.pathname })
+      .then(function (r) { if (r.error) throw r.error; return true; });
+  };
+  // troca de senha do usuário logado (sessão atual). Mín. 6 (Supabase valida).
+  P.changePassword = function (newPassword) {
+    return this.sb.auth.updateUser({ password: newPassword }).then(function (r) { if (r.error) throw r.error; return true; });
+  };
+  // token de acesso atual (p/ autenticar uploads no Worker do R2). null se deslogado.
+  P.getAccessToken = function () {
+    return this.sb.auth.getSession().then(function (r) { return (r.data && r.data.session && r.data.session.access_token) || null; }).catch(function () { return null; });
+  };
+  // encerra a sessão em TODOS os aparelhos (revoga todos os refresh tokens)
+  P.signOutEverywhere = function () {
+    var self = this; self._loggingOut = true; this.leavePresence(); this.unsubscribeNotifications();
+    return this.sb.auth.signOut({ scope: "global" }).then(function () { self._meId = null; self._me = null; self._unread = 0; self._unreadConvos = 0; self._convoUnread = {}; return true; });
+  };
+  // exclui a PRÓPRIA conta via RPC SECURITY DEFINER (apaga auth.users → cascata em tudo).
+  // Requer a migração delete_my_account() aplicada no Supabase.
+  P.deleteAccount = function () {
+    var self = this;
+    return this.sb.rpc("delete_my_account").then(function (r) {
+      if (r.error) throw r.error;
+      self._loggingOut = true;
+      return self.sb.auth.signOut().then(function () { return true; }, function () { return true; });
+    });
+  };
   // login social (Google/Discord/GitHub).
   // WEB: redirect normal. APP (Capacitor): deep link → in-app browser → volta pro app (sem jogar pro navegador).
   P.signInWithOAuth = function (provider) {
@@ -1219,7 +1276,7 @@
         var sub = m[1] + (opts.reason ? " Motivo: " + opts.reason : "");
         return self.addNotification({
           userId: targetUserId, cat: "system", type: "moderation", icon: opts.action,
-          title: m[0], sub: sub, to: "#/c/" + communityId + "/u/" + targetUserId,
+          title: m[0], sub: sub, to: "/c/" + communityId + "/u/" + targetUserId,
           payload: { communityId: communityId, action: opts.action }
         }).catch(function () {});   // notificação é best-effort, não derruba a moderação
       })

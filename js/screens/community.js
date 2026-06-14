@@ -722,7 +722,7 @@
       var listHost = el("div", { class: "nfull__list" });
       function paint() {
         App.util.clear(listHost);
-        var rows = data.filter(function (n) { return filter === "all" || n.cat === filter || (filter === "invite" && n.type === "roleInvite"); });
+        var rows = data.filter(function (n) { return n.type !== "message" && (filter === "all" || n.cat === filter || (filter === "invite" && n.type === "roleInvite")); });
         if (!rows.length) { listHost.appendChild(ui.Empty("bell", "Nada por aqui", "Sem notificações nesta aba.")); return; }
         rows.forEach(function (n) {
           listHost.appendChild(notifRow(n, "nfull__row", false, function (nn) { if (nn.to) App.router.navigate(nn.to); }, refresh));
@@ -761,7 +761,7 @@
     var offNotifNew = App.bus.on("notif:new", function () { if (!document.body.contains(listHost)) { offNotifNew(); return; } load(); });
     function paint() {
       App.util.clear(listHost);
-      var rows = NOTIFS.filter(function (n) { return filter === "all" || n.cat === filter || (filter === "invite" && n.type === "roleInvite"); });
+      var rows = NOTIFS.filter(function (n) { return n.type !== "message" && (filter === "all" || n.cat === filter || (filter === "invite" && n.type === "roleInvite")); });
       if (!rows.length) { listHost.appendChild(App.ui.Empty("bell", "Nada por aqui", "Sem notificações nesta aba.")); return; }
       rows.forEach(function (n) {
         listHost.appendChild(notifRow(n, "notif__row", true, function (nn) { close(); if (nn.to) App.router.navigate(nn.to); }, load));
@@ -1214,7 +1214,7 @@
     page.style.setProperty("--c-base", accent);
     page.style.setProperty("--c-tabs", sh(accent, -22));   // abas: médio-escuro
     page.style.setProperty("--c-pins", sh(accent, -42));   // pins: escuro
-    page.style.setProperty("--c-bar",  sh(accent, -10));   // faixa recentes: vivo
+    page.style.setProperty("--c-bar",  sh(accent, -30));   // faixa recentes: escuro p/ contraste c/ texto branco
     page.style.setProperty("--c-fab",  accent);
     page.style.setProperty("--c-tint", hexA(accent, 0.16));
     page.style.setProperty("--c-line", sh(accent, -55));

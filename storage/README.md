@@ -25,7 +25,7 @@ destas pastas por `App.storage.folderFor(kind)`.
 Ver `docs/STORAGE_ARCHITECTURE.md`. Resumo:
 
 - **app**  → `mobile/` (Capacitor, empacota `mobile/www/`). Regras de storage do app.
-- **web**  → raiz servida por `build.mjs` → `dist/` (Cloudflare Pages).
+- **web**  → raiz servida por `scripts/build.mjs` → `dist/` (Cloudflare Pages).
 - **shared** → `js/core/` (util, storage, banCleanup), `js/components/`,
   `js/data/` (repositórios), `styles/`. Código comum a app e web; **nunca duplicar**.
 

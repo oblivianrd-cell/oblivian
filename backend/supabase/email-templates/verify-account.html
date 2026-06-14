@@ -1,0 +1,32 @@
+<!--
+  Oblivian — Supabase template: "Confirm signup" (Verificar conta).
+  Assunto sugerido:  Seu código Oblivian: {{ .Token }}
+  Variável-chave:    {{ .Token }}  (código de 6 dígitos, expira em 10 min)
+  Cole o HTML abaixo em: Supabase → Authentication → Email Templates → Confirm signup
+-->
+<span style="display:none!important;opacity:0;color:transparent;height:0;width:0;overflow:hidden">Seu código de verificação Oblivian é {{ .Token }} — expira em 10 minutos.</span>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f7;margin:0;padding:24px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+  <tr><td align="center">
+    <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="width:480px;max-width:92%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(20,20,30,.08)">
+      <tr><td style="background:#7c59ec;height:6px;line-height:6px;font-size:6px">&nbsp;</td></tr>
+      <tr><td style="padding:32px 36px 8px">
+        <div style="font-size:22px;font-weight:800;letter-spacing:-.4px;color:#1a1a22">Oblivian</div>
+        <div style="font-size:13px;color:#8a8a99;margin-top:2px">Suas comunidades, chats e perfil.</div>
+      </td></tr>
+      <tr><td style="padding:8px 36px 0">
+        <h1 style="font-size:19px;color:#1a1a22;margin:18px 0 6px">Confirme seu e-mail</h1>
+        <p style="font-size:15px;line-height:1.5;color:#4a4a57;margin:0 0 22px">Use o código abaixo para terminar de criar sua conta. Ele vale por <strong>10 minutos</strong>.</p>
+      </td></tr>
+      <tr><td align="center" style="padding:0 36px">
+        <div style="display:inline-block;background:#f4f1ff;border:1px solid #e2d9ff;border-radius:12px;padding:16px 28px;font-size:34px;font-weight:800;letter-spacing:10px;color:#5b3fd1;font-family:'SFMono-Regular',Consolas,Menlo,monospace">{{ .Token }}</div>
+      </td></tr>
+      <tr><td style="padding:24px 36px 0">
+        <p style="font-size:13px;line-height:1.5;color:#8a8a99;margin:0">Se você não criou uma conta no Oblivian, ignore este e-mail — nada acontece sem o código.</p>
+      </td></tr>
+      <tr><td style="padding:28px 36px 32px">
+        <hr style="border:none;border-top:1px solid #eeeef2;margin:0 0 16px">
+        <p style="font-size:12px;color:#a0a0ad;margin:0">Você recebeu este e-mail porque há um cadastro Oblivian com este endereço. <a href="https://oblivian.net" style="color:#7c59ec;text-decoration:none">oblivian.net</a></p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>

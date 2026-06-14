@@ -139,6 +139,22 @@
     return t === "image/png" || t === "image/jpeg" || t === "image/webp" || t === "image/gif";
   }
 
+  /* e-mail descartável/temporário? (anti-spam no registro — bloqueio SUAVE no cliente;
+     a defesa real é captcha + verificação por código). Lista curta dos domínios mais
+     comuns; amplie à vontade. Retorna true se o domínio for descartável. */
+  var DISPOSABLE_EMAIL_DOMAINS = {
+    "mailinator.com": 1, "guerrillamail.com": 1, "10minutemail.com": 1, "tempmail.com": 1,
+    "temp-mail.org": 1, "throwawaymail.com": 1, "yopmail.com": 1, "getnada.com": 1,
+    "trashmail.com": 1, "sharklasers.com": 1, "maildrop.cc": 1, "dispostable.com": 1,
+    "fakeinbox.com": 1, "mailnesia.com": 1, "mohmal.com": 1, "emailondeck.com": 1,
+    "mintemail.com": 1, "tempmailo.com": 1, "spamgourmet.com": 1, "mailcatch.com": 1
+  };
+  function isDisposableEmail(email) {
+    var at = String(email || "").toLowerCase().trim().split("@");
+    if (at.length !== 2) return false;
+    return !!DISPOSABLE_EMAIL_DOMAINS[at[1]];
+  }
+
   /* Lê uma imagem, reduz (canvas) e RE-ENCODA em WebP p/ ocupar menos
      (fallback JPEG onde não há encode webp). GIF mantém original (preserva
      animação); webp de entrada passa direto. Retorna Promise<dataURL>. */
@@ -213,6 +229,7 @@
     formatCount: formatCount, timeAgo: timeAgo, clockTime: clockTime,
     dayLabel: dayLabel, fullDate: fullDate, debounce: debounce, humanDuration: humanDuration,
     appendChildren: appendChildren, downscaleImage: downscaleImage,
-    canEncodeWebp: canEncodeWebp, isAllowedMedia: isAllowedMedia, downloadMedia: downloadMedia
+    canEncodeWebp: canEncodeWebp, isAllowedMedia: isAllowedMedia, downloadMedia: downloadMedia,
+    isDisposableEmail: isDisposableEmail
   };
 })(window.App = window.App || {});

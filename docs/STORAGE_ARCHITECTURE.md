@@ -1,17 +1,17 @@
 # Oblivian — Arquitetura de Storage (app / web / shared)
 
 Documenta a divisão lógica **sem** mover fisicamente os arquivos do app
-(mover quebraria `build.mjs`, o empacotamento `mobile/www` do Capacitor e os
+(mover quebraria `scripts/build.mjs`, o empacotamento `mobile/www` do Capacitor e os
 caminhos de script de `index.html`). A divisão é por **responsabilidade**, e o
 código comum vive uma vez só (shared) — nada duplicado.
 
 ## 1. app  (mobile / Capacitor)
 - `mobile/` — projeto Capacitor; empacota `mobile/www/` no APK.
-- `apk-release.mjs` — publica `oblivian.apk` no GitHub Releases.
+- `scripts/apk-release.mjs` — publica `oblivian.apk` no GitHub Releases.
 - Regras de storage do app = mesmas regras de `App.storage` (shared), embutidas no bundle.
 
 ## 2. web  (Cloudflare Pages)
-- Raiz servida por `build.mjs` → `dist/` (exclui mobile/, backend/, docs/, apk).
+- Raiz servida por `scripts/build.mjs` → `dist/` (exclui mobile/, backend/, docs/, apk).
 - `index.html`, `manifest.webmanifest`, `pages/`, `_headers`, `_redirects`.
 - Regras de storage web = mesmas de `App.storage` (shared).
 

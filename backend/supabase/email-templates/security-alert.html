@@ -1,0 +1,48 @@
+<!--
+  Oblivian — Alerta de segurança (login suspeito / alerta de conta).
+  NÃO é um template nativo do Supabase Auth: é enviado por código próprio
+  (ex.: Edge Function chamando a API do Resend) quando você detectar atividade
+  suspeita — login novo aparelho/local, muitas falhas, troca de senha, etc.
+  Placeholders %%...%% são preenchidos pelo SEU código de envio (não são variáveis Supabase).
+    %%TITLE%%     ex.: "Novo login na sua conta"
+    %%MESSAGE%%   ex.: "Detectamos um login que não reconhecemos."
+    %%DATE%%      data/hora do evento
+    %%DEVICE%%    navegador/aparelho
+    %%LOCATION%%  cidade/país aproximado (por IP)
+    %%SECURE_URL%% link para Configurações → Segurança
+-->
+<span style="display:none!important;opacity:0;color:transparent;height:0;width:0;overflow:hidden">%%TITLE%% — confira a atividade na sua conta Oblivian.</span>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f7;margin:0;padding:24px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+  <tr><td align="center">
+    <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="width:480px;max-width:92%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(20,20,30,.08)">
+      <tr><td style="background:#e0533d;height:6px;line-height:6px;font-size:6px">&nbsp;</td></tr>
+      <tr><td style="padding:32px 36px 8px">
+        <div style="font-size:22px;font-weight:800;letter-spacing:-.4px;color:#1a1a22">Oblivian</div>
+        <div style="font-size:13px;color:#8a8a99;margin-top:2px">Aviso de segurança</div>
+      </td></tr>
+      <tr><td style="padding:8px 36px 0">
+        <h1 style="font-size:19px;color:#1a1a22;margin:18px 0 6px">%%TITLE%%</h1>
+        <p style="font-size:15px;line-height:1.5;color:#4a4a57;margin:0 0 20px">%%MESSAGE%%</p>
+      </td></tr>
+      <tr><td style="padding:0 36px">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8f8fb;border:1px solid #eeeef2;border-radius:12px">
+          <tr><td style="padding:14px 18px;font-size:14px;color:#4a4a57">
+            <strong style="color:#1a1a22">Quando:</strong> %%DATE%%<br>
+            <strong style="color:#1a1a22">Aparelho:</strong> %%DEVICE%%<br>
+            <strong style="color:#1a1a22">Local:</strong> %%LOCATION%%
+          </td></tr>
+        </table>
+      </td></tr>
+      <tr><td align="center" style="padding:24px 36px 0">
+        <a href="%%SECURE_URL%%" style="display:inline-block;background:#e0533d;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:13px 30px;border-radius:10px">Não fui eu — proteger conta</a>
+      </td></tr>
+      <tr><td style="padding:20px 36px 0">
+        <p style="font-size:13px;line-height:1.5;color:#8a8a99;margin:0">Foi você? Pode ignorar este e-mail com tranquilidade.</p>
+      </td></tr>
+      <tr><td style="padding:28px 36px 32px">
+        <hr style="border:none;border-top:1px solid #eeeef2;margin:0 0 16px">
+        <p style="font-size:12px;color:#a0a0ad;margin:0">Enviamos alertas de segurança para proteger sua conta Oblivian. <a href="https://oblivian.net" style="color:#7c59ec;text-decoration:none">oblivian.net</a></p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>

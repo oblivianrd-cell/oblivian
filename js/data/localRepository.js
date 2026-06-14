@@ -1345,7 +1345,7 @@
       this._notifs().push(M.Notification({
         userId: targetUserId, cat: "system", type: "moderation", icon: opts.action,
         title: L2[0], sub: L2[1] + (opts.reason ? " Motivo: " + opts.reason : ""),
-        to: "#/c/" + communityId + "/u/" + targetUserId, payload: { communityId: communityId, action: opts.action }
+        to: "/c/" + communityId + "/u/" + targetUserId, payload: { communityId: communityId, action: opts.action }
       }));
     }
     this._commit();

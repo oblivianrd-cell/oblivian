@@ -16,6 +16,13 @@
       uploadEndpoint: "https://SEU-WORKER.workers.dev/sign",
       publicBase: "https://cdn.SEU-DOMINIO.com" // base pública dos objetos R2
     },
+    // Captcha (anti-bot no registro/login). SÓ a site key (PÚBLICA) vai aqui.
+    // O SECRET fica no painel do Supabase (Auth → Bot & Abuse Protection), nunca no front.
+    // Vazio = captcha desligado (o fluxo continua funcionando). Provider: 'turnstile' (Cloudflare) ou 'hcaptcha'.
+    captcha: {
+      provider: "turnstile",
+      siteKey: "" // ex.: "0x4AAAAAAA..." (Cloudflare Turnstile → Site key)
+    },
     // Anúncios (web). enabled=false → placeholder/simulação.
     // Preencha após aprovação no Google AdSense.
     ads: {

@@ -46,6 +46,141 @@
     return nav;
   }
 
+  /* linha padrão de configuração: rótulo + descrição à esquerda, controle à direita */
+  function settingsRow(label, desc, control) {
+    return el("div", { class: "settings-row" },
+      el("div", null,
+        el("div", { class: "settings-row__label" }, label),
+        desc ? el("div", { class: "settings-row__desc" }, desc) : null),
+      control);
+  }
+
+  /* exporta os dados do usuário (.json) — LGPD */
+  function doExport() {
+    if (!App.repo.exportData) return;
+    App.repo.exportData().then(function (json) {
+      try {
+        var blob = new Blob([json], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var a = el("a", { href: url, download: "oblivian-backup.json" });
+        document.body.appendChild(a); a.click();
+        setTimeout(function () { a.remove(); URL.revokeObjectURL(url); }, 0);
+        ui.toast("Backup exportado", "ok");
+      } catch (e) { ui.toast("Não foi possível exportar", "danger"); }
+    }).catch(function (e) { ui.toast((e && e.message) || "Falha ao exportar", "danger"); });
+  }
+
+  /* ---------- modais de Segurança ---------- */
+  function openChangeEmail() {
+    var input = ui.Input({ type: "email", placeholder: "novo@email.com" });
+    var err = el("div", { class: "auth__error" }); err.style.display = "none";
+    function showErr(m) { err.textContent = m; err.style.display = ""; }
+    var ref = ui.openModal({
+      title: "Alterar e-mail",
+      body: el("div", { class: "u-col", style: { gap: "10px" } },
+        el("p", { class: "u-muted", style: { fontSize: "var(--fs-sm)", margin: 0 } },
+          "Enviamos um link de confirmação para o novo e-mail. A troca só vale depois que você confirmar."),
+        ui.Field("Novo e-mail", input), err),
+      actions: [
+        ui.Button({ label: "Cancelar", variant: "ghost", onClick: function () { ref.close(); } }),
+        ui.Button({ label: "Enviar confirmação", variant: "primary", onClick: function () {
+          var v = (input.value || "").trim();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return showErr("E-mail inválido.");
+          App.repo.changeEmail(v).then(function () { ref.close(); ui.toast("Confirmação enviada para " + v, "ok"); })
+            .catch(function (e) { showErr((e && e.message) || "Falha ao alterar."); });
+        } })
+      ]
+    });
+  }
+  function openChangePassword() {
+    var p1 = ui.Input({ type: "password", placeholder: "Nova senha" });
+    var p2 = ui.Input({ type: "password", placeholder: "Repita a senha" });
+    var err = el("div", { class: "auth__error" }); err.style.display = "none";
+    function showErr(m) { err.textContent = m; err.style.display = ""; }
+    var ref = ui.openModal({
+      title: "Alterar senha",
+      body: el("div", { class: "u-col", style: { gap: "10px" } }, ui.Field("Nova senha", p1), ui.Field("Confirmar senha", p2), err),
+      actions: [
+        ui.Button({ label: "Cancelar", variant: "ghost", onClick: function () { ref.close(); } }),
+        ui.Button({ label: "Salvar", variant: "primary", onClick: function () {
+          var a = p1.value || "", b = p2.value || "";
+          if (a.length < 8) return showErr("Mínimo de 8 caracteres.");
+          if (a !== b) return showErr("As senhas não conferem.");
+          App.repo.changePassword(a).then(function () { ref.close(); ui.toast("Senha alterada", "ok"); })
+            .catch(function (e) { showErr((e && e.message) || "Falha ao alterar."); });
+        } })
+      ]
+    });
+  }
+  function openDeleteAccount() {
+    var input = ui.Input({ type: "text", placeholder: "EXCLUIR" });
+    var err = el("div", { class: "auth__error" }); err.style.display = "none";
+    function showErr(m) { err.textContent = m; err.style.display = ""; }
+    var ref = ui.openModal({
+      title: "Excluir conta",
+      body: el("div", { class: "u-col", style: { gap: "10px" } },
+        el("p", { class: "u-muted", style: { fontSize: "var(--fs-sm)", margin: 0 } },
+          "Isso apaga PERMANENTEMENTE sua conta, perfis, posts, comentários e mensagens. Não dá para desfazer. Digite EXCLUIR para confirmar."),
+        ui.Field("Confirmação", input), err),
+      actions: [
+        ui.Button({ label: "Cancelar", variant: "ghost", onClick: function () { ref.close(); } }),
+        ui.Button({ label: "Excluir definitivamente", variant: "danger", onClick: function () {
+          if ((input.value || "").trim().toUpperCase() !== "EXCLUIR") return showErr("Digite EXCLUIR para confirmar.");
+          App.repo.deleteAccount().then(function () { ui.toast("Conta excluída", "ok"); location.hash = "#/login"; location.reload(); })
+            .catch(function (e) { showErr((e && e.message) || "Falha ao excluir."); });
+        } })
+      ]
+    });
+  }
+
+  /* monta o bloco Segurança (e-mail/senha/sessões/exclusão). hasBackend=false → aviso. */
+  function buildSecurity(host, hasBackend, user) {
+    App.util.clear(host);
+    if (!hasBackend || typeof App.repo.getAuthInfo !== "function") {
+      host.appendChild(el("p", { class: "u-muted", style: { fontSize: "var(--fs-sm)" } },
+        "Disponível na conta online — backend desligado no modo demo."));
+      return;
+    }
+    var emailRow = el("div", { class: "settings-row" },
+      el("div", null, el("div", { class: "settings-row__label" }, "E-mail"), el("div", { class: "settings-row__desc" }, "…")));
+    host.appendChild(emailRow);
+    App.repo.getAuthInfo().then(function (info) {
+      App.util.clear(emailRow);
+      emailRow.appendChild(el("div", null,
+        el("div", { class: "settings-row__label" }, "E-mail"),
+        el("div", { class: "settings-row__desc" }, info.email || "—")));
+      emailRow.appendChild(el("div", { class: "u-row u-gap-2" },
+        el("span", { class: "block-row__tag" }, info.emailConfirmed ? "Verificado" : "Não verificado"),
+        ui.Button({ label: "Alterar", variant: "outline", size: "sm", onClick: openChangeEmail })));
+    }).catch(function () {
+      App.util.clear(emailRow);
+      emailRow.appendChild(el("div", null, el("div", { class: "settings-row__label" }, "E-mail"), el("div", { class: "settings-row__desc" }, "—")));
+    });
+
+    host.appendChild(settingsRow("Senha", "Defina uma nova senha (mín. 6 caracteres).",
+      ui.Button({ label: "Alterar senha", variant: "outline", size: "sm", onClick: openChangePassword })));
+
+    if (typeof App.repo.setHidePresence === "function") {
+      host.appendChild(settingsRow("Ocultar presença", "Não mostrar quando você está online nem o 'visto por último'.",
+        ui.Switch(!!(user && user.hidePresence), function (v) { App.repo.setHidePresence(v); })));
+    }
+
+    host.appendChild(settingsRow("Sessões", "Encerrar a sessão em todos os aparelhos.",
+      ui.Button({ label: "Sair de tudo", icon: "logout", variant: "outline", size: "sm", onClick: function () {
+        ui.confirm({ title: "Sair de todos os aparelhos", message: "Você precisará entrar de novo em todos. Continuar?", confirmLabel: "Sair de tudo" })
+          .then(function (ok) { if (!ok) return; App.repo.signOutEverywhere().then(function () { location.hash = "#/login"; location.reload(); }).catch(function (e) { ui.toast((e && e.message) || "Falha", "danger"); }); });
+      } })));
+
+    host.appendChild(settingsRow("Seus dados", "Baixe uma cópia (.json) dos seus dados (LGPD).",
+      ui.Button({ label: "Exportar", icon: "download", variant: "outline", size: "sm", onClick: doExport })));
+
+    host.appendChild(el("div", { class: "settings-row" },
+      el("div", null,
+        el("div", { class: "settings-row__label" }, "Excluir conta"),
+        el("div", { class: "settings-row__desc" }, "Apaga permanentemente sua conta e todo o conteúdo. Não dá para desfazer.")),
+      ui.Button({ label: "Excluir conta", icon: "trash", variant: "danger", size: "sm", onClick: openDeleteAccount })));
+  }
+
   /* ================= Configuração GLOBAL ================= */
   function renderGlobal() {
     var inner = el("div", { class: "view__inner" });
@@ -58,6 +193,15 @@
           el("div", { class: "u-grow" }, el("strong", user.name), el("div", { class: "u-muted" }, "@" + user.handle)),
           ui.Button({ label: "Editar", icon: "edit", variant: "outline", size: "sm", onClick: function () { App.screensInternal.editGlobal(user, function () { App.router.resolve(); }); } })),
         el("p", { class: "section-sub" }, "A conta global não possui reputação, tags ou títulos — esses são exclusivos de cada comunidade."));
+
+      // ---- Segurança (e-mail, senha, sessões, exclusão) — só com backend online ----
+      var hasBackend = !!(App.auth && typeof App.auth.enabled === "function" && App.auth.enabled());
+      var secHost = el("div", { class: "u-col u-gap-2" });
+      var securityBlock = el("section", { class: "card settings-block", id: "set-seguranca" },
+        el("div", { class: "settings-block__title" }, "Segurança"),
+        el("p", { class: "section-sub" }, "E-mail, senha, sessões e exclusão da conta."),
+        secHost);
+      buildSecurity(secHost, hasBackend, user);
 
       var theme = App.store.get("theme");
       var appearanceBlock = el("section", { class: "card settings-block", id: "set-aparencia" },
@@ -95,8 +239,14 @@
         });
       }
       var blockedBlock = el("section", { class: "card settings-block", id: "set-bloqueados" },
-        el("div", { class: "settings-block__title" }, "Contas bloqueadas"),
-        el("p", { class: "section-sub" }, "Bloqueio global da sua conta — vale em todo o app, não só numa comunidade."),
+        el("div", { class: "settings-block__title" }, "Privacidade e conteúdo"),
+        settingsRow("Desfocar conteúdo sensível",
+          "Mídia marcada como sensível aparece borrada até você tocar. (A marcação automática chega com a moderação de imagem.)",
+          ui.Switch(App.store.get("blurSensitive") !== false, function (v) {
+            App.store.set("blurSensitive", !!v);
+            document.documentElement.setAttribute("data-blur-sensitive", v ? "1" : "");
+          })),
+        el("p", { class: "section-sub" }, "Contas bloqueadas — vale em todo o app, não só numa comunidade."),
         blkHost);
       paintBlocked();
 
@@ -144,12 +294,12 @@
               .then(function (ok) { if (ok) App.repo.resetData().then(function () { ui.toast("Dados restaurados", "ok"); location.hash = "/explorer"; location.reload(); }); });
           } })));
 
-      var nav = navList([
-        { icon: "profile", label: "Conta", target: accountBlock },
-        { icon: "palette", label: "Aparência", target: appearanceBlock },
-        { icon: "ban", label: "Bloqueados", target: blockedBlock },
-        { icon: "trash", label: "Dados", target: dataBlock }
-      ]);
+      var navItems = [{ icon: "profile", label: "Conta", target: accountBlock }];
+      if (hasBackend) navItems.push({ icon: "shield", label: "Segurança", target: securityBlock });
+      navItems.push({ icon: "palette", label: "Aparência", target: appearanceBlock });
+      navItems.push({ icon: "ban", label: "Privacidade", target: blockedBlock });
+      if (!hasBackend) navItems.push({ icon: "trash", label: "Dados", target: dataBlock });
+      var nav = navList(navItems);
 
       var legalBlock = el("section", { class: "card settings-block", id: "set-legal" },
         el("div", { class: "settings-block__title" }, "Sobre"),
@@ -161,8 +311,13 @@
           el("div", null, el("div", { class: "settings-row__label" }, "App para Android"), el("div", { class: "settings-row__desc" }, "Baixe o APK oficial (Android 7.0+)")),
           el("a", { class: "btn btn--outline btn--sm", href: "https://github.com/oblivianrd-cell/oblivian/releases/latest/download/oblivian.apk", target: "_blank", rel: "noopener" }, App.icon("download", { size: "sm" }), "Baixar")));
 
+      // backend online: Segurança entra e o bloco "Dados" (import/restaurar locais, que
+      // o Supabase rejeita) sai — Exportar vive em Segurança. Demo: mantém Dados.
+      var sectionBlocks = hasBackend
+        ? [accountBlock, securityBlock, appearanceBlock, blockedBlock, legalBlock]
+        : [accountBlock, appearanceBlock, blockedBlock, dataBlock, legalBlock];
       App.util.mount(inner, el("div", { class: "settings-layout" }, nav,
-        el("div", { class: "settings-section" }, accountBlock, appearanceBlock, blockedBlock, dataBlock, legalBlock)));
+        el("div", { class: "settings-section" }, sectionBlocks)));
     });
 
     return { node: inner, active: "settings", title: "Configurações" };

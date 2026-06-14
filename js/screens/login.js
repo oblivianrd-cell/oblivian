@@ -9,6 +9,42 @@
   var el = App.util.el, ui = App.ui;
   App.screens = App.screens || {};
 
+  /* ---------- captcha anti-bot (Turnstile/hCaptcha) — gated em config.captcha.siteKey.
+     SEM siteKey: tudo no-op (comportamento atual 100% preservado). Só a site key
+     PÚBLICA vive no front; o SECRET fica no painel do Supabase (Auth → Bot Protection). */
+  App.captcha = (function () {
+    var cfg = (App.config && App.config.captcha) || {};
+    var enabled = !!cfg.siteKey;
+    var SCRIPT = {
+      turnstile: "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit",
+      hcaptcha: "https://js.hcaptcha.com/1/api.js?render=explicit"
+    };
+    var loaded = null, widgetId = null;
+    function api() { return window.turnstile || window.hcaptcha || null; }
+    function load() {
+      if (!enabled) return Promise.resolve(false);
+      if (loaded) return loaded;
+      loaded = new Promise(function (resolve) {
+        var s = document.createElement("script");
+        s.src = SCRIPT[cfg.provider] || SCRIPT.turnstile; s.async = true; s.defer = true;
+        s.onload = function () { resolve(true); };
+        s.onerror = function () { resolve(false); };
+        document.head.appendChild(s);
+      });
+      return loaded;
+    }
+    function render(container) {
+      if (!enabled || !container) return;
+      load().then(function (ok) {
+        if (!ok) return;
+        try { var a = api(); if (a && widgetId == null) widgetId = a.render(container, { sitekey: cfg.siteKey }); } catch (e) {}
+      });
+    }
+    function token() { try { var a = api(); return (a && widgetId != null) ? (a.getResponse(widgetId) || null) : null; } catch (e) { return null; } }
+    function reset() { try { var a = api(); if (a && widgetId != null) a.reset(widgetId); } catch (e) {} }
+    return { enabled: enabled, render: render, token: token, reset: reset };
+  })();
+
   /* ---------- helper de auth (ponte p/ o repositório) ---------- */
   var hasBackend = function () { return !!(App.repo && typeof App.repo.signIn === "function"); };
   function demoEnter() {
@@ -20,11 +56,21 @@
   }
   App.auth = {
     enabled: hasBackend,
-    signIn: function (email, pw) {
-      return hasBackend() ? App.repo.signIn(email, pw) : demoEnter();
+    signIn: function (email, pw, cap) {
+      return hasBackend() ? App.repo.signIn(email, pw, cap) : demoEnter();
     },
-    signUp: function (email, pw) {
-      return hasBackend() ? App.repo.signUp(email, pw) : demoEnter();
+    // cadastro: resolve { user, session }. session null = "Confirm email" ligado no
+    // Supabase → a UI pede o código de 6 dígitos. No demo, devolve sessão fake (entra direto).
+    signUp: function (email, pw, cap) {
+      return hasBackend() ? App.repo.signUp(email, pw, cap) : demoEnter().then(function (u) { return { user: u, session: {} }; });
+    },
+    verifyEmailCode: function (email, code) {
+      if (!hasBackend() || typeof App.repo.verifyEmailCode !== "function") return demoEnter();
+      return App.repo.verifyEmailCode(email, code);
+    },
+    resendEmailCode: function (email, cap) {
+      if (!hasBackend() || typeof App.repo.resendEmailCode !== "function") return Promise.resolve(true);
+      return App.repo.resendEmailCode(email, cap);
     },
     signOut: function () {
       if (App.repo && typeof App.repo.signOut === "function") {
@@ -42,7 +88,10 @@
     },
     // ponto de entrada p/ o "portão" de login (boot sem usuário logado)
     mountGate: function (root) {
-      App.util.mount(root, view(function () { location.hash = "#/explorer"; location.reload(); }));
+      App.util.mount(root, view(function (user, opts) {
+        var dest = (opts && opts.dest) || "/explorer";
+        location.hash = "#" + dest; location.reload();
+      }));
     }
   };
 
@@ -51,14 +100,72 @@
   function friendlyError(err) {
     var m = (err && err.message) || String(err || "Erro");
     if (/invalid login credentials/i.test(m)) return "E-mail ou senha incorretos.";
+    if (/token has expired or is invalid|otp.*(expired|invalid)|invalid.*otp/i.test(m)) return "Código inválido ou expirado. Peça um novo.";
+    if (/for security purposes|only request this after/i.test(m)) return "Aguarde alguns segundos antes de pedir outro código.";
     if (/email not confirmed/i.test(m)) return "Confirme seu e-mail antes de entrar.";
     if (/user already registered|already registered/i.test(m)) return "Esse e-mail já tem conta. Tente entrar.";
-    if (/password should be at least/i.test(m)) return "Senha muito curta (mínimo 6 caracteres).";
+    if (/password should be at least/i.test(m)) return "Senha muito curta (mínimo 8 caracteres).";
     if (/rate limit|too many/i.test(m)) return "Muitas tentativas. Aguarde um pouco.";
     if (/network|fetch|timeout|connection/i.test(m)) return "Falha na conexão. Verifique sua internet.";
     if (/unauthorized|invalid token|jwt/i.test(m)) return "Sessão expirada. Faça login novamente.";
     if (/500|server error|internal/i.test(m)) return "Erro no servidor. Tente novamente em alguns momentos.";
     return "Erro ao autenticar. Tente novamente.";
+  }
+
+  /* ---------- modal do código de verificação (cadastro por e-mail) ----------
+     Aberto quando o Supabase exige confirmação (session null no signUp). O código
+     é validado SERVER-SIDE pelo Supabase: hash, expiração (10 min), uso único,
+     limite de tentativas e de reenvio. Aqui só coletamos os 6 dígitos. */
+  function openCodeModal(email, onVerified) {
+    var codeInput = ui.Input({ type: "text", placeholder: "------" });
+    codeInput.setAttribute("inputmode", "numeric");
+    codeInput.setAttribute("autocomplete", "one-time-code");
+    codeInput.setAttribute("maxlength", "6");
+    codeInput.style.letterSpacing = "0.4em"; codeInput.style.textAlign = "center"; codeInput.style.fontSize = "var(--fs-lg)";
+    codeInput.addEventListener("input", function () { codeInput.value = (codeInput.value || "").replace(/\D/g, "").slice(0, 6); });
+
+    var err = el("div", { class: "auth__error" }); err.style.display = "none";
+    function showErr(m) { err.textContent = m; err.style.display = ""; }
+
+    var resend = el("button", { class: "auth__link", type: "button" }, "Reenviar código");
+    var cooldown = 0, timer = null;
+    function tick() {
+      if (cooldown <= 0) { resend.disabled = false; resend.textContent = "Reenviar código"; if (timer) { clearInterval(timer); timer = null; } return; }
+      resend.disabled = true; resend.textContent = "Reenviar em " + cooldown + "s"; cooldown--;
+    }
+    resend.addEventListener("click", function () {
+      cooldown = 30; tick(); timer = setInterval(tick, 1000);
+      App.auth.resendEmailCode(email, App.captcha ? App.captcha.token() : null)
+        .then(function () { ui.toast("Novo código enviado para " + email, "ok"); })
+        .catch(function (e) { showErr(friendlyError(e)); });
+    });
+
+    var confirmBtn = ui.Button({ label: "Confirmar", variant: "primary", onClick: function () {
+      var code = (codeInput.value || "").trim();
+      if (code.length !== 6) return showErr("Digite os 6 dígitos do código.");
+      confirmBtn.setLoading(true); err.style.display = "none";
+      App.auth.verifyEmailCode(email, code).then(function (user) {
+        if (timer) clearInterval(timer);
+        ref.close();
+        onVerified(user);
+      }).catch(function (e) { showErr(friendlyError(e)); }).then(function () { confirmBtn.setLoading(false); });
+    } });
+
+    var body = el("div", { class: "u-col", style: { gap: "12px" } },
+      el("p", { class: "u-muted", style: { fontSize: "var(--fs-sm)", margin: 0 } },
+        "Enviamos um código de 6 dígitos para ", el("strong", email), ". Ele expira em 10 minutos."),
+      ui.Field("Código", codeInput), err,
+      el("div", { class: "u-row", style: { justifyContent: "center" } }, resend));
+
+    var ref = ui.openModal({
+      title: "Verifique seu e-mail",
+      body: body,
+      actions: [
+        ui.Button({ label: "Cancelar", variant: "ghost", onClick: function () { if (timer) clearInterval(timer); ref.close(); } }),
+        confirmBtn
+      ]
+    });
+    setTimeout(function () { try { codeInput.focus(); } catch (e) {} }, 30);
   }
 
   /* ---------- login do modo desenvolvedor (email + senha) ---------- */
@@ -184,31 +291,58 @@
       clearError();
       var email = (emailInput.value || "").trim();
       var pw = pwField.input.value || "";
+      var cap = App.captcha ? App.captcha.token() : null;
 
       if (!validEmail(email)) return showError("Digite um e-mail válido.");
-      if (pw.length < 6) return showError("Senha precisa de ao menos 6 caracteres.");
+      if (mode === "up" && App.util.isDisposableEmail(email)) return showError("Use um e-mail permanente — e-mails temporários não são aceitos.");
+      if (pw.length < 8) return showError("Senha precisa de ao menos 8 caracteres.");
       if (mode === "up" && pw !== pw2Field.input.value) return showError("As senhas não conferem.");
 
       submitBtn.setLoading(true);
-      var p = mode === "up" ? App.auth.signUp(email, pw) : App.auth.signIn(email, pw);
-      p.then(function (user) {
-        if (App.store && user && user.id) App.store.set("currentUserId", user.id);
-        ui.toast(mode === "up" ? "Conta criada! Bem-vindo(a)." : "Bem-vindo(a) de volta!", "ok");
-        onSuccess(user);
-      }).catch(function (err) {
-        showError(friendlyError(err));
-      }).then(function () { submitBtn.setLoading(false); });
+      function fail(err) { showError(friendlyError(err)); if (App.captcha) App.captcha.reset(); }
+      function done() { submitBtn.setLoading(false); }
+
+      if (mode === "up") {
+        App.auth.signUp(email, pw, cap).then(function (data) {
+          data = data || {};
+          if (data.session) {
+            // confirmação DESLIGADA no Supabase → já entrou. Segue p/ completar o perfil.
+            var u = data.user || data;
+            if (App.store && u && u.id) App.store.set("currentUserId", u.id);
+            ui.toast("Conta criada! Complete seu perfil.", "ok");
+            onSuccess(u, { dest: "/perfil/editar" });
+            return;
+          }
+          // confirmação LIGADA → pede o código de 6 dígitos (só cria a conta cheia após verificar)
+          openCodeModal(email, function (me) {
+            if (App.store && me && me.id) App.store.set("currentUserId", me.id);
+            ui.toast("E-mail verificado! Complete seu perfil.", "ok");
+            onSuccess(me, { dest: "/perfil/editar" });
+          });
+        }).catch(fail).then(done);
+      } else {
+        App.auth.signIn(email, pw, cap).then(function (user) {
+          if (App.store && user && user.id) App.store.set("currentUserId", user.id);
+          ui.toast("Bem-vindo(a) de volta!", "ok");
+          onSuccess(user);
+        }).catch(fail).then(done);
+      }
     }
+
+    var captchaSlot = el("div", { class: "auth__captcha" });   // widget só aparece se config.captcha.siteKey existir
 
     var form = el("form", { class: "auth__form" },
       ui.Field("E-mail", emailInput),
       ui.Field("Senha", pwField),
       pw2Row,
       forgot,
+      captchaSlot,
       errorBox,
       submitBtn);
     form.addEventListener("submit", submit);
     submitBtn.addEventListener("click", submit);
+    // renderiza o captcha após montar (no-op sem siteKey)
+    setTimeout(function () { try { if (App.captcha) App.captcha.render(captchaSlot); } catch (e) {} }, 0);
 
     var brand = el("div", { class: "auth__brand" },
       (App.components && App.components.CatBadge) ? App.components.CatBadge() : el("img", { class: "auth__logo", src: "assets/icon.svg?v=cat5", alt: "Oblivian" }),
@@ -252,6 +386,6 @@
 
   /* rota /login (dentro do shell, p/ visualizar/testar) */
   App.screens.login = function () {
-    return { node: view(function () { App.router.navigate("/explorer"); }), title: "Entrar", flush: true, immersive: true };
+    return { node: view(function (user, opts) { App.router.navigate((opts && opts.dest) || "/explorer"); }), title: "Entrar", flush: true, immersive: true };
   };
 })(window.App = window.App || {});

@@ -481,8 +481,8 @@
   }
 
   function Empty(icon, title, desc, action) {
+    // ícone/ilustração removido a pedido — estado vazio só com texto
     return el("div", { class: "empty" },
-      App.icon(icon, { size: "lg" }),
       el("h3", title),
       desc ? el("p", desc) : null,
       action || null);
