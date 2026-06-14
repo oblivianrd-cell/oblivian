@@ -1126,7 +1126,24 @@
       card.addEventListener("keydown", function (e) { if (e.key === "Enter") go(); });
       return card;
     }
-    var chatsSection = el("div", { class: "camino-chats" }, chatsGrid);
+    // criar sala PÚBLICA direto na aba (só staff, igual ao "Nova sala" privado)
+    function createPublicRoom() {
+      var nameI = ui.Input({ placeholder: "Nome da sala", maxlength: 40 });
+      var ref = ui.openModal({ title: "Nova sala pública", scrimClass: "scrim--centered",
+        body: el("div", { class: "u-col u-gap-3" }, ui.Field("Nome", nameI)),
+        actions: [
+          ui.Button({ label: "Cancelar", variant: "ghost", onClick: function () { ref.close(); } }),
+          ui.Button({ label: "Criar", variant: "primary", onClick: function () {
+            var nm = (nameI.value || "").trim(); if (!nm) { ui.toast("Dê um nome", "danger"); return; }
+            App.repo.createChat(cid, { name: nm, visibility: "public", allowedRoles: null })
+              .then(function (c) { ref.close(); App.router.navigate("/chats/" + c.id); })
+              .catch(function (e) { ui.toast((e && e.message) || "Falha", "danger"); });
+          } })
+        ] });
+    }
+    var chatsHead = canMod ? el("div", { class: "camino-chats__head" },
+      ui.Button({ label: "Criar sala pública", icon: "plus", variant: "primary", size: "sm", onClick: createPublicRoom })) : null;
+    var chatsSection = el("div", { class: "camino-chats" }, chatsHead, chatsGrid);
     App.repo.listChats(cid, { visibility: "public" }).then(function (list) {
       App.util.clear(chatsGrid);
       if (!list.length) { chatsGrid.appendChild(el("div", { class: "u-muted", style: { padding: "var(--s-3)", gridColumn: "1 / -1" } }, "Sem chats públicos ainda.")); return; }
@@ -1214,7 +1231,7 @@
     page.style.setProperty("--c-base", accent);
     page.style.setProperty("--c-tabs", sh(accent, -22));   // abas: médio-escuro
     page.style.setProperty("--c-pins", sh(accent, -42));   // pins: escuro
-    page.style.setProperty("--c-bar",  sh(accent, -30));   // faixa recentes: escuro p/ contraste c/ texto branco
+    page.style.setProperty("--c-bar",  sh(accent, -42));   // faixa recentes: escuro (= pins) p/ contraste c/ texto branco
     page.style.setProperty("--c-fab",  accent);
     page.style.setProperty("--c-tint", hexA(accent, 0.16));
     page.style.setProperty("--c-line", sh(accent, -55));
