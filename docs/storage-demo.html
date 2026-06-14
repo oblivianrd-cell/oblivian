@@ -131,10 +131,11 @@
       </div>
       <div class="card">
         <h3>Regras de conversão</h3>
-        <div class="conv-row"><span class="pill in">PNG / JPG</span><span class="arrow">→</span><span class="pill out">WebP</span></div>
+        <div class="conv-row"><span class="pill in">PNG / JPG / WebP</span><span class="arrow">→</span><span class="pill out">AVIF / WebP</span></div>
         <div class="conv-row"><span class="pill in">GIF animado</span><span class="arrow">→</span><span class="pill out">WebP / WebM</span></div>
         <div class="conv-row"><span class="pill in">Animação grande</span><span class="arrow">→</span><span class="pill out">WebM</span></div>
-        <p class="note" style="color:var(--muted);font-size:12.5px;margin:4px 0 0">Estáticas viram WebP no cliente. GIF→WebM animado é server-side (endpoint opcional).</p>
+        <div class="conv-row" style="gap:8px"><span class="pill out">+ miniatura 320px</span><span class="pill out">+ dedup por hash</span></div>
+        <p class="note" style="color:var(--muted);font-size:12.5px;margin:4px 0 0">Re-encode forçado (até webp grande encolhe) → AVIF quando suportado. Miniatura p/ feeds. Conteúdo igual = guardado 1x. GIF→WebM animado é server-side.</p>
       </div>
     </div>
   </section>
