@@ -1,0 +1,91 @@
+/* ============================================================
+   interactions.css — Animações de interação (curtir, hover de
+   cards, badges, botões). Aplicadas no feed e na tela de post.
+   ============================================================ */
+
+/* ---------- Botão de curtir com burst ---------- */
+.like-btn {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--text-mute); font-weight: var(--fw-semibold);
+  transition: color var(--t-fast), transform var(--t-fast);
+}
+.like-btn:hover { color: var(--text); }
+.like-btn:active { transform: scale(0.9); }
+.like-btn.is-on { color: var(--danger); }
+.like-btn svg.icon { transition: transform var(--t-fast); }
+/* pulo ao curtir */
+.like-btn.just-liked svg.icon { animation: heart-pop 0.45s cubic-bezier(0.2,0.8,0.3,1.4); }
+@keyframes heart-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.45); }
+  60% { transform: scale(0.85); }
+  100% { transform: scale(1); }
+}
+/* ===== burst escolhível (yui540 2026-06-07, MIT) — origem no coração ===== */
+.lk-fx { position: absolute; left: 9px; top: 50%; width: 0; height: 0; pointer-events: none; z-index: 3; }
+.lk-fx > * { position: absolute; left: 0; top: 0; }
+.lk-p { --tx: 0px; --ty: 0px; width: 6px; height: 6px; margin: -3px; border-radius: 50%; opacity: 0; animation: lk-pfly .6s cubic-bezier(.2,.7,.2,1) forwards; }
+.lk-ring { width: 20px; height: 20px; margin: -10px; border-radius: 50%; border: 2px solid var(--danger); opacity: 0; animation: lk-ring .55s ease-out forwards; }
+.lk-pulse { width: 20px; height: 20px; margin: -10px; border-radius: 50%; background: var(--danger); opacity: 0; animation: lk-pulse .7s cubic-bezier(.71,0,.23,.99) forwards; }
+.lk-rh { font-size: 11px; line-height: 1; color: var(--danger); opacity: 0; transform: translate(-50%,0); animation: lk-rise .8s cubic-bezier(.3,.7,.3,1) forwards; }
+.lk-sp { width: 2px; height: 10px; margin: -5px -1px; border-radius: 2px; background: var(--danger); transform-origin: center; opacity: 0; animation: lk-spark .5s cubic-bezier(.75,.02,.15,1) forwards; }
+@keyframes lk-pfly { 0% { opacity: 0; transform: translate(0,0) scale(.4); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1); } }
+@keyframes lk-ring { 0% { opacity: .6; transform: scale(.25); } 100% { opacity: 0; transform: scale(2.4); } }
+@keyframes lk-pulse { 0% { opacity: .7; transform: scale(.3); } 60% { opacity: .45; } 100% { opacity: 0; transform: scale(1.7); } }
+@keyframes lk-rise { 0% { opacity: 0; transform: translate(calc(-50% + var(--x)),0) scale(.5); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--x)),-30px) scale(1) rotate(var(--rot)); } }
+@keyframes lk-spark { 0% { opacity: 0; transform: rotate(var(--r)) translateY(-6px) scaleY(.3); } 40% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--r)) translateY(-22px) scaleY(1); } }
+
+/* ===== chooser: barra pequena acima do coração, com timer ===== */
+.lk-chooser {
+  position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 7px;
+  background: rgba(18,17,26,.92); border: 1px solid rgba(255,255,255,.14);
+  border-radius: 999px; box-shadow: 0 10px 28px rgba(0,0,0,.45);
+  z-index: 50; animation: lk-pop .18s cubic-bezier(.2,.7,.3,1.3) both;
+}
+.lk-chooser::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: rgba(18,17,26,.92); }
+@keyframes lk-pop { from { opacity: 0; transform: translateX(-50%) translateY(6px) scale(.9); } to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
+.lk-chooser__opt { position: relative; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: rgba(255,255,255,.7); background: rgba(255,255,255,.06); border: 1px solid transparent; cursor: pointer; transition: transform .12s, color .12s, background .12s; }
+.lk-chooser__opt:hover { transform: scale(1.12); color: var(--danger); background: rgba(255,255,255,.12); }
+.lk-chooser__opt.is-on { color: var(--danger); border-color: var(--danger); background: color-mix(in srgb, var(--danger) 18%, transparent); }
+/* preview da animação dentro da própria opção (centralizado) */
+.lk-chooser__opt .lk-fx { left: 50%; top: 50%; }
+.lk-chooser__opt.just-liked svg.icon { animation: heart-pop .45s cubic-bezier(.2,.8,.3,1.4); }
+/* fecha progressivamente (fade) ao rolar/sair */
+.lk-chooser--closing { animation: lk-close .16s ease forwards; pointer-events: none; }
+@keyframes lk-close { to { opacity: 0; transform: translateX(-50%) translateY(5px) scale(.95); } }
+
+/* ---------- Cards de post: hover ---------- */
+.post-anim {
+  transition: transform var(--t-fast), box-shadow var(--t-fast), border-color var(--t-fast);
+}
+.post-anim:hover {
+  border-color: var(--border-strong);
+}
+
+/* ---------- Badge de tipo: leve animação de entrada ---------- */
+.camino-badge { animation: badge-in 0.3s ease both; }
+@keyframes badge-in { from { opacity: 0; transform: translateX(-6px); } }
+
+/* ---------- Botões genéricos: tap feedback ---------- */
+.btn { transition: transform var(--t-fast), background var(--t-fast), box-shadow var(--t-fast), opacity var(--t-fast); }
+.btn:active:not([disabled]) { transform: scale(0.97); }
+
+@media (prefers-reduced-motion: reduce) {
+  .like-btn.just-liked svg.icon,
+  .lk-fx > *, .lk-chooser, .camino-badge { animation: none; }
+  .lk-fx { display: none; }
+  .post-anim:hover { transform: none; }
+}
+
+/* entrada do feed em cascata */
+.camino-latest .camino-post { animation: feed-in 0.4s ease both; }
+.camino-latest .camino-post:nth-child(1) { animation-delay: 0.03s; }
+.camino-latest .camino-post:nth-child(2) { animation-delay: 0.07s; }
+.camino-latest .camino-post:nth-child(3) { animation-delay: 0.11s; }
+.camino-latest .camino-post:nth-child(4) { animation-delay: 0.15s; }
+.camino-latest .camino-post:nth-child(5) { animation-delay: 0.19s; }
+.camino-latest .camino-post:nth-child(n+6) { animation-delay: 0.22s; }
+@keyframes feed-in { from { opacity: 0; transform: translateY(12px); } }
+@media (prefers-reduced-motion: reduce) { .camino-latest .camino-post { animation: none; } }

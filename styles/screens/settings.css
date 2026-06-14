@@ -1,0 +1,450 @@
+/* ============================================================
+   settings.css — Configurações: conta global e por comunidade.
+   ============================================================ */
+
+.settings-layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0,1fr);
+  gap: var(--s-5);
+  align-items: start;
+}
+.settings-nav { display: flex; flex-direction: column; gap: 2px; position: sticky; top: var(--s-5); }
+.settings-nav__item {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3); border-radius: var(--r-md);
+  color: var(--text-dim); font-weight: var(--fw-medium);
+}
+.settings-nav__item:hover { background: var(--surface-2); color: var(--text); }
+.settings-nav__item.is-active { background: var(--accent-soft); color: var(--accent); }
+
+.settings-section { display: flex; flex-direction: column; gap: var(--s-4); }
+
+/* Administração: BENTO — cards de formatos variados (full-width + meia-largura) */
+.bento { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); align-items: stretch; }
+.bento__lbl { grid-column: 1 / -1; color: var(--text-mute); font-weight: var(--fw-bold); font-size: var(--fs-sm); padding: var(--s-1) 2px; }
+.bento-card {
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-xl);
+  text-align: left; cursor: pointer; min-width: 0;
+  transition: border-color var(--t-fast), background var(--t-fast), box-shadow var(--t-fast), transform .08s ease;
+}
+.bento-card:hover { background: var(--surface-3); border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+.bento-card:active { transform: scale(.99); }
+.bento-card:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent); }
+.bento-card__ic { display: grid; place-items: center; flex: none; border-radius: 13px; background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: var(--accent); }
+.bento-card__ic .icon { color: var(--accent); }
+.bento-card__txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.bento-card__label { font-weight: var(--fw-bold); font-size: var(--fs-md); color: var(--text); }
+.bento-card__sub { color: var(--text-mute); font-size: var(--fs-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bento-card__chev { color: var(--text-mute); flex: none; }
+
+/* FULL — linha horizontal: ícone + texto + chevron */
+.bento-card--full { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--s-4); padding: var(--s-4) var(--s-5); }
+.bento-card--full .bento-card__ic { width: 46px; height: 46px; }
+.bento-card--full .bento-card__ic .icon { width: 22px; height: 22px; }
+.bento-card--full .bento-card__txt { flex: 1; }
+
+/* HALF — bloco vertical alto: ícone topo + texto embaixo */
+.bento-card--half { grid-column: span 1; display: flex; flex-direction: column; gap: var(--s-3); padding: var(--s-4); min-height: 150px; }
+.bento-card--half .bento-card__top { display: flex; align-items: flex-start; justify-content: space-between; }
+.bento-card--half .bento-card__ic { width: 52px; height: 52px; border-radius: 15px; }
+.bento-card--half .bento-card__ic .icon { width: 26px; height: 26px; }
+.bento-card--half .bento-card__txt { margin-top: auto; }
+
+/* zona de perigo em vermelho */
+.bento-card.is-danger { border-color: color-mix(in srgb, var(--danger) 38%, var(--border)); }
+.bento-card.is-danger:hover { border-color: var(--danger); }
+.bento-card.is-danger .bento-card__ic { background: color-mix(in srgb, var(--danger) 16%, var(--surface)); color: var(--danger); }
+.bento-card.is-danger .bento-card__ic .icon { color: var(--danger); }
+.bento-card.is-danger .bento-card__label { color: var(--danger); }
+@media (max-width: 360px) { .bento { grid-template-columns: 1fr; } .bento-card--half { min-height: 0; } }
+
+/* lista de seções: CARDS GRANDES arredondados (estilo iOS), bastante respiro */
+.settings-nav { display: flex; flex-direction: column; gap: var(--s-3); }
+.settings-nav__row {
+  display: flex; align-items: center; gap: var(--s-4);
+  width: 100%; padding: var(--s-4) var(--s-5);
+  border-radius: var(--r-xl);
+  background: var(--surface); border: 1px solid var(--border);
+  text-align: left; cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+.settings-nav__row:hover { background: var(--surface-2); border-color: var(--border-strong); }
+.settings-nav__row:active { background: var(--surface-3); }
+.settings-nav__icon {
+  width: 52px; height: 52px; flex: none; border-radius: 16px;
+  display: grid; place-items: center;
+  background: var(--accent); color: #fff;
+}
+.settings-nav__icon svg.icon { color: #fff; width: 24px; height: 24px; }
+.settings-nav__label { font-weight: var(--fw-bold); font-size: var(--fs-lg); }
+.settings-nav__sub { color: var(--text-mute); font-size: var(--fs-sm); margin-top: 1px; }
+.settings-nav__chev { color: var(--text-mute); flex: none; }
+.settings-nav__row.is-danger { border-color: color-mix(in srgb, var(--danger) 35%, var(--border)); }
+.settings-nav__row.is-danger .settings-nav__icon { background: var(--danger); }
+.settings-nav__row.is-danger .settings-nav__label { color: var(--danger); }
+/* seção em BENTO: grid 2 colunas — curtos lado a lado, altos full (estilo refs) */
+.settings-block {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3);
+  align-items: start;
+  padding: 0; background: transparent; border: none; box-shadow: none; border-radius: 0;
+}
+.settings-block > * { grid-column: 1 / -1; }   /* tudo full por padrão (listas, botões, etc.) */
+.settings-block__title { font-size: var(--fs-xl); font-weight: var(--fw-bold); letter-spacing: -0.01em; padding-left: 2px; }
+
+/* cada campo = CARD; curto = meia-coluna, empilhado (label em cima, valor embaixo) */
+.settings-block > .field {
+  grid-column: span 1; display: flex; flex-direction: column; gap: var(--s-2); justify-content: center;
+  min-height: 92px; padding: var(--s-4);
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+}
+.settings-block > .field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
+/* botão ⤢ no canto do card */
+.settings-block > .field { position: relative; }
+.fieldexp {
+  position: absolute; top: 10px; right: 10px; z-index: 2;
+  width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px;
+  background: var(--surface-2); color: var(--text-mute); border: 1px solid var(--border);
+  cursor: pointer; transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+.fieldexp:hover { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface-2)); }
+.fieldexp .icon { width: 15px; height: 15px; }
+
+/* EM VOLTA: vidro forte (blur do fundo). PAINEL: branco sólido. */
+.bigfield-scrim {
+  display: grid; place-items: center; padding: var(--s-4);
+  background: rgba(20,20,30,.28);
+  backdrop-filter: blur(28px) saturate(1.3); -webkit-backdrop-filter: blur(28px) saturate(1.3);
+}
+.bigfield-panel {
+  position: relative; width: min(560px, 100%);
+  display: flex; flex-direction: column; gap: var(--s-4); padding: var(--s-6);
+  border-radius: var(--r-xl);
+  background: var(--surface); border: 1px solid var(--border);
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  animation: pop var(--t-mid);
+}
+.bigfield-x { position: absolute; right: var(--s-3); top: var(--s-3); width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: var(--surface-2); color: var(--text); }
+.bigfield-x:hover { background: var(--surface-3); }
+.bigfield-title { font-size: var(--fs-2xl); font-weight: var(--fw-bold); padding-right: 44px; }
+.bigfield__input { font-size: var(--fs-xl); padding: var(--s-4); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-lg); }
+.settings-block .field__label { font-weight: var(--fw-bold); color: var(--text); font-size: var(--fs-sm); }
+.settings-block > .field .field__hint { color: var(--text-mute); font-size: var(--fs-xs); }
+.settings-block > .field .input {
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--s-3);
+  font-size: var(--fs-md); font-weight: var(--fw-semibold); color: var(--text);
+}
+.settings-block > .field .input:focus { outline: none; border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); box-shadow: none; }
+.settings-block > .field .input.is-locked { opacity: .6; cursor: not-allowed; }
+
+/* campos ALTOS (Descrição / Tags) e UPLOADS ocupam a linha inteira */
+.settings-block > .field:has(.textarea),
+.settings-block > .field:has(.tageditor) { grid-column: 1 / -1; align-items: stretch; }
+.settings-block > .field:has(.textarea) .textarea {
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--s-3);
+  font-size: var(--fs-md); min-height: 96px; resize: none;
+}
+.settings-block > .field:has(.textarea) .textarea:focus { outline: none; box-shadow: none; border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.settings-block > .field .tageditor__chips { background: transparent; border: none; padding: 6px 0; min-height: 0; }
+.settings-block > .field .tageditor__add .input { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--s-3); font-weight: 400; font-size: var(--fs-sm); }
+.settings-block > .field:has(.upload) { grid-column: 1 / -1; background: transparent; border: none; padding: 0; min-height: 0; }
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-4);
+}
+/* toggles/opções/membros = card (label+desc esquerda, controle direita) */
+.settings-block > .settings-row { grid-column: 1 / -1; }
+.settings-block .settings-row {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-4);
+  padding: var(--s-4); background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+  transition: border-color var(--t-fast);
+}
+.settings-block .settings-row:hover { border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); }
+/* lista de membros (Equipe): espaço entre os cards */
+#c-equipe .u-col { gap: var(--s-2); }
+/* barra de busca da equipe */
+.team-searchbar { display: flex; align-items: center; gap: var(--s-2); padding: 0 var(--s-3); margin-bottom: var(--s-1);
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-pill); }
+.team-searchbar .icon { color: var(--text-mute); flex: none; }
+.team-searchbar .input { background: transparent; border: none; padding: var(--s-3) 0; }
+.team-searchbar .input:focus { box-shadow: none; }
+.team-searchbar:focus-within { border-color: var(--accent); }
+.team-row__user { min-width: 0; flex: 1; color: var(--text); }
+.team-row__acts { flex: none; flex-wrap: wrap; justify-content: flex-end; }
+.settings-row__label { font-weight: var(--fw-bold); }
+.settings-row__desc { color: var(--text-mute); font-size: var(--fs-sm); }
+
+.invites-summary { display: flex; flex-direction: column; gap: var(--s-2); }
+/* Convites: container completo (validade + lista de ativos) */
+.invites { display: flex; flex-direction: column; gap: var(--s-4); padding: var(--s-5); border-radius: var(--r-xl); background: var(--surface); border: 1px solid var(--border); box-shadow: none; }
+.invites .section-sub { margin: 0; }
+.invites__field { display: flex; flex-direction: column; gap: var(--s-2); }
+.invites__lbl { font-weight: var(--fw-bold); font-size: var(--fs-sm); color: var(--text); }
+.invites .segmented { width: 100%; }
+.invites .segmented__item { flex: 1; }
+.invites__list { display: flex; flex-direction: column; gap: var(--s-2); }
+.invites__empty { color: var(--text-mute); font-size: var(--fs-sm); padding: var(--s-3); text-align: center; border: 1px dashed var(--border); border-radius: var(--r-lg); }
+.invite-row {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3); border-radius: var(--r-lg); background: var(--surface-2); border: 1px solid var(--border);
+}
+.invite-row__ic { display: grid; place-items: center; width: 38px; height: 38px; flex: none; border-radius: 11px; background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: var(--accent); }
+.invite-row__ic.is-temp { background: color-mix(in srgb, var(--warn, #f59e0b) 16%, var(--surface)); color: var(--warn, #f59e0b); }
+.invite-row__ic .icon { width: 18px; height: 18px; }
+.invite-row__body { flex: 1; min-width: 0; }
+.invite-row__code { font-weight: var(--fw-bold); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.invite-row__meta { color: var(--text-mute); font-size: var(--fs-xs); }
+.invite-row__act { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 50%; color: var(--text-mute); }
+.invite-row__act:hover { background: var(--surface-3); color: var(--accent); }
+.invite-row__act--del:hover { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); }
+
+/* Cor de destaque: container de card + swatches em grid */
+.cust-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: var(--s-5); gap: var(--s-3); }
+.cust-block .section-sub { margin: 0; }
+.cust-swatches { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: var(--s-3); }
+.cust-swatches .swatch { width: 100%; height: auto; aspect-ratio: 1 / 1; }
+
+/* Customização — Imagens: SEMPRE 3 containers lado a lado, mesmo formato (quadrado) */
+.cust-imgs { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2); align-items: start; }
+/* só separação (gap) entre os 3 — borda fica só no container externo (.cust-block) */
+.cust-imgs > .field {
+  display: flex; flex-direction: column; gap: var(--s-2); min-width: 0;
+  background: transparent; border: none; border-radius: 0; padding: 0;
+}
+.cust-imgs > .field > .field__label { font-weight: var(--fw-bold); font-size: var(--fs-xs); text-align: center; }
+/* picker vertical + preview QUADRADO uniforme nos 3 (override do aspect-ratio inline) */
+.cust-imgs .upload { flex-direction: column; align-items: stretch; gap: var(--s-2); background: transparent; border: none; padding: 0; }
+.cust-imgs .upload__preview,
+.cust-imgs .upload__preview--frame { width: 100% !important; height: auto !important; aspect-ratio: 1 / 1 !important; }
+.cust-imgs .upload > .u-col { width: 100%; }
+/* ações compactas: só ícones (cabe no card estreito) */
+.cust-imgs .upload .u-row { gap: 5px; justify-content: center; }
+.cust-imgs .upload .btn { padding: 7px; }
+.cust-imgs .upload .btn span { display: none; }
+.cust-imgs .upload .field__hint { display: none; }
+
+/* Visão geral: stats em bento (formatos variados) */
+.admin-bento { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); }
+.istat {
+  display: flex; flex-direction: column; gap: 4px; justify-content: flex-end;
+  min-height: 96px; padding: var(--s-4);
+  border-radius: var(--r-lg); background: var(--surface-2); border: 1px solid var(--border);
+}
+.istat__num { font-size: var(--fs-xl); font-weight: var(--fw-bold); color: var(--text); line-height: 1.15; }
+.istat__label { color: var(--text-mute); font-size: var(--fs-xs); font-weight: var(--fw-semibold); }
+.istat--feature {
+  grid-column: 1 / -1; min-height: 120px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface-2));
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+}
+.istat--feature .istat__num { font-size: var(--fs-3xl); color: var(--accent); }
+.istat--wide { grid-column: 1 / -1; }
+.istat--mono .istat__num { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--fs-lg); letter-spacing: .02em; }
+
+/* paleta de acento — swatches maiores, redondos, com destaque */
+.swatches { display: flex; gap: var(--s-3); flex-wrap: wrap; }
+.swatch {
+  width: 46px; height: 46px; border-radius: var(--r-lg);
+  border: 2px solid transparent; cursor: pointer; position: relative;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+  transition: transform .1s ease, box-shadow var(--t-fast);
+}
+.swatch:hover { transform: scale(1.08); }
+.swatch.is-active { border-color: var(--text); transform: scale(1.06); box-shadow: 0 4px 14px rgba(0,0,0,.2); }
+/* bolinha branca central removida — o anel de borda já marca o selecionado */
+
+.theme-toggle { display: flex; gap: var(--s-2); }
+
+.danger-zone { border-color: var(--danger); }
+.danger-zone .settings-block__title { color: var(--danger); }
+/* transferir propriedade: parte distinta, tom de aviso (âmbar) */
+.transfer-block { border-color: color-mix(in srgb, var(--warn, #f59e0b) 60%, var(--border)); background: color-mix(in srgb, var(--warn, #f59e0b) 6%, var(--surface)); }
+.transfer-block .settings-block__title { display: flex; align-items: center; gap: 8px; color: var(--warn, #f59e0b); }
+.transfer-block .settings-block__title .icon { width: 18px; height: 18px; }
+
+@media (max-width: 1023px) {
+  .settings-layout { grid-template-columns: minmax(0,1fr); }
+  /* só a sub-nav antiga (item) vira tira horizontal; os cards (row) ficam empilhados */
+  .settings-nav:has(.settings-nav__item) { position: static; flex-direction: row; overflow-x: auto; }
+  .settings-nav:has(.settings-nav__row) { flex-direction: column; }
+  .settings-nav__item { white-space: nowrap; }
+}
+
+/* ---- Abas Usuário / Administração (config de comunidade) ---- */
+.settings-scope {
+  display: flex; gap: var(--s-2);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-pill); padding: 4px; width: fit-content;
+}
+.settings-scope__tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: var(--s-2) var(--s-4); border-radius: var(--r-pill);
+  color: var(--text-mute); font-weight: var(--fw-semibold);
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.settings-scope__tab:hover { color: var(--text); }
+.settings-scope__tab.is-active { background: var(--accent); color: var(--on-accent); }
+
+/* painel de informações da comunidade (admin) */
+.admin-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr));
+  gap: var(--s-2);
+}
+.admin-stat {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: var(--s-3); border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.admin-stat__num { font-size: var(--fs-lg); font-weight: var(--fw-bold); }
+.admin-stat__label { font-size: var(--fs-xs); color: var(--text-mute); }
+
+/* ============================================================
+   Configuração de comunidade em TELA CHEIA
+   ============================================================ */
+.cset {
+  display: flex; flex-direction: column;
+  height: 100%; min-height: 0;
+  background: var(--bg);
+}
+.cset-header {
+  flex: none;
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: var(--z-sticky);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(8px);
+}
+.cset-header__title { font-size: var(--fs-lg); font-weight: var(--fw-bold); }
+.cset-header__sub { color: var(--text-mute); font-size: var(--fs-xs); }
+
+.cset-scope-wrap {
+  flex: none;
+  display: flex; justify-content: center;
+  padding: var(--s-4) var(--s-4) var(--s-2);
+}
+
+/* barra "Administração" (só mod/dono) — abre a tela cheia de admin */
+.admin-bar {
+  display: flex; align-items: center; gap: var(--s-3);
+  width: 100%; margin-bottom: var(--s-4);
+  padding: var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--accent);
+  color: #fff;
+  transition: filter var(--t-fast);
+}
+.admin-bar:hover { filter: brightness(1.06); }
+.admin-bar:active { filter: brightness(.96); }
+.admin-bar__icon {
+  width: 42px; height: 42px; flex: none; border-radius: 50%;
+  display: grid; place-items: center; background: rgba(255,255,255,0.22);
+}
+.admin-bar__icon svg.icon { color: #fff; }
+.admin-bar__title { font-weight: var(--fw-bold); font-size: var(--fs-lg); }
+.admin-bar__sub { font-size: var(--fs-sm); opacity: 0.85; }
+.admin-bar__chev { color: #fff; opacity: 0.9; flex: none; }
+
+/* selo de admin no header da tela de Administração */
+.admin-badge {
+  flex: none; width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent);
+}
+.admin-badge svg.icon { color: var(--accent); }
+.cset-body {
+  flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;   /* nada estoura na horizontal */
+  padding: var(--s-4) var(--s-4) var(--s-7);
+  max-width: 760px; width: 100%; margin: 0 auto;
+  display: flex; flex-direction: column; gap: var(--s-4);          /* respiro entre os cards da seção */
+}
+/* vertical/estreito: botões e linhas quebram em vez de cortar à direita */
+@media (max-width: 560px) {
+  .upload { flex-wrap: wrap; }
+  .upload > .u-col { width: 100%; }
+  .upload .u-row { flex-wrap: wrap; }
+  .settings-block .u-row { flex-wrap: wrap; }
+  .settings-row { flex-wrap: wrap; gap: var(--s-2); }
+  .settings-row > .btn, .settings-row .switch { align-self: flex-start; }
+  /* cards do admin: proporcionais ao vertical (não cortam, não exageram) */
+  .cset-body { padding: var(--s-3) var(--s-3) var(--s-7); }
+  .settings-nav__row { padding: var(--s-4); gap: var(--s-3); }
+  .settings-nav__icon { width: 46px; height: 46px; border-radius: 14px; }
+  .settings-nav__icon svg.icon { width: 22px; height: 22px; }
+  .settings-nav__label { font-size: var(--fs-md); }
+  .settings-block { padding: var(--s-4); }
+}
+
+/* lista de bloqueados/silenciados */
+.block-row {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-2) var(--s-3); border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.block-row__tag {
+  font-size: var(--fs-xs); font-weight: var(--fw-bold);
+  padding: 2px 10px; border-radius: var(--r-pill);
+  background: var(--danger-soft); color: var(--danger);
+}
+
+/* configurador de abas */
+.tabcfg { display: flex; flex-direction: column; gap: var(--s-2); }
+.tabcfg__row { display: flex; align-items: center; gap: var(--s-2); }
+.tabcfg__key { width: 28px; color: var(--text-mute); font-weight: var(--fw-bold); font-size: var(--fs-sm); flex: none; }
+.tabcfg__row .icon-btn:first-of-type svg.icon { transform: rotate(90deg); }
+.tabcfg__row .icon-btn:last-of-type svg.icon { transform: rotate(90deg); }
+.tabcfg__row.is-off { opacity: 0.5; }   /* filtro desligado: esmaecido */
+
+/* ============================================================
+   Gerenciador de PÁGINAS (estilo Circle): lista arrastável
+   ============================================================ */
+.pagecfg { display: flex; flex-direction: column; gap: var(--s-2); }
+.pagecfg__row {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3) var(--s-3);
+  border: 1px solid var(--border); border-radius: var(--r-lg);
+  cursor: pointer; background: var(--surface);
+  transition: background var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast), transform .14s cubic-bezier(.22,1,.36,1);
+}
+.pagecfg__row:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.1); }
+.pagecfg__row:active { transform: translateY(0) scale(.99); }
+.pagecfg__row.is-dragging {
+  border-color: var(--accent);
+  box-shadow: 0 14px 32px rgba(0,0,0,.24);
+  transform: scale(1.025); position: relative; z-index: 3; cursor: grabbing;
+}
+.pagecfg__row .pagecfg__handle { transition: color var(--t-fast); }
+.pagecfg__row:hover .pagecfg__handle { color: var(--accent); }
+.pagecfg__handle {
+  position: relative; width: 30px; height: 34px; flex: none;
+  cursor: grab; touch-action: none; color: var(--text-mute);
+}
+.pagecfg__handle::before {
+  content: ""; position: absolute; left: 9px; top: 8px; width: 10px; height: 18px;
+  background-image: radial-gradient(currentColor 1.5px, transparent 1.6px);
+  background-size: 5px 6px;
+}
+.pagecfg__label { font-weight: var(--fw-semibold); }
+.pagecfg__home {
+  flex: none;
+  padding: 4px 10px; border-radius: var(--r-pill);
+  background: var(--accent-soft); color: var(--accent);
+  font-size: var(--fs-xs); font-weight: var(--fw-bold);
+}
+.pagecfg__chev { flex: none; color: var(--text-mute); display: grid; place-items: center; }
+.pagecfg__fixed { flex: none; color: var(--text-mute); opacity: 0.6; display: grid; place-items: center; }
+.pagecfg__new {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; margin-top: var(--s-3);
+  padding: var(--s-4); border-radius: var(--r-lg);
+  background: var(--surface); border: 1.5px dashed color-mix(in srgb, var(--text) 24%, transparent); color: var(--text);
+  font-weight: var(--fw-bold);
+  transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast), transform .12s ease;
+}
+.pagecfg__new:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); transform: translateY(-1px); }
+.pagecfg__new:active { transform: translateY(0) scale(.99); }
+.pagecfg__new:hover svg.icon { color: var(--accent); }
+.pagecfg__new svg.icon { color: var(--text-mute); }
+
+/* "Nova página": linhas de adicionar página disponível + divisor */
+.pagecfg__row--add { width: 100%; cursor: pointer; text-align: left; }
+.pagecfg__row--add .pagecfg__label { text-align: left; }
+.cset-or { text-align: center; color: var(--text-mute); font-size: var(--fs-sm); margin: var(--s-1) 0; }

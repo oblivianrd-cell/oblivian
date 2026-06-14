@@ -1,0 +1,127 @@
+/* ============================================================
+   communityChats.css — hub "Meus Chats" da comunidade (tela cheia)
+   ============================================================ */
+.mychats {
+  position: relative;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  padding: 0 0 96px;
+  display: flex; flex-direction: column;
+}
+
+/* ---- header ---- */
+.mychats__head {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: var(--s-2);
+  padding: calc(env(safe-area-inset-top, 0px) + var(--s-3)) var(--s-3) var(--s-3);
+  background: linear-gradient(var(--bg), color-mix(in srgb, var(--bg) 85%, transparent));
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.mychats__back {
+  flex: none; width: 40px; height: 40px; display: grid; place-items: center;
+  border-radius: 50%; color: var(--text); transition: background var(--t-fast);
+}
+.mychats__back:hover { background: var(--surface-2); }
+.mychats__titlewrap { flex: 1; min-width: 0; }
+.mychats__title { font-size: var(--fs-xl); font-weight: var(--fw-bold); line-height: 1.1; }
+.mychats__sub { font-size: var(--fs-sm); color: var(--text-dim); }
+.mychats__create {
+  flex: none; display: grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 42%, transparent);
+  transition: transform var(--t-fast), filter var(--t-fast);
+}
+.mychats__create:hover { filter: brightness(1.06); }
+.mychats__create:active { transform: scale(0.95); }
+.mychats__create svg.icon { width: 22px; height: 22px; }
+
+/* ---- seções ---- */
+.mychats__sec { padding: var(--s-2) 0; }
+.mychats__sechead {
+  display: flex; align-items: center; gap: 6px;
+  padding: var(--s-2) var(--s-4);
+  font-weight: var(--fw-bold); font-size: var(--fs-md);
+}
+.mychats__seccount { color: var(--text-dim); font-weight: var(--fw-regular); }
+
+/* ---- favoritos ---- */
+.mychats__favs {
+  display: flex; gap: var(--s-3); overflow-x: auto; scrollbar-width: none;
+  padding: var(--s-2) var(--s-4) var(--s-3);
+}
+.mychats__favs::-webkit-scrollbar { display: none; }
+.mychats__fav {
+  flex: none; width: 68px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  color: var(--text); background: none;
+}
+.mychats__fav .avatar { width: 60px; height: 60px; }
+.mychats__favpic { position: relative; display: inline-block; }
+.mychats__favrm {
+  position: absolute; top: -2px; right: -2px;
+  width: 20px; height: 20px; display: grid; place-items: center;
+  border-radius: 50%; background: var(--danger); color: #fff;
+  font-size: 14px; line-height: 1; border: 2px solid var(--bg);
+  opacity: 0; transform: scale(0.6); transition: opacity var(--t-fast), transform var(--t-fast);
+}
+.mychats__fav:hover .mychats__favrm, .mychats__favrm:focus { opacity: 1; transform: scale(1); }
+.mychats__favname { max-width: 68px; font-size: var(--fs-sm); color: var(--text-dim); text-align: center; }
+.mychats__fav--add .mychats__favadd {
+  width: 60px; height: 60px; display: grid; place-items: center;
+  border: 2px dashed var(--border); border-radius: 50%;
+  color: var(--text-dim); font-size: 28px; line-height: 1;
+  transition: border-color var(--t-fast), color var(--t-fast);
+}
+.mychats__fav--add:hover .mychats__favadd { border-color: var(--accent); color: var(--accent); }
+
+/* ---- lista de salas ---- */
+.mychats__list { display: flex; flex-direction: column; }
+.mychats__row {
+  display: flex; align-items: center; gap: var(--s-3);
+  width: 100%; padding: var(--s-3) var(--s-4); text-align: left; color: var(--text);
+  transition: background var(--t-fast);
+}
+.mychats__row:hover { background: var(--surface-2); }
+.mychats__row:active { background: var(--surface-3); }
+
+.mychats__thumbwrap { position: relative; flex: none; width: 56px; }
+.mychats__thumb {
+  width: 56px; height: 56px; border-radius: 14px;
+  background-size: cover; background-position: center;
+  display: grid; place-items: center; color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+.mychats__thumb svg.icon { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
+.mychats__thumbinit { font-size: 24px; font-weight: var(--fw-bold); color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.45); }
+.mychats__dot {
+  position: absolute; top: -3px; right: -3px;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--danger); border: 2px solid var(--bg);
+}
+.mychats__tlabel {
+  display: block; margin-top: 4px; text-align: center;
+  font-size: 9px; line-height: 1.1; color: var(--text-dim);
+}
+
+.mychats__rowbody { flex: 1; min-width: 0; }
+.mychats__name {
+  display: flex; align-items: center; gap: 5px;
+  font-weight: var(--fw-bold); font-size: var(--fs-md);
+}
+.mychats__name svg.icon { color: var(--text-dim); flex: none; }
+.mychats__prev { color: var(--text-dim); font-size: var(--fs-sm); margin-top: 2px; }
+.mychats__row.is-unread .mychats__prev { color: var(--text); font-weight: var(--fw-medium); }
+.mychats__time { flex: none; color: var(--text-dim); font-size: var(--fs-sm); align-self: flex-start; padding-top: 2px; }
+
+/* ---- botão menu flutuante (canto inferior esquerdo) ---- */
+.mychats__menu {
+  position: fixed; left: 0; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 20;
+  width: 44px; height: 44px; display: grid; place-items: center;
+  border-radius: 0 14px 14px 0; color: #fff;
+  background: var(--warn, #f97316);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  transition: transform var(--t-fast), filter var(--t-fast);
+}
+.mychats__menu:hover { filter: brightness(1.06); }
+.mychats__menu:active { transform: scale(0.96); }

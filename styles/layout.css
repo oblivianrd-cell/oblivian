@@ -1,0 +1,329 @@
+/* ============================================================
+   layout.css — Estrutura do app (shell) + navegação + responsivo.
+   Três layouts DISTINTOS (não só escala):
+     Desktop  >=1024px : sidebar com rótulos + conteúdo
+     Tablet   640-1023 : sidebar como rail de ícones
+     Mobile   <640px   : topbar + barra de abas inferior
+   ============================================================ */
+
+.app-shell {
+  display: grid;
+  /* largura corrente da sidebar (animável durante o arraste) */
+  --side-current: var(--rail-w);
+  /* a GRADE sempre reserva só o rail; a sidebar expandida sobrepõe a interface */
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  /* dvh evita distorção com a barra de endereço do navegador móvel */
+  grid-template-rows: 100vh;
+  grid-template-rows: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+}
+.app-shell.is-expanded { --side-current: var(--sidebar-w); }
+.app-shell:not(.is-dragging) .sidebar { transition: width var(--t-mid); }
+
+/* ---------------- Sidebar (sobrepõe o conteúdo) ---------------- */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: var(--z-nav);
+  width: var(--side-current);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-4) var(--s-3);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+/* sombra só quando expandida (flutuando sobre a interface) */
+.app-shell.is-expanded .sidebar { box-shadow: var(--shadow-pop); }
+/* scrim escurece a interface atrás da sidebar expandida */
+.app-shell.is-expanded .sidebar__scrim {
+  display: block;
+  position: fixed; inset: 0;
+  background: var(--scrim);
+  z-index: var(--z-sticky);
+}
+
+/* ---- Estado COMPRIMIDO (rail): só ícones ---- */
+.app-shell:not(.is-expanded) .sidebar { padding: var(--s-4) var(--s-2); align-items: center; }
+.app-shell:not(.is-expanded) .brand { padding: var(--s-2) 0 var(--s-4); justify-content: center; }
+.app-shell:not(.is-expanded) .brand > a { display: none; } /* só hambúrguer no rail */
+.app-shell:not(.is-expanded) .brand__name { display: none; }
+.app-shell:not(.is-expanded) .nav-group__title { display: none; }
+.app-shell:not(.is-expanded) .nav-item { justify-content: center; padding: 0; width: 48px; height: 48px; margin: 0 auto; }
+.app-shell:not(.is-expanded) .nav-item__label { display: none; }
+.app-shell:not(.is-expanded) .nav-item__badge { position: absolute; top: 4px; right: 4px; min-width: 16px; height: 16px; padding: 0 4px; }
+.app-shell:not(.is-expanded) .me-chip__info { display: none; }
+.app-shell:not(.is-expanded) .me-chip { justify-content: center; }
+.app-shell:not(.is-expanded) .theme-switch { display: none; }
+.app-shell:not(.is-expanded) .sidebar__hamburger { margin: 0 auto; }
+
+/* ---- Alça de arraste na borda direita da sidebar ---- */
+.sidebar__handle {
+  position: absolute;
+  top: 0; right: -4px;
+  width: 10px; height: 100%;
+  cursor: ew-resize;
+  z-index: 5;
+  touch-action: none;
+}
+.sidebar__handle::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 4px;
+  width: 2px; height: 100%;
+  background: transparent;
+  transition: background var(--t-fast);
+}
+.sidebar__handle:hover::after,
+.app-shell.is-dragging .sidebar__handle::after { background: var(--accent); }
+
+/* botão hambúrguer no topo da sidebar */
+.sidebar__hamburger {
+  display: inline-grid; place-items: center;
+  width: 40px; height: 40px;
+  border-radius: var(--r-md);
+  color: var(--text-dim);
+  flex: none;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.sidebar__hamburger:hover { background: var(--surface-2); color: var(--text); }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3) var(--s-4);
+}
+.brand__mark {
+  width: 38px; height: 38px;
+  border-radius: var(--r-md);
+  display: grid; place-items: center;
+  color: var(--on-accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)); /* fallback srgb */
+  background: linear-gradient(135deg in oklch, var(--accent), var(--accent-2));
+  box-shadow: var(--shadow-soft);
+}
+.brand__name { font-family: var(--font-display); font-size: var(--fs-xl); font-weight: 600; letter-spacing: -0.02em; }
+.brand__label { display: inline; }
+
+.nav-group { display: flex; flex-direction: column; gap: 2px; }
+.nav-group__title {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-mute);
+  padding: var(--s-3) var(--s-3) var(--s-1);
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  color: var(--text-dim);
+  font-weight: var(--fw-medium);
+  transition: background var(--t-fast), color var(--t-fast);
+  position: relative;
+}
+.nav-item:hover { background: var(--surface-2); color: var(--text); }
+.nav-item.is-active { background: var(--accent-soft); color: var(--accent); }
+.nav-item.is-active svg.icon { color: var(--accent); }
+.nav-item__label { flex: 1; min-width: 0; }
+.nav-item__badge {
+  min-width: 20px; height: 20px; padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: var(--accent); color: var(--on-accent);
+  font-size: var(--fs-xs); font-weight: var(--fw-bold);
+  display: grid; place-items: center;
+}
+.sidebar__spacer { flex: 1; }
+.sidebar__foot { display: flex; flex-direction: column; gap: 2px; }
+
+/* mini perfil no rodapé da sidebar */
+.me-chip {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-2); border-radius: var(--r-md);
+  transition: background var(--t-fast);
+}
+.me-chip:hover { background: var(--surface-2); }
+.me-chip__info { min-width: 0; }
+.me-chip__name { font-weight: var(--fw-semibold); font-size: var(--fs-sm); }
+.me-chip__handle { color: var(--text-mute); font-size: var(--fs-xs); }
+
+/* ---------------- Main + topbar + view ---------------- */
+.main {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+  height: 100dvh;
+}
+.topbar {
+  height: var(--topbar-h);
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 0 var(--s-5);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  backdrop-filter: blur(8px);
+  position: sticky; top: 0; z-index: var(--z-sticky);
+}
+.topbar__title { font-size: var(--fs-lg); font-weight: var(--fw-bold); }
+.topbar__back { display: none; }
+.topbar .brand { display: none; padding: 0; }
+
+/* sino global de notificações (topbar) */
+.topbar-bell {
+  position: relative; flex: none;
+  width: 40px; height: 40px; display: grid; place-items: center;
+  border-radius: 50%; color: var(--text);
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.topbar-bell:hover { background: var(--surface-2); }
+.topbar-bell__badge {
+  position: absolute; top: 1px; right: 1px;
+  min-width: 17px; height: 17px; padding: 0 4px;
+  display: grid; place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--danger); color: #fff;
+  font-size: 10px; font-weight: var(--fw-bold);
+  border: 2px solid var(--bg);
+}
+
+.view {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;       /* nada vaza na horizontal */
+  scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
+}
+/* telas "flush" (ex.: Chats) preenchem toda a altura sem padding */
+.view.is-flush { padding: 0; overflow: hidden; }
+.view.is-flush > * { flex: 1; min-height: 0; }
+.view__inner {
+  width: 100%;
+  max-width: var(--content-max);
+  min-width: 0;
+  margin: 0 auto;
+  padding: var(--s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+/* filhos diretos não podem inflar o container (rail tem largura própria) */
+.view__inner > * { min-width: 0; }
+.view__inner--wide { max-width: 1600px; }
+.view__inner--flush { padding: 0; max-width: none; flex: 1; }
+
+/* ---------------- Barra de abas inferior (mobile) ---------------- */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  z-index: var(--z-nav);
+}
+.bottom-nav__list { display: flex; height: var(--bottomnav-h); }
+.bottom-nav__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--text-mute);
+  font-size: 11px;
+  font-weight: var(--fw-medium);
+  position: relative;
+}
+.bottom-nav__item.is-active { color: var(--accent); }
+.bottom-nav__item .dot {
+  position: absolute; top: 6px; right: 50%; transform: translateX(14px);
+  width: 8px; height: 8px; border-radius: 50%; background: var(--danger);
+}
+
+/* scrim oculto por padrão (some quando sidebar não está expandida) */
+.sidebar__scrim { display: none; }
+
+/* ---------------- Modo imersivo (tela própria: sem topbar/abas) ---------------- */
+.app-shell.is-immersive .topbar { display: none; }
+.app-shell.is-immersive .bottom-nav { display: none; }
+.app-shell.is-immersive .view { padding-bottom: 0; }
+
+/* ============================================================
+   TABLET — apenas ajusta o respiro do conteúdo
+   (a sidebar já sobrepõe a interface em todas as larguras).
+   ============================================================ */
+@media (max-width: 1023px) {
+  .view__inner { padding: var(--s-4); }
+}
+
+/* ============================================================
+   MOBILE — topbar + barra de abas inferior, sem sidebar
+   ============================================================ */
+@media (max-width: 639px) {
+  .app-shell { grid-template-columns: minmax(0, 1fr); }
+  .sidebar, .sidebar__scrim,
+  .app-shell.is-expanded .sidebar,
+  .app-shell.is-expanded .sidebar__scrim { display: none; }
+  .main { grid-column: 1; }
+  .topbar { padding: 0 var(--s-4); }
+  .topbar .brand { display: flex; }
+  .topbar__title { display: none; }
+  .topbar.has-back .brand { display: none; }
+  .topbar.has-back .topbar__title { display: block; }
+  .topbar__back { display: inline-grid; }
+  .view { padding-bottom: calc(var(--bottomnav-h) + 16px); }
+  .view__inner { padding: var(--s-4) var(--s-4) var(--s-6); gap: var(--s-4); }
+  /* telas full-bleed (perfil) não recebem padding no mobile */
+  .view__inner--flush { padding: 0; gap: 0; }
+  .bottom-nav { display: block; }
+}
+
+/* ============================================================
+   LAYOUT VERTICAL (mobile) EM QUALQUER LARGURA — full-bleed,
+   sem sidebar, sem moldura. Barra de abas inferior fixa, conteúdo
+   numa coluna. Estreite o navegador e vira proporção de celular.
+   ============================================================ */
+@media (min-width: 640px) {
+  .app-shell { grid-template-columns: minmax(0, 1fr); }
+  .sidebar, .sidebar__scrim,
+  .app-shell.is-expanded .sidebar,
+  .app-shell.is-expanded .sidebar__scrim { display: none; }
+  .main { grid-column: 1; }
+  .topbar { padding: 0 var(--s-4); }
+  .topbar .brand { display: flex; }
+  .topbar__title { display: none; }
+  .topbar.has-back .brand { display: none; }
+  .topbar.has-back .topbar__title { display: block; }
+  .topbar__back { display: inline-grid; }
+  .view { padding-bottom: calc(var(--bottomnav-h) + 16px); }
+  .view__inner { padding: var(--s-4) var(--s-4) var(--s-6); gap: var(--s-4); max-width: none; }
+  .view__inner--flush { padding: 0; gap: 0; }
+  .bottom-nav { display: block; }
+}
+
+/* ============================================================
+   ORIENTAÇÃO PAISAGEM / TELAS BAIXAS — evita que topbar + abas
+   inferiores comam a altura útil em celulares deitados.
+   ============================================================ */
+@media (max-width: 1023px) and (orientation: landscape) and (max-height: 560px) {
+  :root { --topbar-h: 48px; --bottomnav-h: 52px; }
+  .view__inner { padding: var(--s-3) var(--s-4); gap: var(--s-3); }
+  .bottom-nav__item { font-size: 10px; }
+  .bottom-nav__item svg.icon { width: 18px; height: 18px; }
+  /* large title ocupa menos no topo quando há pouca altura */
+  .large-title__text { font-size: var(--fs-2xl); }
+}

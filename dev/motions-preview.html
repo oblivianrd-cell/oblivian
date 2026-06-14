@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oblivian · Motions adicionados</title>
+<style>
+  :root{
+    --bg:#0c0d12; --surface:#171922; --surface-2:#1f2230; --border:#2a2e3e;
+    --text:#eef0f6; --text-mute:#9aa0b4; --accent:#7c59ec; --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);}
+  header{padding:28px 24px 8px;}
+  h1{margin:0;font-size:22px;letter-spacing:-.02em}
+  .sub{color:var(--text-mute);font-size:14px;margin-top:4px}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px 80px}
+  section{margin-top:40px;border-top:1px solid var(--border);padding-top:24px}
+  .head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+  .head h2{margin:0;font-size:16px}
+  .head p{margin:2px 0 0;color:var(--text-mute);font-size:13px}
+  .replay{cursor:pointer;border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+    padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;flex:none}
+  .replay:hover{border-color:var(--accent)}
+
+  /* ===== 1) FEED — blur fade-in stagger (igual ao app) ===== */
+  @keyframes oblv-blur-in{
+    from{opacity:0;filter:blur(10px);transform:translateY(16px)}
+    to{opacity:1;filter:blur(0);transform:none}
+  }
+  .feed{display:flex;flex-direction:column;gap:12px}
+  .feed.run > *{animation:oblv-blur-in .55s cubic-bezier(.2,.7,.2,1) both}
+  .feed.run > *:nth-child(1){animation-delay:0s}
+  .feed.run > *:nth-child(2){animation-delay:.06s}
+  .feed.run > *:nth-child(3){animation-delay:.12s}
+  .feed.run > *:nth-child(4){animation-delay:.18s}
+  .feed.run > *:nth-child(5){animation-delay:.24s}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+  .card .au{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#ff5fa2);flex:none}
+  .nm{font-weight:600;font-size:14px}
+  .tm{color:var(--text-mute);font-size:12px}
+  .bd{color:#cfd3e0;font-size:14px;line-height:1.5}
+
+  /* ===== 2) Nome materializa (véu de entrada) ===== */
+  .veil{position:relative;height:230px;border-radius:var(--radius);overflow:hidden;
+    display:grid;place-items:center;
+    background:radial-gradient(120% 90% at 50% 40%,#241b3f,#0c0d12)}
+  .veil .glyph{width:84px;height:84px;border-radius:22px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--accent),#a17cff);font-size:34px;margin-bottom:14px}
+  .veil .core{display:flex;flex-direction:column;align-items:center}
+  .veil.run .core{animation:veil-pop .85s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes veil-pop{0%{opacity:0;transform:scale(.85)}55%{opacity:1;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
+  .vname{font-size:22px;font-weight:800}
+  .veil.run .vname{animation:oblv-name-reveal .7s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes oblv-name-reveal{
+    from{opacity:0;filter:blur(14px);letter-spacing:.24em;transform:translateY(8px)}
+    to{opacity:1;filter:blur(0);letter-spacing:-.01em;transform:none}
+  }
+  .ring{position:absolute;width:150px;height:150px;border-radius:50%;
+    border:3px solid rgba(255,255,255,.12);border-top-color:var(--accent);animation:spin .9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ===== 3) Dock de vidro (bônus, contexto do trabalho) ===== */
+  .stage{position:relative;height:300px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);
+    background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"></svg>')}
+  .stage .post{position:absolute;inset:0;padding:22px;color:#1a1c25}
+  .stage .post h3{margin:0 0 8px;font-size:18px}
+  .stage .post p{margin:0;color:#6b7080;font-size:15px;line-height:1.55}
+  .dockwrap{position:absolute;left:0;right:0;bottom:18px;display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none}
+  .pill,.bar{pointer-events:auto;color:#fff;border:1px solid rgba(255,255,255,.14);
+    background:rgba(18,17,26,.56);
+    -webkit-backdrop-filter:blur(30px) saturate(1.5) brightness(.85);
+    backdrop-filter:blur(30px) saturate(1.5) brightness(.85);
+    box-shadow:0 12px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06)}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;font-size:13px;font-weight:600}
+  .pill .dot{width:9px;height:9px;border-radius:50%;background:#36d399}
+  .bar{display:flex;align-items:center;gap:8px;border-radius:999px;padding:6px}
+  .it{display:inline-flex;align-items:center;gap:7px;height:44px;min-width:104px;justify-content:center;
+    border-radius:999px;color:#fff;font-weight:700;font-size:14px}
+  .it:hover{background:rgba(255,255,255,.10)}
+  .plus{width:52px;height:52px;border-radius:50%;margin:-4px 0;display:grid;place-items:center;color:#fff;font-size:26px;
+    background:radial-gradient(120% 120% at 30% 20%,rgba(255,255,255,.35),transparent 60%),color-mix(in srgb,var(--accent) 55%,rgba(255,255,255,.25));
+    border:1px solid rgba(255,255,255,.35);
+    -webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5)}
+  .note{color:var(--text-mute);font-size:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<header><div class="wrap" style="padding-bottom:0">
+  <h1>Motions adicionados ao Oblivian</h1>
+  <div class="sub">Preview offline. Inspirado em yui540/css-animations (MIT), recriado original. Clique em “Repetir” pra rever.</div>
+</div></header>
+
+<div class="wrap">
+
+  <section>
+    <div class="head">
+      <div><h2>1 · Feed — blur fade-in (stagger)</h2><p>Cards entram desfocando → nítido, em cascata. (.camino-latest)</p></div>
+      <button class="replay" data-t="feed">Repetir</button>
+    </div>
+    <div class="feed run" id="feed">
+      <div class="card"><div class="au"><span class="av"></span><div><div class="nm">LUXURY</div><div class="tm">Fixado · 5 h</div></div></div><div class="bd">Bem-vindo(a) à Nova comunidade! 🎉</div></div>
+      <div class="card"><div class="au"><span class="av"></span><div><div class="nm">Naves</div><div class="tm">2 h</div></div></div><div class="bd">Primeiro post por aqui, bora movimentar.</div></div>
+      <div class="card"><div class="au"><span class="av"></span><div><div class="nm">lua</div><div class="tm">3 h</div></div></div><div class="bd">Personalize em Configurar e chame a galera.</div></div>
+      <div class="card"><div class="au"><span class="av"></span><div><div class="nm">kaz</div><div class="tm">4 h</div></div></div><div class="bd">Mais um card pra mostrar o efeito em cascata.</div></div>
+      <div class="card"><div class="au"><span class="av"></span><div><div class="nm">mod</div><div class="tm">5 h</div></div></div><div class="bd">E o último, com o maior atraso do stagger.</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <div><h2>2 · Nome materializa (véu de entrada)</h2><p>Ao abrir uma comunidade: nome surge com blur + tracking.</p></div>
+      <button class="replay" data-t="veil">Repetir</button>
+    </div>
+    <div class="veil run" id="veil">
+      <div class="ring"></div>
+      <div class="core"><div class="glyph">✦</div><div class="vname">Nova comunidade</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <div><h2>3 · Dock de vidro (contexto)</h2><p>Bônus: o dock frosted escuro sobre conteúdo claro.</p></div>
+      <span class="replay" style="opacity:.5;cursor:default">estático</span>
+    </div>
+    <div class="stage">
+      <div class="post"><h3>Esta comunidade já vem pronta.</h3><p>Personalize em Configurar, publique o primeiro conteúdo e chame a galera. Boas criações! O texto atrás do dock fica borrado pelo vidro.</p></div>
+      <div class="dockwrap">
+        <span class="pill"><span class="dot"></span>1 online</span>
+        <div class="bar"><span class="it">☰ Menu</span><span class="plus">+</span><span class="it">◎ Eu</span></div>
+      </div>
+    </div>
+    <div class="note">Obs.: o blur do vidro só aparece se a aceleração de hardware do navegador estiver ligada.</div>
+  </section>
+
+</div>
+
+<script>
+  document.querySelectorAll('.replay[data-t]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var el = document.getElementById(b.dataset.t);
+      el.classList.remove('run'); void el.offsetWidth; el.classList.add('run');
+    });
+  });
+</script>
+</body>
+</html>

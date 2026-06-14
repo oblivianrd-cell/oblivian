@@ -1,0 +1,14 @@
+{
+  "name": "oblivian-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Oblivian — app web estático (deploy Cloudflare Pages)",
+  "scripts": {
+    "build": "node build.mjs",
+    "deploy": "node build.mjs && wrangler pages deploy dist",
+    "preview": "node build.mjs && npx serve dist"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  }
+}

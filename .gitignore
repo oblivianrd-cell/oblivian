@@ -1,0 +1,28 @@
+# build / deploy
+dist/
+.wrangler/
+node_modules/
+
+# segredos / config local (chaves do backend)
+js/data/config.js
+
+# mobile (Capacitor — build próprio)
+mobile/node_modules/
+mobile/android/app/build/
+mobile/www/
+
+# binários
+*.apk
+
+# gradle / Android (caches e config por-máquina)
+mobile/android/.gradle/
+mobile/android/build/
+mobile/android/app/release/
+mobile/android/local.properties
+mobile/android/capacitor-cordova-android-plugins/
+mobile/.gradle/
+
+# lixo de OS / editor
+.DS_Store
+Thumbs.db
+*.log

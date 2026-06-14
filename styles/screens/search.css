@@ -1,0 +1,129 @@
+/* ============================================================
+   search.css — Interface própria de busca (tela cheia).
+   Comunidades x Usuários, estados (inicial/skeleton/vazio).
+   ============================================================ */
+
+.gsearch {
+  display: flex; flex-direction: column;
+  min-height: 100%;
+  max-width: 880px; margin: 0 auto; width: 100%;
+}
+
+/* ----- barra topo (voltar + campo) ----- */
+.gsearch__bar {
+  position: sticky; top: 0; z-index: var(--z-sticky);
+  display: flex; align-items: center; gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.gsearch__field {
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: var(--s-2);
+  height: 44px; padding: 0 var(--s-3);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.gsearch__field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.gsearch__field > svg { color: var(--text-mute); flex: none; }
+.gsearch__field input {
+  flex: 1; min-width: 0; height: 100%;
+  border: 0; outline: 0; background: transparent;
+  color: var(--text); font-size: var(--fs-md);
+}
+.gsearch__field input::placeholder { color: var(--text-mute); }
+.gsearch__clear { flex: none; }
+
+/* ----- abas ----- */
+.gsearch__tabs {
+  display: flex; gap: var(--s-2);
+  padding: var(--s-3) var(--s-4) 0;
+}
+.gsearch__tab {
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: var(--s-3); border: 0; cursor: pointer;
+  background: transparent; color: var(--text-mute);
+  font-size: var(--fs-sm); font-weight: var(--fw-bold);
+  border-bottom: 2px solid transparent;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+.gsearch__tab:hover { color: var(--text); background: var(--surface); }
+.gsearch__tab.is-active { color: var(--accent); border-bottom-color: var(--accent); }
+.gsearch__tab svg { flex: none; }
+.gsearch__count { font-size: var(--fs-xs); opacity: .8; }
+.gsearch__count:empty { display: none; }
+
+/* ----- corpo ----- */
+.gsearch__body { flex: 1; padding: var(--s-4); }
+.gsearch__results { animation: gs-fade .2s ease both; }
+@keyframes gs-fade { from { opacity: 0; transform: translateY(6px); } }
+
+/* grade de comunidades (reaproveita o card pôster) */
+.gsearch__grid {
+  display: grid;
+  --card-w: clamp(150px, 30vw, 200px);
+  grid-template-columns: repeat(auto-fill, var(--card-w));
+  justify-content: start;
+  gap: var(--s-4);
+}
+
+/* lista de usuários */
+.gsearch__userlist { display: flex; flex-direction: column; gap: var(--s-2); }
+.gsearch__user {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-md);
+  background: var(--surface); color: var(--text); text-decoration: none;
+  transition: border-color var(--t-fast), transform var(--t-fast);
+}
+.gsearch__user:hover { border-color: var(--accent); transform: translateY(-1px); }
+.gsearch__user-meta { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.gsearch__user-meta strong { font-size: var(--fs-sm); }
+.gsearch__user-meta .u-muted { font-size: var(--fs-xs); }
+
+/* ----- estado inicial (instruções) ----- */
+.gsearch__hint {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: var(--s-3); padding: var(--s-7) var(--s-4); color: var(--text);
+}
+.gsearch__hint-ic {
+  width: 64px; height: 64px; display: grid; place-items: center;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+.gsearch__tips { list-style: none; padding: 0; margin: var(--s-2) 0 0; display: flex; flex-direction: column; gap: var(--s-2); width: 100%; max-width: 380px; }
+.gsearch__tips li {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-md);
+  background: var(--surface); color: var(--text-mute); font-size: var(--fs-sm); text-align: left;
+}
+.gsearch__tips li svg { flex: none; color: var(--accent); }
+.gsearch__tips b { color: var(--accent); }
+
+.gsearch__empty { padding: var(--s-6) var(--s-4); }
+
+/* ----- skeleton loading ----- */
+.gsk { border-radius: var(--r-lg); background: var(--surface); position: relative; overflow: hidden; }
+.gsk--card { aspect-ratio: 3 / 4; }
+.gsk::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--text) 8%, transparent), transparent);
+  transform: translateX(-100%); animation: gs-shimmer 1.2s infinite;
+}
+@keyframes gs-shimmer { 100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .gsk::after { animation: none; } .gsearch__results { animation: none; } }
+
+/* ----- responsivo ----- */
+@media (max-width: 639px) {
+  .gsearch__bar { padding: var(--s-2) var(--s-3); }
+  .gsearch__field { height: 42px; }
+  .gsearch__body { padding: var(--s-3); }
+  .gsearch__tab span:not(.gsearch__count) { display: none; }   /* só ícone+contagem no celular */
+  .gsearch__tab { padding: var(--s-3) var(--s-2); }
+}
+@media (min-width: 1024px) {
+  .gsearch__grid { --card-w: clamp(170px, 18vw, 210px); }
+}

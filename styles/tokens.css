@@ -1,0 +1,117 @@
+/* ============================================================
+   tokens.css — Design tokens (cores, espaçamento, raios, sombras,
+   tipografia, z-index). Tema claro/escuro via [data-theme].
+   Comunidades sobrescrevem --accent dentro de .community-scope.
+   Altere SOMENTE aqui para reajustar a identidade visual global.
+   ============================================================ */
+
+:root {
+  /* Tipografia */
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  --font-display: "Clash Display", "Inter", "Segoe UI", system-ui, sans-serif; /* títulos */
+  --fs-xs: 0.75rem;    /* 12 */
+  --fs-sm: 0.875rem;   /* 14 */
+  --fs-md: 1rem;       /* 16 */
+  --fs-lg: 1.125rem;   /* 18 */
+  --fs-xl: 1.375rem;   /* 22 */
+  --fs-2xl: 1.75rem;   /* 28 */
+  --fs-3xl: 2.25rem;   /* 36 */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --lh-tight: 1.2;
+  --lh-normal: 1.5;
+
+  /* Espaçamento (escala 4px) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+
+  /* Raios */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-pill: 999px;
+
+  /* Layout */
+  --sidebar-w: 264px;
+  --rail-w: 76px;
+  --topbar-h: 60px;
+  --bottomnav-h: 64px;
+  --content-max: 1080px;
+
+  /* Transições */
+  --t-fast: 120ms ease;
+  --t-mid: 200ms ease;
+
+  /* Z-index */
+  --z-base: 1;
+  --z-sticky: 100;
+  --z-nav: 200;
+  --z-overlay: 900;
+  --z-modal: 1000;
+  --z-toast: 1100;
+
+  /* Acento padrão (sobrescrito por comunidade).
+     Ramp gerada em OKLCH p/ matiz perceptual + contraste AA com branco:
+     branco sobre --accent = 4.67:1, sobre --accent-2 = 4.66:1 (ambos passam WCAG AA).
+     Hex = fallback srgb p/ WebView antigo; oklch() = valor real (idêntico em pixel). */
+  --accent: #7c59ec;                 /* fallback srgb */
+  --accent: oklch(0.58 0.21 289);
+  --accent-2: #a14bd6;               /* fallback srgb */
+  --accent-2: oklch(0.585 0.21 310);
+  --accent-soft: rgba(124, 89, 236, 0.16);
+  --accent-contrast: #ffffff;
+
+  /* Status */
+  --danger: #ff5470;
+  --danger-soft: rgba(255, 84, 112, 0.16);
+  --warn: #ffb454;
+  --ok: #36d399;
+  --ok-soft: rgba(54, 211, 153, 0.16);
+  --rep: #ffcf5c; /* reputação */
+}
+
+/* ---------- Tema escuro (padrão) ---------- */
+:root,
+[data-theme="dark"] {
+  --bg: #0e0f15;
+  --bg-grad: radial-gradient(1200px 600px at 80% -10%, rgba(124, 89, 236, 0.10), transparent 60%), #0e0f15;
+  --surface: #171922;
+  --surface-2: #1f222e;
+  --surface-3: #272b39;
+  --border: #2a2e3c;
+  --border-strong: #3a3f50;
+  --text: #f2f3f7;
+  --text-dim: #b9bdcc;
+  --text-mute: #7d8295;
+  --on-accent: #ffffff;
+  --shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.35);
+  --shadow-pop: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- Tema claro ---------- */
+[data-theme="light"] {
+  --bg: #f4f5fb;
+  --bg-grad: radial-gradient(1200px 600px at 80% -10%, rgba(124, 89, 236, 0.12), transparent 60%), #f4f5fb;
+  --surface: #ffffff;
+  --surface-2: #f4f5fb;
+  --surface-3: #e9ebf5;
+  --border: #e2e5f0;
+  --border-strong: #cdd2e3;
+  --text: #16181f;
+  --text-dim: #4a4f60;
+  --text-mute: #868ba0;
+  --on-accent: #ffffff;
+  --shadow-soft: 0 6px 20px rgba(20, 24, 60, 0.10);
+  --shadow-pop: 0 14px 40px rgba(20, 24, 60, 0.18);
+  --scrim: rgba(20, 24, 40, 0.45);
+}

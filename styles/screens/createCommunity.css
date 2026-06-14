@@ -1,0 +1,144 @@
+/* ============================================================
+   createCommunity.css — Tela imersiva de criação de comunidade.
+   Reusa o scaffold .cset / .cset--chat / .cset-header / .cset-scroll
+   / .cset-group / .cset-card (settings.css + chats.css). Carregar
+   DEPOIS desses no index.html.
+   ============================================================ */
+
+/* coluna única um pouco mais larga + respiro no fim */
+.cc-create .cc-scroll { max-width: 600px; gap: var(--s-5); padding-bottom: var(--s-7); }
+
+/* .cset-card é overflow:hidden sem padding (feito p/ listas de linhas);
+   aqui usamos campos de formulário, então damos padding e espaçamento. */
+.cc-create .cc-section { padding: var(--s-4); gap: var(--s-4); }
+
+/* ícone + capa lado a lado (empilha no estreito) */
+.cc-create .cc-media { display: grid; grid-template-columns: 1fr; gap: var(--s-4); }
+.cc-create .cc-media > * { min-width: 0; }   /* colunas encolhem — evita a Capa estourar pra direita */
+@media (min-width: 640px) { .cc-create .cc-media { grid-template-columns: 1fr 1fr; } }
+
+/* ---------- Preview do INTERIOR da comunidade ---------- */
+.ccp {
+  border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden;
+  background: var(--surface-2); display: flex; flex-direction: column;
+}
+.ccp__hero { position: relative; height: 96px; }
+.ccp-cover { position: absolute; inset: 0; background: center / cover no-repeat var(--surface-3); }
+.ccp-icon {
+  position: absolute; left: var(--s-4); bottom: -22px; z-index: 1;
+  width: 56px; height: 56px; border-radius: var(--r-lg);
+  border: 3px solid var(--surface-2); background: var(--surface-3) center / cover no-repeat;
+  display: grid; place-items: center; color: var(--text-dim); box-shadow: var(--shadow-soft);
+}
+.ccp-icon.has-img > svg { display: none; }
+.ccp__head { padding: 30px var(--s-4) var(--s-2); display: flex; flex-direction: column; gap: 2px; }
+.ccp-name { font-weight: var(--fw-bold); font-size: var(--fs-lg); }
+.ccp-meta { color: var(--text-mute); font-size: var(--fs-xs); }
+.ccp-tabs { display: flex; gap: var(--s-2); padding: 0 var(--s-4) var(--s-3); overflow: hidden; }
+.ccp-tab {
+  font-size: var(--fs-xs); font-weight: var(--fw-medium); color: var(--text-mute);
+  padding: var(--s-1) var(--s-3); border-radius: var(--r-pill); background: var(--surface-3); white-space: nowrap;
+}
+.ccp-tab.is-active { background: var(--accent); color: var(--on-accent); }
+.ccp-post { margin: 0 var(--s-4) var(--s-4); padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); display: flex; flex-direction: column; gap: 4px; }
+.ccp-post__pin { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); }
+.ccp-post__title { font-weight: var(--fw-semibold); font-size: var(--fs-sm); }
+.ccp-post__text { color: var(--text-dim); font-size: var(--fs-xs); line-height: var(--lh-normal); }
+
+/* ---------- Rodapé fixo de ações ---------- */
+.cc-footer {
+  flex: none; display: flex; gap: var(--s-3);
+  padding: var(--s-3) var(--s-4) calc(var(--s-3) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(8px);
+}
+.cc-footer > .btn { flex: 1; max-width: 300px; margin: 0 auto; }
+
+@media (max-width: 600px) {
+  .cc-footer > .btn { max-width: none; }
+}
+
+/* ============================================================
+   Template de pré-visualização (overlay) — Sobre → layout + rodapé
+   ============================================================ */
+.scrim.ccpv {
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: var(--bg);            /* opaco: não deixa o formulário vazar atrás */
+  z-index: 1000;
+}
+.ccpv__panel {
+  width: 100%; max-width: 440px; max-height: 92dvh;
+  display: flex; flex-direction: column;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-pop);
+}
+.ccpv__bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--border);
+}
+.ccpv__barlabel { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; color: var(--text-mute); }
+.ccpv__stage { flex: 1; min-height: 0; overflow-y: auto; }
+
+.ccpv__herowrap { position: relative; }
+.ccpv__hero { height: 132px; background-size: cover; background-position: center; }
+.ccpv__icon {
+  position: absolute; left: 20px; bottom: -26px;
+  width: 72px; height: 72px; border-radius: 18px;
+  background: var(--surface-2); background-size: cover; background-position: center;
+  border: 3px solid var(--surface); box-shadow: var(--shadow-soft);
+  display: grid; place-items: center; color: var(--text-dim);
+}
+.ccpv__about { padding: 38px 20px 16px; }
+.ccpv__name { font-family: var(--font-display); font-size: var(--fs-2xl); font-weight: 600; letter-spacing: -0.02em; }
+.ccpv__meta { color: var(--text-mute); font-size: var(--fs-sm); margin-top: 2px; }
+.ccpv__h { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-mute); margin: 16px 0 6px; }
+.ccpv__desc { color: var(--text-dim); font-size: var(--fs-sm); line-height: 1.55; margin: 0; }
+
+.ccpv__stage > .btn { margin: 4px 20px 16px; width: calc(100% - 40px); }
+
+.ccpv__layout { animation: ccpv-in .3s ease both; }
+@keyframes ccpv-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.ccpv__tabs { display: flex; gap: 8px; padding: 0 20px 12px; flex-wrap: wrap; }
+.ccpv__tab { font-size: var(--fs-sm); padding: 6px 12px; border-radius: 999px; background: var(--surface-2); color: var(--text-dim); }
+.ccpv__tab.is-active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.ccpv__post { margin: 0 20px 16px; padding: 14px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); }
+.ccpv__pin { display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-xs); font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+.ccpv__post-title { font-weight: var(--fw-semibold); margin: 6px 0 4px; }
+.ccpv__post-text { color: var(--text-dim); font-size: var(--fs-sm); line-height: 1.5; }
+.ccpv__footer {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 16px 20px; border-top: 1px solid var(--border);
+  color: var(--text-mute); font-size: var(--fs-xs);
+}
+.ccpv__foot-brand { display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-weight: 600; }
+.ccpv__foot-links { color: var(--text-mute); }
+
+.ccpv__actions {
+  display: flex; gap: 10px; padding: 12px 16px;
+  border-top: 1px solid var(--border); background: var(--surface);
+}
+.ccpv__actions > .btn { flex: 1; }
+
+/* ---------- Barra flutuante da PRÉ-VISUALIZAÇÃO real ---------- */
+/* fica fixa no rodapé sobre a tela real da comunidade (z acima do dock) */
+.preview-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1200;
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.28);
+}
+.preview-bar__tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--accent);
+  white-space: nowrap;
+}
+.preview-bar__actions { display: flex; gap: 8px; margin-left: auto; }
+@media (max-width: 480px) {
+  .preview-bar__tag span { display: none; }   /* estreito: só o ícone do olho */
+}

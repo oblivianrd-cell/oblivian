@@ -1,0 +1,5 @@
+# netlify
+[build]
+  publish = "."
+
+# hash routing: sem rewrite necessário (tudo em index.html via #/)

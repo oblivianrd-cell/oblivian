@@ -1,0 +1,100 @@
+/* ============================================================
+   effects.css — Efeitos visuais reutilizáveis:
+   1) Large title estilo iOS (grande no topo -> inline ao rolar)
+   2) Card que anima a largura (min-content <-> cheia) via calc-size
+      com fallback para navegadores sem suporte.
+   ============================================================ */
+
+/* habilita interpolação de palavras-chave de tamanho onde suportado */
+:root { interpolate-size: allow-keywords; }
+
+/* ---------------- 1) Large title (iOS-like) ---------------- */
+.large-title {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-3);
+  padding: var(--s-2) 0 var(--s-3);
+}
+.large-title__text {
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  transition: opacity var(--t-mid), transform var(--t-mid);
+}
+.large-title__sentinel { height: 1px; margin-top: -1px; }
+
+/* título inline que mora na topbar; some por padrão */
+.topbar__inline-title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity var(--t-mid), transform var(--t-mid);
+  pointer-events: none;
+}
+.topbar.show-inline-title .topbar__inline-title { opacity: 1; transform: none; }
+/* com large title, o título fixo da topbar cede lugar ao inline */
+.topbar.has-large-title .topbar__title { display: none; }
+/* quando inline aparece, o large title some suavemente */
+.topbar.show-inline-title ~ .view .large-title__text { opacity: 0; transform: translateY(-4px); }
+
+/* ---------------- 2) Card com largura animada ---------------- */
+.sizing-card {
+  background: var(--surface);
+  padding: var(--s-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  /* fallback: ajusta ao conteúdo */
+  width: max-content;
+  max-width: 100%;
+}
+/* navegadores com calc-size: sincroniza com a largura mínima do conteúdo */
+@supports (width: calc-size(min-content, size)) {
+  .sizing-card { width: calc-size(min-content, size); }
+}
+.sizing-card > * { display: block; }
+.sizing-card img,
+.sizing-card .sizing-card__media {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--r-md);
+}
+
+/* anima a largura quando marcado para tal */
+.sizing-card.is-animated { animation: sizing-card-w 4s 1s ease-out 2 alternate; }
+@keyframes sizing-card-w {
+  0%   { width: min(590px, 100%); }
+  100% { width: min(300px, 100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sizing-card.is-animated { animation: none; }
+}
+
+/* ---------------- 3) Carousel dots (rail) ---------------- */
+.carousel-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  padding: var(--s-2) 0 0;
+}
+.carousel-dots__dot {
+  width: 8px; height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--surface-3);
+  border: none;
+  cursor: pointer;
+  transition: width var(--t-mid), background var(--t-mid);
+  flex: none;
+}
+.carousel-dots__dot:hover { background: var(--border-strong); }
+.carousel-dots__dot.is-active {
+  width: 22px;
+  background: var(--accent);
+}

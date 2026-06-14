@@ -1,0 +1,167 @@
+/* ============================================================
+   sanguao.css — Área Oblivian (Minhas comunidades + Recentes) e
+   o card inicial de comunidade.
+   ============================================================ */
+
+/* ---------------- Card pôster (imagem cobre tudo) ---------------- */
+.poster-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  /* contorno interno escuro discreto (sem sombra externa) */
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.18);
+  isolation: isolate;
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+}
+.poster-card:hover { transform: translateY(-4px); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.18); }
+.poster-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Minhas comunidades: cards de tamanho consistente (~190px), nº de colunas adapta à largura */
+.community-grid--triple { --card-w: clamp(120px, 28vw, 190px); grid-template-columns: repeat(3, var(--card-w)); justify-content: start; }
+@media (max-width: 420px) { .community-grid--triple { grid-template-columns: repeat(2, var(--card-w)); } }
+
+.poster-card__bg {
+  position: absolute; inset: 0;
+  background-position: center; background-size: cover;
+  transition: transform var(--t-mid);
+}
+.poster-card:hover .poster-card__bg { transform: scale(1.05); }
+
+/* ícone como marca central quando não há capa */
+.poster-card__glyph {
+  position: absolute; top: var(--s-3); left: var(--s-3);
+  width: 64px; height: 64px;
+  background-position: center; background-size: cover; background-repeat: no-repeat;
+  border-radius: var(--r-md);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 2;
+}
+
+/* overlay escuro de baixo p/ cima (legibilidade) */
+.poster-card__scrim {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg,
+    rgba(0,0,0,0.35) 0%,
+    rgba(0,0,0,0) 28%,
+    rgba(0,0,0,0.10) 50%,
+    rgba(0,0,0,0.80) 100%);
+}
+
+.poster-card__top {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 2;
+  display: flex; align-items: center; gap: var(--s-2);
+  padding: var(--s-3);
+}
+.poster-card__presence {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: var(--fs-xs); font-weight: var(--fw-semibold); color: #fff;
+  background: rgba(0,0,0,0.45);
+  padding: 4px 10px; border-radius: var(--r-pill);
+  backdrop-filter: blur(4px);
+}
+.poster-card__dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ok); box-shadow: 0 0 0 3px rgba(54,211,153,0.25);
+}
+.poster-card__lock, .poster-card__joined {
+  display: grid; place-items: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(0,0,0,0.45); color: #fff; backdrop-filter: blur(4px);
+}
+.poster-card__joined { background: var(--accent); margin-left: auto; }
+.poster-card__lock { margin-left: auto; }
+
+.poster-card__bottom {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  display: flex; flex-direction: column; gap: var(--s-2);
+  padding: var(--s-4);
+}
+.poster-card__name {
+  color: #fff;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.poster-card__tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.poster-tag {
+  font-size: 10px; font-weight: var(--fw-bold);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  color: #fff;
+  padding: 3px 9px; border-radius: var(--r-pill);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 639px) {
+  .poster-card__name { font-size: var(--fs-lg); }
+}
+
+.community-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  transition: transform var(--t-fast), border-color var(--t-fast);
+  cursor: pointer;
+}
+.community-card:hover { transform: translateY(-3px); border-color: var(--border-strong); }
+.community-card__cover {
+  height: 92px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2)) center/cover;
+  position: relative;
+}
+.community-card__icon {
+  position: absolute; left: var(--s-4); bottom: -22px;
+  width: 52px; height: 52px; border-radius: var(--r-md);
+  border: 3px solid var(--surface);
+  background: var(--surface-3) center/cover;
+  display: grid; place-items: center;
+  color: var(--on-accent);
+  box-shadow: var(--shadow-soft);
+}
+.community-card__body { padding: 30px var(--s-4) var(--s-4); display: flex; flex-direction: column; gap: var(--s-2); }
+.community-card__name { font-weight: var(--fw-bold); font-size: var(--fs-md); display: flex; align-items: center; gap: 6px; }
+.community-card__desc {
+  color: var(--text-mute); font-size: var(--fs-sm);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.community-card__meta { display: flex; align-items: center; gap: var(--s-4); color: var(--text-mute); font-size: var(--fs-xs); }
+.community-card__meta .u-row { gap: 4px; }
+.community-card__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); margin-top: var(--s-1); }
+.community-card__tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* card "criar comunidade" */
+.create-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--s-2); aspect-ratio: 3 / 4;
+  padding: var(--s-5) var(--s-3);     /* respiro vertical, menos lateral (cabe 1 linha) */
+  text-align: center;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--r-lg);
+  color: var(--text-mute);
+  background: transparent;
+  transition: border-color var(--t-fast), color var(--t-fast);
+}
+.create-card strong { font-size: var(--fs-sm); line-height: 1.2; white-space: nowrap; }
+.create-card .u-muted { white-space: normal; text-wrap: balance; max-width: 100%; }
+.create-card:hover { border-color: var(--accent); color: var(--accent); }
+.create-card__plus {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent);
+}
+
+.sanguao__head {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-3);
+}
+
+@media (max-width: 639px) {
+  .community-card__cover { height: 80px; }
+}

@@ -1,0 +1,157 @@
+/* ============================================================
+   comments.css — Tela cheia de comentários do perfil (mural).
+   ============================================================ */
+
+.cmt-screen { display: flex; flex-direction: column; flex: 1; min-height: 100%; }
+
+/* mural reutilizável (aba "Mural" do perfil) */
+.cmt-wall { display: flex; flex-direction: column; }
+.cmt-wall__bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--s-3) var(--s-4);
+  background: var(--surface);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.cmt-wall__title { font-size: var(--fs-xs); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); }
+.cmt-wall .cmt-list { padding: var(--s-3) var(--s-4); }
+/* composer no TOPO do mural (não sticky no rodapé) */
+.cmt-wall__composer .cmt-composer { position: relative; bottom: auto; z-index: auto; border-top: none; border-bottom: 1px solid var(--border); }
+/* botão "+" (círculo) → abre emojis */
+.cmt-addbtn { width: 38px; height: 38px; border-radius: 50%; flex: none; display: grid; place-items: center;
+  background: var(--surface-2); color: var(--accent); border: 1px solid var(--border);
+  transition: transform .14s ease, background .14s ease; }
+.cmt-addbtn:hover { background: color-mix(in srgb, var(--accent) 16%, var(--surface-2)); transform: scale(1.06); }
+.cmt-addbtn:active { transform: scale(.95); }
+.cmt-emojipop { position: absolute; left: 8px; top: calc(100% + 6px); z-index: 60;
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px;
+  width: min(286px, calc(100vw - 32px)); padding: var(--s-2);
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-pop, 0 12px 32px rgba(0,0,0,.3)); animation: pop .16s ease both; }
+.cmt-emoji { font-size: 20px; line-height: 1; padding: 6px; border-radius: var(--r-md); background: transparent; }
+.cmt-emoji:hover { background: var(--surface-2); }
+/* Recentes/Top dentro da barra de abas (canto direito) */
+.profile-tabs__extra { display: flex; align-items: center; padding-right: var(--s-3); flex: none; }
+
+/* cor de perfil escolhida no editar aplicada ao fundo (igual ao perfil) */
+.cmt-screen.has-panel-color { background: var(--panel-bg); }
+.cmt-screen.has-panel-color .cmt-head { background: rgba(0,0,0,0.30); border-color: rgba(255,255,255,0.12); }
+.cmt-screen.has-panel-color .cmt-divider,
+.cmt-screen.has-panel-color .cmt-wall__bar { background: rgba(0,0,0,0.22); border-color: rgba(255,255,255,0.12); }
+.cmt-screen.has-panel-color .cmt-composer { background: rgba(0,0,0,0.30); border-color: rgba(255,255,255,0.12); }
+.cmt-screen.has-panel-color .cmt-bio__text,
+.cmt-screen.has-panel-color .cmt__text { color: rgba(255,255,255,0.90); }
+.cmt-screen.has-panel-color .cmt-head__title,
+.cmt-screen.has-panel-color .cmt__head strong,
+.cmt-screen.has-panel-color .cmt-divider__label,
+.cmt-screen.has-panel-color .cmt-wall__title { color: #fff; }
+.cmt-screen.has-panel-color .cmt__act,
+.cmt-screen.has-panel-color .cmt-bio__label { color: rgba(255,255,255,0.78); }
+
+/* variante para cores claras: texto escuro */
+.cmt-screen.panel-light .cmt-head { background: rgba(255,255,255,0.40); border-color: rgba(0,0,0,0.10); }
+.cmt-screen.panel-light .cmt-divider,
+.cmt-screen.panel-light .cmt-wall__bar { background: rgba(255,255,255,0.30); border-color: rgba(0,0,0,0.10); }
+.cmt-screen.panel-light .cmt-composer { background: rgba(255,255,255,0.45); border-color: rgba(0,0,0,0.10); }
+.cmt-screen.panel-light .cmt-bio__text,
+.cmt-screen.panel-light .cmt__text { color: rgba(0,0,0,0.85); }
+.cmt-screen.panel-light .cmt-head__title,
+.cmt-screen.panel-light .cmt__head strong,
+.cmt-screen.panel-light .cmt-divider__label,
+.cmt-screen.panel-light .cmt-wall__title { color: #16181f; }
+.cmt-screen.panel-light .cmt__act,
+.cmt-screen.panel-light .cmt-bio__label { color: rgba(0,0,0,0.6); }
+
+.cmt-head {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: var(--z-sticky);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(8px);
+}
+.cmt-head__title { font-weight: var(--fw-bold); font-size: var(--fs-lg); }
+.cmt-head__sub { font-size: var(--fs-xs); }
+
+/* bloco de biografia no topo */
+.cmt-bio {
+  display: flex; flex-direction: column; gap: var(--s-2);
+  padding: var(--s-4);
+}
+.cmt-bio__label { font-size: var(--fs-xs); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-mute); }
+.cmt-bio__text { color: var(--text-dim); font-size: var(--fs-sm); white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+.cmt-bio__draft { display: inline-flex; align-items: center; gap: 5px; margin-bottom: var(--s-2); padding: 3px 10px; border-radius: var(--r-pill); background: color-mix(in srgb, var(--warn, #f59e0b) 16%, transparent); color: var(--warn, #f59e0b); font-size: var(--fs-xs); font-weight: var(--fw-bold); }
+.cmt-bio__draft .icon { width: 13px; height: 13px; }
+
+/* faixa divisória entre biografia e comentários, com o rótulo dentro */
+.cmt-divider {
+  flex: none;
+  display: flex; align-items: center;
+  padding: var(--s-3) var(--s-4);
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.cmt-divider__label {
+  font-size: var(--fs-xs); font-weight: var(--fw-bold);
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim);
+}
+.cmt-list {
+  flex: 1; display: flex; flex-direction: column;
+  padding: var(--s-3) var(--s-4); gap: var(--s-1);
+  --cmt-line: rgba(255,255,255,0.16);
+}
+.cmt-screen.panel-light .cmt-list { --cmt-line: rgba(0,0,0,0.14); }
+
+.cmt { display: flex; gap: var(--s-3); padding: var(--s-3) 0; border-bottom: 1px solid var(--border); }
+.cmt:last-child { border-bottom: none; }
+.cmt--reply { position: relative; padding: var(--s-3) 0 0; border-bottom: none; }
+/* trilho contínuo: barra vertical (cobre toda a linha; última para no nó) */
+.cmt--reply::before {
+  content: ""; position: absolute; left: -18px; top: 0; bottom: 0;
+  width: 2px; background: var(--cmt-line); border-radius: 2px;
+}
+.cmt--reply:last-child::before { bottom: auto; height: 25px; }
+/* stub horizontal do trilho até o avatar */
+.cmt--reply::after {
+  content: ""; position: absolute; left: -18px; top: 24px;
+  width: 13px; height: 2px; background: var(--cmt-line); border-radius: 2px;
+}
+/* primeira resposta: emenda o trilho pra cima, ligando ao comentário-pai */
+.cmt__replies > .cmt--reply:first-child::before { top: -12px; }
+.cmt__replies > .cmt--reply:first-child:last-child::before { top: -12px; bottom: auto; height: 37px; }
+.cmt__head { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+.cmt__text { color: var(--text-dim); font-size: var(--fs-sm); margin: 2px 0 var(--s-2); white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; }
+/* flex child precisa de min-width:0 p/ texto longo quebrar (senão estoura na horizontal) */
+.cmt > .u-grow { min-width: 0; }
+.cmt__head { flex-wrap: wrap; }
+.cmt__actions { display: flex; gap: var(--s-4); flex-wrap: wrap; align-items: center; }
+.cmt__act {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: var(--text-mute); font-size: var(--fs-xs); font-weight: var(--fw-semibold);
+  transition: color var(--t-fast);
+}
+.cmt__act:hover { color: var(--text); }
+.cmt__act.is-on { color: var(--accent); }
+
+.cmt__replies {
+  margin-top: var(--s-2);
+  margin-left: -48px;            /* alinha o tronco sob o avatar do pai */
+  padding-left: 36px;
+  display: flex; flex-direction: column;
+}
+
+.cmt-reply-box { display: flex; align-items: center; gap: var(--s-2); margin: var(--s-3) 0 var(--s-1); }
+.cmt-reply-box .input { border-radius: var(--r-pill); height: 38px; }
+
+.cmt-composer {
+  position: sticky; bottom: 0; z-index: var(--z-sticky);
+  display: flex; align-items: center; gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.cmt-composer .input { border-radius: var(--r-pill); }
+
+@media (max-width: 639px) {
+  .cmt-head .segmented { display: none; }
+}

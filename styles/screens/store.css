@@ -1,0 +1,179 @@
+/* ============================================================
+   store.css — Loja de moedas/itens, anúncio simulado, banner,
+   pílula de saldo na topbar e moldura equipada no avatar.
+   ============================================================ */
+
+/* ---- Pílula de saldo (topbar) ---- */
+.coin-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 34px; padding: 0 12px; border-radius: var(--r-pill);
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text); font-weight: var(--fw-bold); font-size: var(--fs-sm);
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+.coin-pill:hover { border-color: var(--accent); background: var(--surface-3); }
+.coin-pill svg.icon { color: #f5c542; }
+.coin-pill__num { font-variant-numeric: tabular-nums; }
+
+/* ---- Cabeçalho de saldo + ganhar moedas ---- */
+.store-earn { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4); justify-content: space-between; padding: var(--s-5); }
+.store-balance { display: flex; align-items: center; gap: var(--s-3); }
+.store-balance__icon {
+  width: 48px; height: 48px; border-radius: 50%; flex: none; display: grid; place-items: center;
+  background: rgba(245,197,66,0.14); color: #f5c542;
+}
+.store-balance__icon svg.icon { width: 26px; height: 26px; }
+.store-balance__label { font-size: var(--fs-xs); }
+.store-balance__row { display: flex; align-items: baseline; gap: 6px; }
+.store-balance__num { font-size: var(--fs-2xl); font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+.store-earn__cta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 220px; }
+.store-earn__info { font-size: var(--fs-xs); text-align: right; }
+/* estreito: empilha limpo (saldo em cima, botão largura cheia, info centralizada) */
+@media (max-width: 620px) {
+  .store-earn { flex-direction: column; align-items: stretch; gap: var(--s-4); padding: var(--s-4); }
+  .store-earn__cta { align-items: stretch; min-width: 0; gap: 10px; }
+  .store-earn__cta .btn { width: 100%; justify-content: center; }
+  .store-earn__info { text-align: center; }
+}
+
+/* ---- Catálogo ---- */
+.store-cats { display: flex; flex-direction: column; gap: var(--s-6); }
+.store-cat { display: flex; flex-direction: column; gap: var(--s-3); }
+.store-grid {
+  display: grid; gap: var(--s-3);
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+.store-item {
+  display: flex; flex-direction: column; gap: var(--s-2);
+  padding: var(--s-3); border-radius: var(--r-lg);
+  position: relative; overflow: hidden;
+  transition: transform var(--t-fast), border-color var(--t-fast);
+}
+.store-item:hover { transform: translateY(-2px); }
+.store-item.is-equipped { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.store-item__preview {
+  height: 92px; border-radius: var(--r-md); display: grid; place-items: center;
+  background: var(--surface-2); color: #fff; position: relative;
+}
+.store-item__preview svg.icon { width: 30px; height: 30px; }
+/* preview de moldura: anel + avatar fake */
+.store-item__ring { position: absolute; width: 64px; height: 64px; border-radius: 50%; padding: 4px; }
+.store-item__ring::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--surface); }
+.store-item__avatar {
+  position: relative; z-index: 1; width: 52px; height: 52px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--surface-3); color: var(--text-dim);
+}
+.store-item__avatar svg.icon { width: 24px; height: 24px; }
+.store-item__body { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.store-item__name { font-weight: var(--fw-semibold); font-size: var(--fs-sm); }
+.store-item__desc { font-size: var(--fs-xs); line-height: 1.3; }
+.store-item__rarity {
+  align-self: flex-start; margin-top: 2px; font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+  padding: 2px 8px; border-radius: var(--r-pill); background: var(--surface-3); color: var(--text-mute);
+}
+.store-item.is-raro .store-item__rarity { background: rgba(59,130,246,0.16); color: #60a5fa; }
+.store-item.is-epico .store-item__rarity { background: rgba(168,85,247,0.16); color: #c084fc; }
+.store-item.is-especial .store-item__rarity { background: rgba(245,197,66,0.16); color: #f5c542; }
+.store-item__action { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); margin-top: auto; }
+.store-item__price { display: inline-flex; align-items: center; gap: 4px; font-weight: var(--fw-bold); font-variant-numeric: tabular-nums; }
+.store-item__price svg.icon { color: #f5c542; }
+.store-item__owned { display: inline-flex; align-items: center; gap: 4px; color: var(--ok); font-size: var(--fs-sm); font-weight: var(--fw-semibold); }
+
+/* ---- Anúncio recompensado (simulado) ---- */
+.ad-sim { display: flex; flex-direction: column; gap: var(--s-3); width: min(360px, 80vw); }
+.ad-sim__creative {
+  height: 180px; border-radius: var(--r-lg); display: grid; place-items: center; gap: 6px;
+  background: linear-gradient(135deg, #1e2433, #0d0f16); color: #cbd5e1; position: relative;
+}
+.ad-sim__creative svg.icon { width: 48px; height: 48px; opacity: .9; }
+.ad-sim__brand { font-weight: var(--fw-bold); letter-spacing: .08em; text-transform: uppercase; font-size: var(--fs-xs); color: var(--text-mute); }
+.ad-sim__tag { font-size: var(--fs-xs); color: var(--text-mute); }
+/* criativo de promo animado (Oblivian) dentro do "anúncio" simulado */
+.adp { background: linear-gradient(150deg, color-mix(in srgb, var(--accent) 28%, #11131c), #0d0f16); color: #fff; overflow: hidden; }
+.adp .adp__badge { position: absolute; top: 10px; left: 12px; font-size: 10px; font-weight: var(--fw-bold); letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,0.7); }
+.adp .adp__emoji { font-size: 56px; line-height: 1; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); animation: adp-pop 1.5s ease-in-out infinite; }
+.adp .adp__title { font-weight: var(--fw-bold); font-size: var(--fs-lg); }
+.adp .adp__sub { font-size: var(--fs-sm); color: rgba(255,255,255,0.7); }
+.adp.is-fade .adp__emoji, .adp.is-fade .adp__title, .adp.is-fade .adp__sub { opacity: 0; }
+.adp .adp__emoji, .adp .adp__title, .adp .adp__sub { transition: opacity .2s ease; }
+@keyframes adp-pop { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { .adp .adp__emoji { animation: none; } }
+.ad-sim__bar { height: 6px; border-radius: var(--r-pill); background: var(--surface-3); overflow: hidden; }
+.ad-sim__fill { height: 100%; width: 0; background: var(--accent); transition: width 1s linear; }
+.ad-sim__count { text-align: center; font-variant-numeric: tabular-nums; font-weight: var(--fw-bold); }
+.ad-sim__status { text-align: center; font-size: var(--fs-sm); }
+.btn.is-ready { animation: ad-ready .4s ease; }
+@keyframes ad-ready { 50% { transform: scale(1.04); } }
+
+/* ---- Banner discreto ---- */
+.ad-banner {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-2) var(--s-3); border-radius: var(--r-md);
+  background: var(--surface-2); border: 1px dashed var(--border-strong);
+  color: var(--text-dim); font-size: var(--fs-sm);
+}
+.ad-banner__tag {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: var(--fw-bold);
+  padding: 2px 6px; border-radius: var(--r-sm); background: var(--surface-3); color: var(--text-mute); flex: none;
+}
+.ad-banner__slot { display: flex; align-items: center; gap: var(--s-2); flex: 1; min-width: 0; }
+.ad-banner__hint { font-size: var(--fs-xs); flex: none; }
+.ad-banner--compact { padding: 4px var(--s-2); }
+@media (max-width: 639px) { .ad-banner__hint { display: none; } }
+/* banner de rede real (Adsterra/AdSense): moldura sólida, conteúdo centralizado */
+.ad-banner--net { flex-direction: column; align-items: stretch; border-style: solid; border-color: var(--border); background: var(--surface); gap: 6px; }
+.ad-banner--net .ad-banner__tag { align-self: flex-start; }
+.ad-frame { display: block; margin: 0 auto; max-width: 100%; }
+/* wrapper com botão de fechar (anúncio dispensável) */
+.ad-wrap { position: relative; }
+.ad-wrap__close {
+  position: absolute; top: 6px; right: 6px; z-index: 3;
+  width: 22px; height: 22px; border-radius: 50%; padding: 0;
+  display: grid; place-items: center; cursor: pointer;
+  background: rgba(0,0,0,0.55); color: #fff; border: 1px solid rgba(255,255,255,0.25);
+  font-size: 11px; line-height: 1; backdrop-filter: blur(2px);
+}
+.ad-wrap__close:hover { background: rgba(0,0,0,0.85); }
+
+/* ---- House ad (auto-promo first-party, preenche o slot sem rede) ---- */
+.house-ad {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3) var(--s-4); border-radius: var(--r-lg);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--ha-accent) 26%, var(--surface)), var(--surface) 70%);
+  border: 1px solid color-mix(in srgb, var(--ha-accent) 35%, var(--border));
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  position: relative; overflow: hidden;
+  transition: transform var(--t-mid), box-shadow var(--t-mid), border-color var(--t-fast), opacity .22s ease, background .3s ease;
+}
+.house-ad:hover { transform: translateY(-2px); border-color: var(--ha-accent); box-shadow: 0 12px 28px rgba(0,0,0,0.28); }
+.house-ad:active { transform: translateY(0) scale(0.995); }
+.house-ad.is-swapping { opacity: .2; }   /* fade entre criativos do rodízio */
+.house-ad__emoji, .house-ad__tag, .house-ad__title, .house-ad__cta { transition: opacity .22s ease; }
+.house-ad__emoji { font-size: 28px; line-height: 1; flex: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35)); }
+.house-ad__body { display: flex; flex-direction: column; min-width: 0; flex: 1; gap: 1px; }
+.house-ad__tag { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: var(--fw-bold); color: var(--ha-accent); }
+.house-ad__title { font-weight: var(--fw-semibold); color: var(--text); font-size: var(--fs-sm); }
+.house-ad__cta {
+  flex: none; padding: 6px var(--s-3); border-radius: var(--r-pill);
+  background: var(--ha-accent); color: #fff; font-weight: var(--fw-bold); font-size: var(--fs-sm);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--ha-accent) 40%, transparent);
+}
+.house-ad__promo {
+  position: absolute; top: 6px; right: 8px;
+  font-size: 9px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--text-mute); opacity: .7;
+}
+.house-ad--compact { padding: var(--s-2) var(--s-3); }
+.house-ad--compact .house-ad__emoji { font-size: 22px; }
+.house-ad--compact .house-ad__cta { padding: 4px var(--s-2); }
+@media (max-width: 639px) { .house-ad__cta { font-size: var(--fs-xs); } }
+
+/* ---- Moldura equipada no avatar (mini-perfil) ---- */
+.avatar.has-frame { position: relative; }
+.avatar.has-frame::after {
+  content: ""; position: absolute; inset: -3px; border-radius: inherit;
+  padding: 2px; background: var(--frame, var(--accent));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
+}

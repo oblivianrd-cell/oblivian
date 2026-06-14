@@ -1,0 +1,23 @@
+{
+  "name": "sanguao-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Wrapper Capacitor (Android) do Sanguão com AdMob.",
+  "scripts": {
+    "sync": "cap sync",
+    "open": "cap open android",
+    "build:apk": "cd android && gradlew.bat assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor-community/admob": "^6.1.0",
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/app": "^6.0.3",
+    "@capacitor/browser": "^6.0.6",
+    "@capacitor/core": "^6.2.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.2.0",
+    "sharp": "^0.34.5"
+  }
+}

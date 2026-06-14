@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Força domínio bonito: *.pages.dev → oblivian.net (mantém path+hash). Roda antes de tudo. -->
+  <script>if(location.hostname.endsWith(".pages.dev")){location.replace("https://oblivian.net"+location.pathname+location.search+location.hash);}</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="description" content="Rede social de comunidades com chats, publicações e perfis." />
+  <title>Oblivian</title>
+  <link rel="canonical" href="https://oblivian.net/" />
+  <!-- Google AdSense — verificação/propriedade do site (estático p/ o robô ler) -->
+  <meta name="google-adsense-account" content="ca-pub-9558689693293176" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9558689693293176" crossorigin="anonymous"></script>
+  <!-- Compartilhamento (Open Graph / Twitter) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://oblivian.net/" />
+  <meta property="og:site_name" content="Oblivian" />
+  <meta property="og:title" content="Oblivian" />
+  <meta property="og:description" content="Rede social de comunidades com chats, publicações e perfis." />
+  <meta property="og:image" content="https://oblivian.net/logo.png?v=cat6" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Oblivian" />
+  <meta name="twitter:description" content="Rede social de comunidades com chats, publicações e perfis." />
+  <link rel="icon" type="image/png" href="logo.png?v=cat6" />
+  <link rel="apple-touch-icon" href="logo.png?v=cat6" />
+  <link rel="manifest" href="manifest.webmanifest" />
+
+  <!-- Fonte display (Fontshare — grátis comercial). Fallback p/ Inter se offline. -->
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" />
+
+  <!-- Tokens primeiro (variáveis), depois base, layout e componentes -->
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/layout.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <!-- Telas -->
+  <link rel="stylesheet" href="styles/screens/explorer.css" />
+  <link rel="stylesheet" href="styles/screens/search.css" />
+  <link rel="stylesheet" href="styles/screens/sanguao.css" />
+  <link rel="stylesheet" href="styles/screens/chats.css" />
+  <link rel="stylesheet" href="styles/screens/community.css" />
+  <link rel="stylesheet" href="styles/screens/communityChats.css" />
+  <link rel="stylesheet" href="styles/screens/profile.css" />
+  <link rel="stylesheet" href="styles/screens/settings.css" />
+  <link rel="stylesheet" href="styles/screens/effects.css" />
+  <link rel="stylesheet" href="styles/screens/comments.css" />
+  <link rel="stylesheet" href="styles/screens/interactions.css" />
+  <link rel="stylesheet" href="styles/screens/store.css" />
+  <link rel="stylesheet" href="styles/screens/createCommunity.css" />
+  <link rel="stylesheet" href="styles/screens/auth.css" />
+  <link rel="stylesheet" href="styles/screens/devmode.css" />
+  <link rel="stylesheet" href="styles/landing.css" />
+
+  <!-- Splash de boot (dashoffset). Inline p/ render imediato, antes do JS. -->
+  <style>
+    .boot-splash {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px; background: var(--bg, #0e0f15);
+      animation: boot-out .4s ease 1.7s forwards;
+    }
+    .boot-splash__cat { width: 124px; height: 124px; line-height: 0; color: var(--text, #e8eaf0); }
+    .boot-splash__cat svg { width: 100%; height: 100%; overflow: visible; display: block; }
+    /* recolore o gato p/ adaptar ao tema (claro/escuro) */
+    .boot-splash__cat [fill="#0e0f15"] { fill: var(--text, #e8eaf0); }
+    .boot-splash__cat [fill="#fff"]    { fill: var(--bg, #0e0f15); }
+    /* tema escuro (e default de boot): remove só o PONTINHO (brilho/catchlight) dentro do
+       olho — ele acompanha a cor da pupila e some. A pupila/olho continua visível.
+       No tema claro mantém o brilho normal. */
+    :root:not([data-theme="light"]) .boot-splash__cat .oc-pupils [fill="#fff"] { fill: var(--text, #e8eaf0); }
+    .boot-splash__cat .oc-body   { transform-box: fill-box; transform-origin: center bottom; animation: boot-breathe 3s ease-in-out infinite; }
+    .boot-splash__cat .oc-pupils { transform-box: fill-box; transform-origin: center; animation: boot-look 4.5s ease-in-out infinite; }
+    .boot-splash__cat .oc-lid    { transform-box: fill-box; transform-origin: center top; transform: scaleY(0); animation: boot-blink 2.8s ease-in-out infinite; }
+    .boot-splash__name {
+      font: 600 20px/1 system-ui, -apple-system, "Segoe UI", sans-serif;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--text, #e8eaf0); opacity: .85;
+    }
+    .boot-splash__bar {
+      width: 190px; height: 6px; border-radius: 999px; overflow: hidden;
+      background: color-mix(in srgb, var(--accent, #6c8cff) 20%, transparent);
+    }
+    .boot-splash__fill {
+      display: block; height: 100%; width: 0; border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent, #6c8cff), color-mix(in srgb, var(--accent, #6c8cff) 55%, #fff));
+      box-shadow: 0 0 10px color-mix(in srgb, var(--accent, #6c8cff) 60%, transparent);
+      animation: boot-fill 1.5s cubic-bezier(.45,.05,.2,1) forwards;
+    }
+    @keyframes boot-fill   { 0% { width: 0 } 100% { width: 100% } }
+    @keyframes boot-breathe{ 0%,100% { transform: translateY(0) scale(1) } 50% { transform: translateY(-9px) scale(1.02) } }
+    @keyframes boot-look   { 0%,18% { transform: translateX(0) } 32%,48% { transform: translateX(42px) } 62%,80% { transform: translateX(-42px) } 94%,100% { transform: translateX(0) } }
+    @keyframes boot-blink  { 0%,82% { transform: scaleY(0) } 89%,93% { transform: scaleY(1) } 100% { transform: scaleY(0) } }
+    @keyframes boot-out    { to { opacity: 0; visibility: hidden; } }
+    @media (prefers-reduced-motion: reduce) {
+      .boot-splash__cat .oc-body, .boot-splash__cat .oc-pupils, .boot-splash__cat .oc-lid { animation: none; }
+      .boot-splash__fill { animation-duration: .01ms; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Splash de boot (overlay; some quando o app/landing aparece) -->
+  <div class="boot-splash" role="status" aria-label="Carregando Oblivian">
+    <span class="boot-splash__cat" aria-hidden="true"><svg viewBox="0 0 2000 2000" fill="none"><g class="oc-body"><path fill="#0e0f15" d="m1960 1410-108-10h-4 4c20-110 12-234-30-362 42-120.001 136-436.001 116-598.001-22-94-90-78-184-44-74 26-202 88-428 232-88-28-190-52-324-52-62 0-126 2-202 14-50-84-120-196-186-282-60-78-154-190-220-200-44-6-74 28-106 112-46 134-88 368-76 718C160 1028 126 1148 128 1270c0 26 4 52 6 94H46c-26 0-26 42 0 42l98 2c4 20 10 40 16 64l-106 50c-26 10-12 48 16 36l106-46h2c10 20 20 40 30 56l-90 72c-16 12-8 40 14 36 4 0 8-2 12-6l84-66c50 70 110 124 180 164 134 78 304 120 588 124 216 2 374-4 518-62 102-42 184-112 250-206l88 64c24 18 46-18 22-32l-88-66c8-16 18-34 24-52l118 48c30 12 44-28 14-38l-114-46 14-56 118 8c28 2 30-38 0-44Z"/><path fill="#fff" d="M774 1004c-42-34-98-66-174-66-158 0-304 134-304 328 0 162 112 322 284 322 76 0 148-30 198-80 60-60 98-144 98-258-4-90-38-182-102-246Z"/><path fill="#fff" transform="translate(1982 0) scale(-1 1)" d="M774 1004c-42-34-98-66-174-66-158 0-304 134-304 328 0 162 112 322 284 322 76 0 148-30 198-80 60-60 98-144 98-258-4-90-38-182-102-246Z"/><path fill="#fff" d="M976 1442c-64 0-74 30-36 66 36 30 56 30 88-6 30-30 4-60-52-60Z"/><g class="oc-pupils"><path fill="#0e0f15" d="M696 1094c-62 2-134 80-134 178 0 84 48 172 120 174 58 2 132-64 132-190-2-88-50-164-118-162Z"/><path fill="#0e0f15" transform="translate(1982 0) scale(-1 1)" d="M696 1094c-62 2-134 80-134 178 0 84 48 172 120 174 58 2 132-64 132-190-2-88-50-164-118-162Z"/><path fill="#fff" d="M740 1138c-18 0-34 18-34 46s16 44 32 44c18 0 36-16 36-44s-16-46-34-46Z"/><path fill="#fff" transform="translate(1982 0) scale(-1 1)" d="M740 1138c-18 0-34 18-34 46s16 44 32 44c18 0 36-16 36-44s-16-46-34-46Z"/></g><rect class="oc-lid" x="280" y="924" width="612" height="690" fill="#0e0f15"/><rect class="oc-lid" x="1090" y="924" width="612" height="690" fill="#0e0f15"/></g></svg></span>
+    <span class="boot-splash__name">Oblivian</span>
+    <span class="boot-splash__bar"><i class="boot-splash__fill"></i></span>
+  </div>
+
+  <!-- ===== Landing pública (visível p/ visitantes deslogados e robôs; removida ao logar) ===== -->
+  <main id="landing" class="lp">
+    <nav class="lp-nav"><div class="lp__wrap lp-nav__in">
+      <a class="lp-brand" href="/"><span class="lp-brand__cat" aria-hidden="true"><svg viewBox="0 0 2000 2000" fill="none"><g class="oc-body"><path fill="#0e0f15" d="m1960 1410-108-10h-4 4c20-110 12-234-30-362 42-120.001 136-436.001 116-598.001-22-94-90-78-184-44-74 26-202 88-428 232-88-28-190-52-324-52-62 0-126 2-202 14-50-84-120-196-186-282-60-78-154-190-220-200-44-6-74 28-106 112-46 134-88 368-76 718C160 1028 126 1148 128 1270c0 26 4 52 6 94H46c-26 0-26 42 0 42l98 2c4 20 10 40 16 64l-106 50c-26 10-12 48 16 36l106-46h2c10 20 20 40 30 56l-90 72c-16 12-8 40 14 36 4 0 8-2 12-6l84-66c50 70 110 124 180 164 134 78 304 120 588 124 216 2 374-4 518-62 102-42 184-112 250-206l88 64c24 18 46-18 22-32l-88-66c8-16 18-34 24-52l118 48c30 12 44-28 14-38l-114-46 14-56 118 8c28 2 30-38 0-44Z"/><path fill="#fff" d="M774 1004c-42-34-98-66-174-66-158 0-304 134-304 328 0 162 112 322 284 322 76 0 148-30 198-80 60-60 98-144 98-258-4-90-38-182-102-246Z"/><path fill="#fff" transform="translate(1982 0) scale(-1 1)" d="M774 1004c-42-34-98-66-174-66-158 0-304 134-304 328 0 162 112 322 284 322 76 0 148-30 198-80 60-60 98-144 98-258-4-90-38-182-102-246Z"/><path fill="#fff" d="M976 1442c-64 0-74 30-36 66 36 30 56 30 88-6 30-30 4-60-52-60Z"/><g class="oc-pupils"><path fill="#0e0f15" d="M696 1094c-62 2-134 80-134 178 0 84 48 172 120 174 58 2 132-64 132-190-2-88-50-164-118-162Z"/><path fill="#0e0f15" transform="translate(1982 0) scale(-1 1)" d="M696 1094c-62 2-134 80-134 178 0 84 48 172 120 174 58 2 132-64 132-190-2-88-50-164-118-162Z"/><path fill="#fff" d="M740 1138c-18 0-34 18-34 46s16 44 32 44c18 0 36-16 36-44s-16-46-34-46Z"/><path fill="#fff" transform="translate(1982 0) scale(-1 1)" d="M740 1138c-18 0-34 18-34 46s16 44 32 44c18 0 36-16 36-44s-16-46-34-46Z"/></g><rect class="oc-lid" x="280" y="924" width="612" height="690" fill="#0e0f15"/><rect class="oc-lid" x="1090" y="924" width="612" height="690" fill="#0e0f15"/></g></svg></span> Oblivian</a>
+      <div class="lp-nav__sp"></div>
+      <div class="lp-nav__links">
+        <a href="#recursos" data-i18n="nav.features">Recursos</a><a href="#como" data-i18n="nav.how">Como funciona</a><a href="#faq" data-i18n="nav.faq">Perguntas</a>
+      </div>
+      <div class="lp-lang">
+        <button type="button" class="lp-lang__btn" aria-haspopup="true" aria-expanded="false" aria-label="Idioma / Language"><span class="lp-lang__cur">PT</span><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="lp-lang__menu" hidden>
+          <button type="button" data-lang="pt">Português</button>
+          <button type="button" data-lang="es">Español</button>
+          <button type="button" data-lang="en">English</button>
+        </div>
+      </div>
+      <button type="button" class="lp-btn lp-btn--primary lp-enter" data-i18n="nav.enter">Entrar</button>
+    </div></nav>
+
+    <header class="lp-hero lp-hero--light">
+      <div class="lp-stickers" aria-hidden="true">
+        <span class="lp-st s1"><svg viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4M8 10v4M15.5 11h.01M18 13.5h.01"/></svg></span>
+        <span class="lp-st s2"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.6 3.1-5.4 7-5.4s7 1.8 7 5.4"/></svg></span>
+        <span class="lp-st s3"><svg viewBox="0 0 24 24" fill="none"><path d="M9 18V5l10-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg></span>
+        <span class="lp-st s4"><svg viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8 8 0 0 1-11.6 7.1L4 20.5l1.9-5.4A8 8 0 1 1 21 11.5Z"/></svg></span>
+        <span class="lp-st s5"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.4L12 15l-1.9-4.6L5.5 9l4.6-1.4L12 3Z"/><path d="M19 14l.8 1.9L21.7 17l-1.9.8L19 19.7l-.8-1.9L16.3 17l1.9-.8L19 14Z"/></svg></span>
+        <span class="lp-st s6"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg></span>
+        <span class="lp-st s7"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17l-5.2 2.6 1-5.8-4.3-4.1 5.9-.9L12 3.5Z"/></svg></span>
+        <span class="lp-st s8"><svg viewBox="0 0 24 24" fill="none"><ellipse cx="6.5" cy="11" rx="1.9" ry="2.5"/><ellipse cx="17.5" cy="11" rx="1.9" ry="2.5"/><ellipse cx="9.7" cy="7.2" rx="1.9" ry="2.5"/><ellipse cx="14.3" cy="7.2" rx="1.9" ry="2.5"/><path d="M12 13c-2.8 0-4.8 1.9-4.8 4C7.2 18.8 9.2 20 12 20s4.8-1.2 4.8-3C16.8 14.9 14.8 13 12 13Z"/></svg></span>
+        <span class="lp-st s9"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2.5"/><path d="M3 11h18M8.5 7 7 11M13.5 7 12 11M18.5 7 17 11"/></svg></span>
+        <span class="lp-st s10"><svg viewBox="0 0 24 24" fill="none"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v14H6.5A1.5 1.5 0 0 0 5 18.5V4.5Z"/><path d="M5 18.5A1.5 1.5 0 0 1 6.5 17H19v4H6.5A1.5 1.5 0 0 1 5 19.5Z"/></svg></span>
+        <span class="lp-st s11"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></span>
+        <span class="lp-st s12"><svg viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.5-9.2-8.7C1.2 8 2.7 4.6 6 4.6c2 0 3.2 1.3 4 2.5.8-1.2 2-2.5 4-2.5 3.3 0 4.8 3.4 3.2 6.7C19 15.5 12 20 12 20Z"/></svg></span>
+      </div>
+      <div class="lp__wrap lp-hero__in">
+        <div class="lp-hero__cat" role="img" aria-label="Oblivian">
+          <svg viewBox="0 0 2000 2000" fill="none" aria-hidden="true">
+            <g id="cat">
+              <g id="earL"><path class="ink" d="M800 590c-50-84-120-196-186-282-60-78-154-190-220-200-44-6-74 28-106 112-46 134-72 380-76 718L212 1160 800 1160Z"/></g>
+              <g id="earR"><path class="ink" d="M1822 1038c6-118 136-436.001 116-598.001-22-94-90-78-184-44-74 26-202 88-428 232L1326 1160 1822 1160Z"/></g>
+              <g id="whiskL">
+                <path class="ink" d="M240 1358 46 1364c-26 0-26 42 0 42L250 1422Z"/>
+                <path class="ink" d="M260 1452 54 1522c-26 10-12 48 16 36L266 1518Z"/>
+                <path class="ink" d="M300 1556 118 1640c-16 12-8 40 14 36 4 0 8-2 12-6L310 1600Z"/>
+              </g>
+              <g id="whiskR">
+                <path class="ink" d="M1742 1358 1936 1364c26 0 26 42 0 42L1732 1422Z"/>
+                <path class="ink" d="M1722 1452 1928 1522c26 10 12 48-16 36L1716 1518Z"/>
+                <path class="ink" d="M1682 1556 1864 1640c16 12 8 40-14 36-4 0-8-2-12-6L1672 1600Z"/>
+              </g>
+              <path class="ink" d="M1852 1400c20-110-22-240-30-362C1720 720 1480 628 1326 628c-88-28-190-52-324-52-62 0-126 2-202 14C618 619 285 820 212 938C198 1016 120 1150 128 1270c0 26 4 52 6 94C140 1452 170 1556 228 1604c50 70 110 124 180 164 134 78 304 120 588 124 216 2 374-4 518-62 102-42 184-112 250-206C1816 1556 1852 1474 1852 1400Z"/>
+              <path class="paper" d="M774 1004c-42-34-98-66-174-66-158 0-304 134-304 328 0 162 112 322 284 322 76 0 148-30 198-80 60-60 98-144 98-258-4-90-38-182-102-246Z"/>
+              <path class="paper" transform="translate(1982 0) scale(-1 1)" d="M774 1004c-42-34-98-66-174-66-158 0-304 134-304 328 0 162 112 322 284 322 76 0 148-30 198-80 60-60 98-144 98-258-4-90-38-182-102-246Z"/>
+              <path class="paper" d="M976 1442c-64 0-74 30-36 66 36 30 56 30 88-6 30-30 4-60-52-60Z"/>
+              <g id="pupils">
+                <path class="ink" d="M696 1094c-62 2-134 80-134 178 0 84 48 172 120 174 58 2 132-64 132-190-2-88-50-164-118-162Z"/>
+                <path class="ink" transform="translate(1982 0) scale(-1 1)" d="M696 1094c-62 2-134 80-134 178 0 84 48 172 120 174 58 2 132-64 132-190-2-88-50-164-118-162Z"/>
+                <g id="glints">
+                  <path class="paper" d="M740 1138c-18 0-34 18-34 46s16 44 32 44c18 0 36-16 36-44s-16-46-34-46Z"/>
+                  <path class="paper" transform="translate(1982 0) scale(-1 1)" d="M740 1138c-18 0-34 18-34 46s16 44 32 44c18 0 36-16 36-44s-16-46-34-46Z"/>
+                </g>
+              </g>
+              <rect id="lidL" class="lid ink" x="280" y="924" width="612" height="690"/>
+              <rect id="lidR" class="lid ink" x="1090" y="924" width="612" height="690"/>
+            </g>
+          </svg>
+        </div>
+      <h1 data-i18n-html="hero.title">Encontre sua gente.<br><span>Crie seu mundo.</span></h1>
+      <p data-i18n="hero.sub">O Oblivian é uma rede social de comunidades. Crie espaços sobre o que você ama, converse em tempo real, publique e personalize tudo do seu jeito, de graça.</p>
+      <div class="lp-hero__cta">
+        <a class="lp-btn lp-btn--lg lp-download" href="https://github.com/oblivianrd-cell/oblivian/releases/latest/download/oblivian.apk">
+          <svg class="lp-dl-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path class="lp-dl-arrow" d="M12 3.5v9m0 0 3.6-3.6M12 12.5 8.4 8.9" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><path class="lp-dl-tray" d="M4.5 15.5v2.2a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-2.2" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span data-i18n="hero.cta1">Download</span>
+        </a>
+        <button type="button" class="lp-btn lp-btn--ghost lp-btn--lg lp-enter" data-i18n="hero.cta2">Entrar</button>
+      </div>
+      <div class="lp-hero__note" data-i18n="hero.note">Grátis para Android · Português, Espanhol e Inglês</div>
+    </div></header>
+
+    <section class="lp-sec" id="recursos"><div class="lp__wrap">
+      <h2 class="lp-sec__h" data-i18n="feat.h">Tudo num só lugar</h2>
+      <p class="lp-sec__sub" data-i18n="feat.sub">Comunidades, conversas, publicações e perfis feitos pra você criar e participar sem complicação.</p>
+      <div class="lp-grid">
+        <div class="lp-card"><div class="lp-card__ico"><svg viewBox="0 0 24 24" fill="none"><circle cx="8" cy="9" r="2.6"/><path d="M3 19c0-2.8 2.2-4.4 5-4.4s5 1.6 5 4.4"/><path d="M16 6.4a2.6 2.6 0 0 1 0 5.2"/><path d="M15 14.8c2.4.2 4 1.8 4 4.2"/></svg></div><h3 data-i18n="feat.1t">Comunidades</h3><p data-i18n="feat.1d">Crie e descubra comunidades sobre qualquer assunto, com páginas, regras e papéis (dono, líder, moderador, curador).</p></div>
+        <div class="lp-card"><div class="lp-card__ico"><svg viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8 8 0 0 1-11.6 7.1L4 20.5l1.9-5.4A8 8 0 1 1 21 11.5Z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg></div><h3 data-i18n="feat.2t">Chats em tempo real</h3><p data-i18n="feat.2d">Conversas privadas, grupos e canais públicos da comunidade, com solicitações, contatos e anti-spam.</p></div>
+        <div class="lp-card"><div class="lp-card__ico"><svg viewBox="0 0 24 24" fill="none"><path d="M14 3H6.5A2 2 0 0 0 4.5 5v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 16.5h5"/></svg></div><h3 data-i18n="feat.3t">Publicações ricas</h3><p data-i18n="feat.3d">Poste texto, imagens, enquetes, perguntas, links, blogs e wikis. Fixe destaques e organize por feeds.</p></div>
+        <div class="lp-card"><div class="lp-card__ico"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 18.8a6 6 0 0 1 11 0"/></svg></div><h3 data-i18n="feat.4t">Perfis personalizáveis</h3><p data-i18n="feat.4d">Capa, painel, cores e avatar. Um perfil global e um perfil próprio por comunidade.</p></div>
+        <div class="lp-card"><div class="lp-card__ico"><svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="9" r="5.5"/><path d="M14.2 4.2a5.5 5.5 0 0 1 0 9.6"/><path d="M9 6.8v4.4M7.4 9h3.2"/></svg></div><h3 data-i18n="feat.5t">Moedas e loja</h3><p data-i18n="feat.5d">Ganhe moedas e troque por molduras, temas e destaques cosméticos pra deixar tudo com a sua cara.</p></div>
+        <div class="lp-card"><div class="lp-card__ico"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 5 6v5.2c0 4.3 3 8 7 9 4-1 7-4.7 7-9V6Z"/><rect x="9.3" y="11.3" width="5.4" height="4.4" rx="1"/><path d="M10.5 11.3v-1.1a1.5 1.5 0 0 1 3 0v1.1"/></svg></div><h3 data-i18n="feat.6t">Privado e seguro</h3><p data-i18n="feat.6d">Login com e-mail ou Google. Você controla o que compartilha e com quem conversa.</p></div>
+      </div>
+    </div></section>
+
+    <section class="lp-sec lp-sec--alt" id="como"><div class="lp__wrap">
+      <h2 class="lp-sec__h" data-i18n="steps.h">Comece em 3 passos</h2>
+      <p class="lp-sec__sub" data-i18n="steps.sub">Leva menos de um minuto pra entrar e começar a participar.</p>
+      <div class="lp-steps">
+        <div class="lp-step"><h3 data-i18n="steps.1t">Crie sua conta</h3><p data-i18n="steps.1d">Cadastre-se grátis com e-mail ou Google. Sem cartão, sem complicação.</p></div>
+        <div class="lp-step"><h3 data-i18n="steps.2t">Entre em comunidades</h3><p data-i18n="steps.2d">Descubra espaços que combinam com você, ou crie a sua própria do zero.</p></div>
+        <div class="lp-step"><h3 data-i18n="steps.3t">Converse e publique</h3><p data-i18n="steps.3d">Mande mensagens, faça posts, participe de enquetes e construa sua reputação.</p></div>
+      </div>
+    </div></section>
+
+    <section class="lp-sec" id="faq"><div class="lp__wrap">
+      <h2 class="lp-sec__h" data-i18n="faq.h">Perguntas frequentes</h2>
+      <div class="lp-faq">
+        <details open><summary data-i18n="faq.q1">O que é o Oblivian?</summary><p data-i18n="faq.a1">O Oblivian é uma rede social baseada em comunidades. Em vez de um feed único, você participa de espaços (comunidades) sobre temas específicos, cada um com seus chats, publicações, páginas e perfis.</p></details>
+        <details><summary data-i18n="faq.q2">É grátis?</summary><p data-i18n="faq.a2">Sim. Criar conta, entrar em comunidades, conversar e publicar é totalmente gratuito.</p></details>
+        <details><summary data-i18n="faq.q3">Preciso instalar algum app?</summary><p data-i18n="faq.a3">Não. O Oblivian funciona direto no navegador, no celular ou no computador. Você também pode adicioná-lo à tela inicial como um aplicativo (PWA).</p></details>
+        <details><summary data-i18n="faq.q4">Em quais idiomas o Oblivian está disponível?</summary><p data-i18n="faq.a4">Português, Espanhol e Inglês. O app detecta o seu idioma automaticamente e você pode trocar quando quiser.</p></details>
+        <details><summary data-i18n="faq.q5">Como crio a minha própria comunidade?</summary><p data-i18n="faq.a5">Depois de entrar, clique em "Criar comunidade", escolha nome, ícone, capa e tema, defina as regras e pronto.</p></details>
+        <details><summary data-i18n="faq.q6">Meus dados estão seguros?</summary><p><span data-i18n="faq.a6">Sim. Usamos autenticação segura (e-mail ou Google) e você controla o que publica e com quem fala.</span> <a href="privacidade.html" data-i18n="faq.privacy">Política de Privacidade</a></p></details>
+      </div>
+    </div></section>
+
+    <section class="lp-cta"><div class="lp__wrap">
+      <h2 data-i18n="cta.h">Leve o Oblivian com você</h2>
+      <p data-i18n="cta.p">Baixe o aplicativo oficial para Android e participe de onde estiver.</p>
+      <a class="lp-btn lp-btn--lg lp-download lp-download--light" href="https://github.com/oblivianrd-cell/oblivian/releases/latest/download/oblivian.apk">
+        <svg class="lp-dl-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path class="lp-dl-arrow" d="M12 3.5v9m0 0 3.6-3.6M12 12.5 8.4 8.9" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><path class="lp-dl-tray" d="M4.5 15.5v2.2a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-2.2" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span data-i18n="cta.btn">Download</span>
+      </a>
+      <div class="lp-cta__note" data-i18n="cta.note">APK oficial · Android 7.0 ou superior</div>
+    </div></section>
+
+    <footer class="lp-footer">
+      <div class="lp__wrap lp-footer__grid">
+        <div class="lp-footer__brand">
+          <a class="lp-brand" href="/"><span class="lp-brand__cat" aria-hidden="true"><svg viewBox="0 0 2000 2000" fill="none"><g class="oc-body"><path fill="#0e0f15" d="m1960 1410-108-10h-4 4c20-110 12-234-30-362 42-120.001 136-436.001 116-598.001-22-94-90-78-184-44-74 26-202 88-428 232-88-28-190-52-324-52-62 0-126 2-202 14-50-84-120-196-186-282-60-78-154-190-220-200-44-6-74 28-106 112-46 134-88 368-76 718C160 1028 126 1148 128 1270c0 26 4 52 6 94H46c-26 0-26 42 0 42l98 2c4 20 10 40 16 64l-106 50c-26 10-12 48 16 36l106-46h2c10 20 20 40 30 56l-90 72c-16 12-8 40 14 36 4 0 8-2 12-6l84-66c50 70 110 124 180 164 134 78 304 120 588 124 216 2 374-4 518-62 102-42 184-112 250-206l88 64c24 18 46-18 22-32l-88-66c8-16 18-34 24-52l118 48c30 12 44-28 14-38l-114-46 14-56 118 8c28 2 30-38 0-44Z"/><path fill="#fff" d="M774 1004c-42-34-98-66-174-66-158 0-304 134-304 328 0 162 112 322 284 322 76 0 148-30 198-80 60-60 98-144 98-258-4-90-38-182-102-246Z"/><path fill="#fff" transform="translate(1982 0) scale(-1 1)" d="M774 1004c-42-34-98-66-174-66-158 0-304 134-304 328 0 162 112 322 284 322 76 0 148-30 198-80 60-60 98-144 98-258-4-90-38-182-102-246Z"/><path fill="#fff" d="M976 1442c-64 0-74 30-36 66 36 30 56 30 88-6 30-30 4-60-52-60Z"/><g class="oc-pupils"><path fill="#0e0f15" d="M696 1094c-62 2-134 80-134 178 0 84 48 172 120 174 58 2 132-64 132-190-2-88-50-164-118-162Z"/><path fill="#0e0f15" transform="translate(1982 0) scale(-1 1)" d="M696 1094c-62 2-134 80-134 178 0 84 48 172 120 174 58 2 132-64 132-190-2-88-50-164-118-162Z"/><path fill="#fff" d="M740 1138c-18 0-34 18-34 46s16 44 32 44c18 0 36-16 36-44s-16-46-34-46Z"/><path fill="#fff" transform="translate(1982 0) scale(-1 1)" d="M740 1138c-18 0-34 18-34 46s16 44 32 44c18 0 36-16 36-44s-16-46-34-46Z"/></g><rect class="oc-lid" x="280" y="924" width="612" height="690" fill="#0e0f15"/><rect class="oc-lid" x="1090" y="924" width="612" height="690" fill="#0e0f15"/></g></svg></span> Oblivian</a>
+          <p class="lp-footer__tm" data-i18n="footer.tm">Rede social de comunidades. Feito com 💜.</p>
+        </div>
+        <div class="lp-footer__col">
+          <h4 data-i18n="footer.resources">Recursos</h4>
+          <a href="#recursos" data-i18n="nav.features">Recursos</a>
+          <a href="#faq" data-i18n="nav.faq">Perguntas</a>
+          <a href="mailto:oblivianrd@gmail.com" data-i18n="footer.support">Suporte</a>
+        </div>
+        <div class="lp-footer__col">
+          <h4 data-i18n="footer.legal">Legal</h4>
+          <a href="privacidade.html" data-i18n="faq.privacy">Política de Privacidade</a>
+          <a href="termos.html" data-i18n="footer.terms">Termos de Serviço</a>
+          <a href="diretrizes.html" data-i18n="footer.guidelines">Diretrizes da Comunidade</a>
+        </div>
+      </div>
+      <div class="lp__wrap lp-footer__bottom" data-i18n="footer.tag">© 2026 Oblivian · Rede social de comunidades</div>
+    </footer>
+  </main>
+
+  <!-- App (SPA monta aqui; escondido até logar / estar logado) -->
+  <div id="app" style="display:none"></div>
+
+  <!-- ===== Núcleo ===== -->
+  <script src="js/core/util.js"></script>
+  <script src="js/core/markup.js"></script>
+  <script src="js/core/events.js"></script>
+  <script src="js/core/i18n.js"></script>
+  <script src="js/landing-anim.js"></script>
+  <script src="js/landing-glass.js"></script>
+  <script src="js/core/icons.js"></script>
+  <script src="js/core/store.js"></script>
+  <script src="js/core/sound.js"></script>
+  <script src="js/core/router.js"></script>
+  <script src="js/core/searchLogic.js"></script>
+
+  <!-- ===== Dados ===== -->
+  <script src="js/data/models.js"></script>
+  <script src="js/data/seed.js"></script>
+  <script src="js/data/repository.js"></script>
+  <script src="js/data/localRepository.js"></script>
+  <!-- Backend Supabase (carrega se config.js tiver chave real; senão app fica local/demo) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/data/config.js"></script>
+  <script src="js/data/supabaseRepository.js"></script>
+  <script src="js/data/previewDraft.js"></script>
+
+  <!-- ===== Componentes ===== -->
+  <script src="js/components/ui.js"></script>
+  <script src="js/components/devmode.js"></script>
+  <script src="js/components/ads.js"></script>
+  <script src="js/components/adBanner.js"></script>
+  <script src="js/components/catBadge.js"></script>
+  <script src="js/components/effects.js"></script>
+  <script src="js/components/imagePicker.js"></script>
+  <script src="js/components/colorPicker.js"></script>
+  <script src="js/components/tagEditor.js"></script>
+  <script src="js/components/communityCard.js"></script>
+  <script src="js/components/profileHeader.js"></script>
+  <script src="js/components/moderation.js"></script>
+  <script src="js/components/onboarding.js"></script>
+  <script src="js/components/shell.js"></script>
+
+  <!-- ===== Telas ===== -->
+  <script src="js/screens/login.js"></script>
+  <script src="js/screens/explorer.js"></script>
+  <script src="js/screens/search.js"></script>
+  <script src="js/screens/sanguao.js"></script>
+  <script src="js/screens/chats.js"></script>
+  <script src="js/screens/chatSettings.js"></script>
+  <script src="js/screens/community.js"></script>
+  <script src="js/screens/communityChats.js"></script>
+  <script src="js/screens/profile.js"></script>
+  <script src="js/screens/comments.js"></script>
+  <script src="js/screens/settings.js"></script>
+  <script src="js/screens/createCommunity.js"></script>
+  <script src="js/screens/createPost.js"></script>
+  <script src="js/screens/store.js"></script>
+
+  <!-- ===== Bootstrap ===== -->
+  <script src="js/app.js"></script>
+</body>
+</html>

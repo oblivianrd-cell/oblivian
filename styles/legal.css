@@ -1,0 +1,56 @@
+/* ============================================================
+   legal.css — páginas de documentos (Privacidade, Termos,
+   Diretrizes) no estilo Kyodo: nav, headline gigante, painel.
+   Light por padrão; respeita o tema salvo do app via data-theme.
+   ============================================================ */
+:root, [data-theme="light"] {
+  --bg: #ffffff; --panel: #f5f5f7; --border: #e6e7ec;
+  --text: #0e0f15; --text-dim: #4a4f60; --text-mute: #8a8d99;
+  --accent: #7c5cff; --pill: #111317; --pill-text: #ffffff;
+}
+[data-theme="dark"] {
+  --bg: #0e0f15; --panel: #14161e; --border: #262a36;
+  --text: #f2f3f7; --text-dim: #b9bdcc; --text-mute: #7d8295;
+  --accent: #b59cff; --pill: #ffffff; --pill-text: #0e0f15;
+}
+* { box-sizing: border-box; margin: 0; }
+body { font-family: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+
+/* nav (igual à landing) */
+.lnav { position: sticky; top: 0; z-index: 50; background: var(--bg); background: color-mix(in srgb, var(--bg) 86%, transparent); -webkit-backdrop-filter: saturate(160%) blur(10px); backdrop-filter: saturate(160%) blur(10px); border-bottom: 1px solid var(--border); }
+.lnav__in { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; gap: 16px; padding: 13px 24px; }
+.lbrand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; letter-spacing: -.02em; text-decoration: none; color: var(--text); }
+.lbrand img { width: 34px; height: 34px; border-radius: 9px; transition: transform .2s ease; }
+.lbrand:hover img { transform: scale(1.06) rotate(-3deg); }
+.lnav__sp { flex: 1; }
+.lnav__link { color: var(--text-dim); text-decoration: none; font-weight: 600; font-size: 15px; padding: 8px 6px; }
+.lnav__link:hover { color: var(--text); }
+.lnav__cta { display: inline-flex; align-items: center; gap: 8px; background: var(--pill); color: var(--pill-text); font-weight: 700; font-size: 15px; padding: 11px 20px; border-radius: 999px; text-decoration: none; transition: transform .15s ease, opacity .15s ease; }
+.lnav__cta:hover { transform: translateX(-2px); opacity: .92; }
+.lnav__cta svg { width: 16px; height: 16px; }
+
+/* documento + painel */
+.ldoc { max-width: 1180px; margin: 0 auto; padding: 26px 24px 40px; }
+.ldoc__panel { background: var(--panel); border-radius: 28px; padding: 64px 64px 72px; }
+.ldoc h1 { font-family: "Clash Display", "Inter", system-ui, sans-serif; font-weight: 800; font-size: clamp(42px, 7vw, 84px); line-height: 1.0; letter-spacing: -.04em; }
+.ldoc .updated { color: var(--text-mute); font-size: 14px; margin-top: 16px; }
+.ldoc .lead { color: var(--text-dim); font-size: 18px; margin-top: 20px; max-width: 760px; }
+.ldoc h2 { font-family: "Clash Display", "Inter", system-ui, sans-serif; font-weight: 800; font-size: 30px; letter-spacing: -.02em; margin: 48px 0 12px; }
+.ldoc h3 { font-size: 18px; font-weight: 700; margin: 24px 0 6px; }
+.ldoc p, .ldoc li { color: var(--text-dim); font-size: 16px; }
+.ldoc p { margin-top: 10px; max-width: 840px; }
+.ldoc ul { margin: 10px 0 10px 22px; max-width: 840px; }
+.ldoc li { margin: 7px 0; }
+.ldoc strong { color: var(--text); font-weight: 700; }
+.ldoc a { color: var(--accent); }
+.ldoc a:hover { text-decoration: underline; }
+
+.lfooter { max-width: 1180px; margin: 0 auto; padding: 0 24px 56px; color: var(--text-mute); font-size: 13px; }
+
+@media (max-width: 640px) {
+  .ldoc__panel { padding: 38px 22px 48px; border-radius: 22px; }
+  .ldoc { padding: 16px 14px 32px; }
+  .lnav__link { display: none; }
+  .ldoc h2 { font-size: 25px; }
+}

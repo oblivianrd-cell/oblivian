@@ -1,0 +1,55 @@
+/* ============================================================
+   screens/devmode.css — Modo desenvolvedor (inspetor de UI)
+   ============================================================ */
+.dev-hi {
+  position: fixed; z-index: 99998; display: none; pointer-events: none;
+  border: 1.5px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 4px;
+}
+.dev-badge {
+  position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+  z-index: 100000; pointer-events: none;
+  background: var(--accent); color: #fff;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+  padding: 6px 14px; border-radius: 999px; box-shadow: var(--shadow-pop);
+}
+.dev-panel {
+  position: fixed; top: 16px; right: 16px; width: 280px; max-height: 82vh; overflow: auto;
+  z-index: 100000;
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: 14px;
+  box-shadow: var(--shadow-pop);
+  padding: 12px; display: flex; flex-direction: column; gap: 8px;
+}
+.dev-panel__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.dev-panel__head strong { font-size: 12px; color: var(--accent); word-break: break-all; }
+.dev-panel__x { background: none; border: 0; color: var(--text-dim); font-size: 20px; line-height: 1; cursor: pointer; }
+.dev-f { display: flex; align-items: center; gap: 8px; }
+.dev-f__l { width: 96px; flex: none; color: var(--text-mute); font-size: 11px; }
+.dev-f__inp {
+  flex: 1; min-width: 0;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); padding: 5px 8px; font-size: 12px;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+.dev-f__inp:focus { border-color: var(--accent); outline: none; }
+.dev-ta {
+  width: 100%; min-height: 64px; resize: vertical;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); padding: 8px; font-size: 12px;
+}
+.dev-ta:focus { border-color: var(--accent); outline: none; }
+.dev-copy {
+  background: var(--accent); color: #fff; border: 0; border-radius: 10px;
+  padding: 9px; font-weight: 700; cursor: pointer; font-size: 13px;
+  transition: filter var(--t-fast);
+}
+.dev-copy:hover { filter: brightness(1.06); }
+
+/* link discreto no login */
+.auth__dev {
+  align-self: center;
+  font-size: var(--fs-xs, 0.75rem); color: var(--text-mute);
+  background: none; border: 0; cursor: pointer; padding: 2px 6px;
+}
+.auth__dev:hover { color: var(--text-dim); text-decoration: underline; }

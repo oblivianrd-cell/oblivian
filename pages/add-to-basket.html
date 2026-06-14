@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Adicionar à sacola — animação</title>
+<style>
+  /* paleta alinhada ao projeto (tema claro / acento roxo) */
+  :root {
+    --bg: #f4f5fb; --layer: #ffffff; --border: #e2e5f0;
+    --foreground: #16181f; --muted: #868ba0; --accent: #7c5cff; --background: #ffffff;
+    --font-mono: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(60% 60% at 80% 0%, rgba(124,92,255,.10), transparent 60%), var(--bg);
+    color: var(--foreground); font-family: var(--font-mono);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+
+  .stage { position: relative; width: min(92vw, 560px); height: min(92vh, 560px); }
+
+  /* sacola (canto sup-direito) */
+  .basket {
+    position: absolute; top: 40px; right: 40px; width: 56px; height: 56px;
+    display: grid; place-items: center; border-radius: 16px;
+    background: var(--layer); border: 1px solid var(--border); color: var(--accent);
+    box-shadow: 0 8px 24px rgba(20,24,60,.10); will-change: transform; z-index: 3;
+  }
+  .basket .ring {
+    position: absolute; inset: -1px; border-radius: 16px;
+    border: 2px solid var(--accent); opacity: 0; pointer-events: none; will-change: transform, opacity;
+  }
+  .basket .count {
+    position: absolute; top: -8px; right: -8px; min-width: 20px; height: 20px; padding: 0 5px;
+    border-radius: 999px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 800;
+    display: grid; place-items: center; transform: scale(0); transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  }
+  .basket .count.show { transform: scale(1); }
+
+  .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+
+  .product {
+    width: 160px; height: 160px; display: grid; place-items: center; border-radius: 24px;
+    background: var(--layer); border: 1px solid var(--border);
+    box-shadow: 0 14px 40px rgba(20,24,60,.10); will-change: transform, opacity, clip-path;
+  }
+  .product .glyph { font-size: 84px; line-height: 1; user-select: none; }
+
+  .meta { display: flex; align-items: baseline; gap: 12px; font-size: 14px; letter-spacing: .02em; }
+  .meta .name { color: var(--foreground); font-weight: 700; }
+  .meta .price { color: var(--accent); font-weight: 800; }
+
+  .btn {
+    margin-top: 4px; padding: 13px 26px; border: none; border-radius: 999px;
+    background: var(--accent); color: #fff; font-family: var(--font-mono);
+    font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; cursor: pointer;
+    box-shadow: 0 10px 26px rgba(124,92,255,.32); transition: transform .15s ease, opacity .2s ease;
+  }
+  .btn:hover { transform: scale(1.03); }
+  .btn:active { transform: scale(.97); }
+  .btn[disabled] { opacity: .55; pointer-events: none; }
+
+  @media (prefers-reduced-motion: reduce) { .product, .basket, .ring { transition: none !important; } }
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <div class="basket" id="basket">
+      <div class="ring" id="ring"></div>
+      <span class="count" id="count">0</span>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/>
+        <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/>
+        <path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/>
+      </svg>
+    </div>
+
+    <div class="center">
+      <div class="product" id="product"><span class="glyph">🖼️</span></div>
+      <div class="meta"><span class="name">Moldura Neon</span><span class="price">500 🪙</span></div>
+      <button class="btn" id="add" type="button">Adicionar à sacola</button>
+    </div>
+  </div>
+
+<script>
+  var PRODUCT_SIZE = 160, BASKET_BOX = 56, FLY_SCALE = BASKET_BOX / PRODUCT_SIZE;
+  var product = document.getElementById("product");
+  var basket  = document.getElementById("basket");
+  var ring    = document.getElementById("ring");
+  var btn     = document.getElementById("add");
+  var countEl = document.getElementById("count");
+  var flying = false, count = 0;
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // gera keyframes que traçam um ARCO (bezier quadrática) de (0,0) até (dx,dy)
+  function arcKeyframes(dx, dy, opts) {
+    var N = 16, len = Math.hypot(dx, dy) || 1;
+    var nx = -dy / len, ny = dx / len;                 // normal (perpendicular) — "cw"
+    var bulge = len * opts.strength;                   // altura do arco
+    var cx = dx / 2 + nx * bulge, cy = dy / 2 + ny * bulge;  // ponto de controle
+    var ks = [];
+    for (var i = 0; i <= N; i++) {
+      var t = i / N, u = 1 - t;
+      var x = u * u * 0 + 2 * u * t * cx + t * t * dx;
+      var y = u * u * 0 + 2 * u * t * cy + t * t * dy;
+      var sc = 1 + (FLY_SCALE - 1) * t;                // encolhe até o tamanho da sacola
+      var rot = opts.rotate * 360 * t * 0.12;          // leve rotação
+      var op = t < 0.92 ? 1 : (1 - (t - 0.92) / 0.08); // some no finalzinho
+      ks.push({ transform: "translate(" + x + "px," + y + "px) scale(" + sc + ") rotate(" + rot + "deg)", opacity: op });
+    }
+    return ks;
+  }
+
+  function addToBasket() {
+    if (flying) return;
+    flying = true; btn.disabled = true;
+
+    var from = product.getBoundingClientRect(), to = basket.getBoundingClientRect();
+    var dx = (to.left + to.width / 2) - (from.left + from.width / 2);
+    var dy = (to.top + to.height / 2) - (from.top + from.height / 2);
+
+    if (reduce) { bumpCount(); resetProduct(); flying = false; btn.disabled = false; return; }
+
+    // 1) voa em arco pra sacola, encolhendo + sumindo no fim
+    var fly = product.animate(arcKeyframes(dx, dy, { strength: 0.32, rotate: 0.9 }),
+      { duration: 460, easing: "cubic-bezier(.74,.18,.93,.69)", fill: "forwards" });
+
+    fly.finished.then(function () {
+      // 2) sacola leva o impacto (sobe/direita) e assenta como mola
+      basket.animate([
+        { transform: "translate(0,0)" },
+        { transform: "translate(9px,-13px)", offset: 0.18 },
+        { transform: "translate(-4px,5px)", offset: 0.45 },
+        { transform: "translate(2px,-2px)", offset: 0.7 },
+        { transform: "translate(0,0)" }
+      ], { duration: 700, easing: "ease-out" });
+
+      // 3) ripple sai da sacola
+      ring.animate([{ transform: "scale(1)", opacity: 0.8 }, { transform: "scale(2.4)", opacity: 0 }],
+        { duration: 520, easing: "ease-out" });
+
+      bumpCount();
+
+      // 4) produto reaparece com leve bounce
+      product.getAnimations().forEach(function (a) { a.cancel(); });
+      product.style.opacity = "0"; product.style.transform = "scale(.6)";
+      var back = product.animate(
+        [{ opacity: 0, transform: "scale(.6)" }, { opacity: 1, transform: "scale(1.08)", offset: 0.7 }, { opacity: 1, transform: "scale(1)" }],
+        { duration: 460, easing: "cubic-bezier(.34,1.56,.64,1)", fill: "forwards" });
+      back.finished.then(function () { resetProduct(); flying = false; btn.disabled = false; });
+    });
+  }
+
+  function resetProduct() { product.getAnimations().forEach(function (a) { a.cancel(); }); product.style.opacity = ""; product.style.transform = ""; }
+  function bumpCount() { count++; countEl.textContent = count; countEl.classList.add("show"); countEl.animate([{ transform: "scale(1.4)" }, { transform: "scale(1)" }], { duration: 300, easing: "cubic-bezier(.34,1.56,.64,1)" }); }
+
+  btn.addEventListener("click", addToBasket);
+</script>
+</body>
+</html>

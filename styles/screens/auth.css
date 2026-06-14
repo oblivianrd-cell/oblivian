@@ -1,0 +1,295 @@
+/* ============================================================
+   screens/auth.css — Tela de login / cadastro (App.screens.login)
+   Card centralizado, fundo com brilho do acento. Usa tokens.
+   ============================================================ */
+
+.auth {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;        /* viewport real (mobile/desktop) — centraliza vertical */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-5, 24px) var(--s-4, 16px);
+  overflow: hidden;
+}
+
+/* fundo LÍQUIDO animado (mesmo clima do badge do gato) — blobs suaves fluindo */
+.auth__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(40% 45% at 22% 24%, rgba(255,134,201,.45), transparent 60%),
+    radial-gradient(45% 50% at 82% 30%, rgba(155,123,255,.45), transparent 60%),
+    radial-gradient(52% 56% at 62% 86%, rgba(122,215,255,.40), transparent 60%),
+    radial-gradient(42% 46% at 12% 82%, rgba(255,176,214,.42), transparent 60%),
+    var(--bg);
+  background-size: 200% 200%, 210% 210%, 200% 200%, 220% 220%, 100% 100%;
+  animation: auth-liquid-bg 20s ease-in-out infinite;
+}
+@keyframes auth-liquid-bg {
+  0%,100% { background-position: 0% 0%, 100% 0%, 50% 100%, 0% 100%, 0 0; }
+  50%     { background-position: 45% 35%, 55% 45%, 25% 55%, 60% 40%, 0 0; }
+}
+@media (prefers-reduced-motion: reduce) { .auth__bg { animation: none; } }
+
+.auth__card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 560px;                  /* card grande */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;               /* cantos arredondados (quadrado curvado) */
+  box-shadow: var(--shadow-pop), inset 0 1px 0 rgba(255, 255, 255, 0.05);  /* hairline de luz no topo */
+  padding: 28px 44px;                /* menos vertical = layout mais quadrado */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: auth-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes auth-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth__card { animation: none; }
+}
+
+/* marca */
+.auth__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--s-1, 4px);
+}
+.auth__logo {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 2px;
+}
+/* badge do gato ANIMADO no login (inline) — fundo líquido + gato vivo + olhos seguem mouse */
+.auth-cat {
+  width: 68px; height: 68px; border-radius: 19px; position: relative; overflow: hidden;
+  display: grid; place-items: center; margin-bottom: 2px; box-shadow: 0 10px 26px rgba(124,92,255,.28);
+}
+.auth-cat__bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(42% 50% at 30% 30%, rgba(255,134,201,.85), transparent 70%),
+    radial-gradient(46% 56% at 75% 72%, rgba(155,123,255,.80), transparent 70%),
+    radial-gradient(40% 42% at 60% 22%, rgba(122,215,255,.55), transparent 70%),
+    linear-gradient(135deg, #efe9ff, #ffe6f3);
+  background-size: 180% 180%, 180% 180%, 170% 170%, 100% 100%;
+  animation: auth-liquid 9s ease-in-out infinite;
+}
+.auth-cat__svg { position: relative; z-index: 1; width: 80%; height: 80%; display: grid; place-items: center; }
+.auth-cat__svg svg { width: 100%; height: 100%; overflow: visible; }
+.auth-cat .ac-body { transform-box: fill-box; transform-origin: center bottom; animation: cat-breathe 5s ease-in-out infinite; }
+.auth-cat .ac-earL { transform-box: fill-box; animation: cat-earL 6s ease-in-out infinite; }
+.auth-cat .ac-earR { transform-box: fill-box; animation: cat-earR 6.7s ease-in-out infinite; }
+.auth-cat .ac-whiskL { transform-box: fill-box; transform-origin: 100% 50%; animation: cat-whiskL 4.5s ease-in-out infinite; }
+.auth-cat .ac-whiskR { transform-box: fill-box; transform-origin: 0% 50%; animation: cat-whiskR 5.3s ease-in-out infinite; }
+.auth-cat .ac-pupils { transform-box: fill-box; transform-origin: center; animation: cat-look 7s ease-in-out infinite; transition: transform .22s cubic-bezier(.34,1.56,.64,1); }
+.auth-cat .ac-lid { transform-box: fill-box; transform-origin: center top; transform: scaleY(0); animation: cat-blink 5s ease-in-out infinite; }
+@keyframes auth-liquid { 0%,100% { background-position: 0% 0%, 100% 100%, 50% 0%, 0 0; } 50% { background-position: 70% 40%, 20% 70%, 85% 90%, 0 0; } }
+/* clicar no nariz → gato treme */
+.auth-cat .ac-nose { cursor: pointer; }
+.auth-cat__svg.is-shaking { animation: cat-shake .55s cubic-bezier(.36,.07,.19,.97); }
+@keyframes cat-shake {
+  10% { transform: translate(-3px,1px) rotate(-3deg); }
+  20% { transform: translate(4px,-1px) rotate(3deg); }
+  30% { transform: translate(-5px,1px) rotate(-4deg); }
+  40% { transform: translate(5px,-2px) rotate(4deg); }
+  50% { transform: translate(-4px,1px) rotate(-3deg); }
+  60% { transform: translate(3px,-1px) rotate(2deg); }
+  75% { transform: translate(-2px,1px) rotate(-1deg); }
+  100% { transform: translate(0,0) rotate(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-cat .ac-body, .auth-cat .ac-earL, .auth-cat .ac-earR, .auth-cat .ac-whiskL, .auth-cat .ac-whiskR, .auth-cat .ac-pupils, .auth-cat__bg { animation: none !important; }
+  .auth-cat .ac-lid { animation: none; transform: scaleY(0); }
+}
+.auth__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 1.5rem + 1.4vw, 2.2rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  margin: 0;
+}
+.auth__subtitle {
+  font-size: var(--fs-sm, 0.875rem);
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin: 6px 0 0;
+  max-width: 34ch;
+}
+
+/* formulário */
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* senha + botão mostrar/ocultar */
+.auth__pw { position: relative; display: flex; align-items: center; }
+.auth__pw .input { padding-right: 76px; }
+.auth__eye {
+  position: absolute;
+  right: var(--s-2, 8px);
+  background: transparent;
+  border: 0;
+  color: var(--text-dim);
+  font-size: var(--fs-xs, 0.75rem);
+  font-weight: var(--fw-semibold, 600);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--r-sm, 8px);
+}
+.auth__eye:hover { color: var(--text); background: var(--surface-3); }
+
+/* links (esqueci senha / trocar modo) */
+.auth__link {
+  align-self: flex-start;
+  background: transparent;
+  border: 0;
+  color: var(--accent);
+  font-size: var(--fs-sm, 0.875rem);
+  font-weight: var(--fw-semibold, 600);
+  cursor: pointer;
+  padding: 0;
+}
+.auth__link:hover { text-decoration: underline; }
+
+/* erro */
+.auth__error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+  font-size: var(--fs-sm, 0.875rem);
+  padding: var(--s-2, 8px) var(--s-3, 12px);
+  border-radius: var(--r-md, 12px);
+}
+
+/* ---- login social (3 círculos) ---- */
+.auth__social-wrap { display: flex; flex-direction: column; gap: var(--s-3, 12px); }
+.auth__divider {
+  display: flex; align-items: center; gap: var(--s-3, 12px);
+  color: var(--text-mute);
+}
+.auth__divider span {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;            /* small caps tracked = premium */
+  font-size: 0.68rem;
+  font-weight: var(--fw-semibold, 600);
+  white-space: nowrap;
+}
+.auth__divider::before, .auth__divider::after {
+  content: ""; flex: 1; height: 1px;
+  background: linear-gradient(to var(--dir, right), transparent, var(--border));
+}
+.auth__divider::before { --dir: left; }
+
+.auth__social { display: flex; justify-content: center; gap: var(--s-4, 16px); }
+.auth__social-btn {
+  width: 54px; height: 54px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--surface-2);
+  display: grid; place-items: center; cursor: pointer; color: var(--text);
+  transition: transform .25s cubic-bezier(.34, 1.56, .64, 1), border-color .2s ease, background .2s ease, box-shadow .25s ease;
+  animation: social-in .42s cubic-bezier(.34, 1.56, .64, 1) both;
+  will-change: transform;
+}
+/* entrada escalonada dos 3 círculos */
+.auth__social-btn:nth-child(1) { animation-delay: .04s; }
+.auth__social-btn:nth-child(2) { animation-delay: .10s; }
+.auth__social-btn:nth-child(3) { animation-delay: .16s; }
+
+.auth__social-btn svg { width: 24px; height: 24px; display: block; transition: transform .25s cubic-bezier(.34, 1.56, .64, 1); }
+/* hover: sobe + cresce (bounce) e o ícone dá um pop */
+.auth__social-btn:hover { transform: translateY(-4px) scale(1.08); background: var(--surface-3); }
+.auth__social-btn:hover svg { transform: scale(1.15); }
+/* clique: squish rápido */
+.auth__social-btn:active { transform: translateY(-1px) scale(.95); transition-duration: .09s; }
+
+/* glow colorido por marca */
+.auth__social-btn--google:hover  { border-color: #4285F4; box-shadow: 0 8px 22px rgba(66, 133, 244, .35); }
+.auth__social-btn--discord:hover { border-color: #5865F2; box-shadow: 0 8px 22px rgba(88, 101, 242, .42); }
+.auth__social-btn--github:hover  { border-color: var(--text); box-shadow: 0 8px 22px rgba(160, 160, 180, .28); }
+
+@keyframes social-in {
+  from { opacity: 0; transform: translateY(12px) scale(.8); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth__social-btn { animation: none; }
+  .auth__social-btn, .auth__social-btn svg { transition: none; }
+}
+
+/* trocar entrar/cadastrar */
+.auth__switch {
+  display: flex;
+  justify-content: center;
+  gap: var(--s-2, 8px);
+  font-size: var(--fs-sm, 0.875rem);
+}
+
+/* aviso modo demo */
+.auth__demo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2, 8px);
+  font-size: var(--fs-xs, 0.75rem);
+  color: var(--text-dim);
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-md, 12px);
+  padding: var(--s-2, 8px) var(--s-3, 12px);
+}
+.auth__demo svg { flex: 0 0 auto; margin-top: 1px; }
+
+/* ============================================================
+   Polish (mantém layout) — micro-labels, foco, botão, inputs
+   ============================================================ */
+
+/* micro-labels (E-mail / Senha): caixa alta com tracking sutil */
+.auth .field__label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  color: var(--text-mute);
+}
+
+/* inputs: anel de foco suave com o acento + transição polida */
+.auth .input {
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.auth .input:focus {
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* botão Entrar/Criar conta: lift + glow no hover, squish no clique */
+.auth__form .btn--primary {
+  transition: transform 0.18s cubic-bezier(0.34, 1.4, 0.6, 1), box-shadow 0.2s ease, filter 0.2s ease;
+  box-shadow: 0 8px 22px var(--accent-soft);
+  letter-spacing: 0.01em;
+}
+.auth__form .btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px var(--accent-soft);
+  filter: saturate(1.08) brightness(1.03);
+}
+.auth__form .btn--primary:active { transform: translateY(0); transition-duration: 0.08s; }
+
+/* segmented (Entrar / Criar conta): item ativo com leve profundidade */
+.auth .segmented { padding: 4px; }
+.auth .segmented__item { transition: color 0.18s ease; font-weight: var(--fw-semibold, 600); }
+
+@media (prefers-reduced-motion: reduce) {
+  .auth__form .btn--primary { transition: none; }
+}

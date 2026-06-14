@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rank Cards — Bronze · Prata · Ouro · Platina</title>
+<style>
+  :root{ --ink:#0c0d10; --txt:#f4f5f7; --mut:#9aa0a6; }
+  *{ box-sizing:border-box }
+  body{
+    margin:0; min-height:100vh; padding:40px 20px;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(440px,1fr)); gap:34px; align-content:center; justify-items:center;
+    background:radial-gradient(130% 80% at 50% -5%, #16161a 0%, var(--ink) 60%);
+    font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif; color:var(--txt);
+  }
+
+  /* ===================== CARD (sem glow/sombra) ===================== */
+  .rank{
+    position:relative; width:100%; max-width:500px; padding:30px 34px 34px; overflow:hidden;
+    border-radius:22px; border:1px solid rgba(255,255,255,.08);
+    background:linear-gradient(180deg, #1d1e21, #111214);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 0 0 1px rgba(255,255,255,.05);
+    animation:rank-in .6s cubic-bezier(.22,1,.36,1) both;
+  }
+  .rank::before{
+    content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    background:linear-gradient(157deg, rgba(255,255,255,.10), transparent 36%);
+  }
+
+  /* ===================== GEMS ===================== */
+  .gems{ display:flex; justify-content:center; gap:13px; margin-bottom:26px; position:relative; z-index:1; }
+  .gemwrap{ position:relative; width:60px; height:69px; animation:gem-pop .55s cubic-bezier(.34,1.56,.64,1) both; }
+  .gemwrap:nth-child(1){ animation-delay:.04s } .gemwrap:nth-child(2){ animation-delay:.10s } .gemwrap:nth-child(3){ animation-delay:.16s }
+  .gemwrap:nth-child(4){ animation-delay:.22s } .gemwrap:nth-child(5){ animation-delay:.28s }
+  .gem{ width:100%; height:100%; display:block; }
+  .gemwrap.lit .gem{ filter:none; }
+  .gemwrap.off .gem{ filter:none; opacity:.95; }
+  /* gem apagado = ramp cinza (sobrescreve as vars do tier) */
+  .gemwrap.off{
+    --gp1:#6e747c; --gp2:#5e646b; --gp3:#4c5158; --gp4:#5e646b; --gp5:#3b3f45;
+    --gp6:#2f3338; --gp7:#4c5158; --gp8:#3b3f45; --gp9:#6e747c;
+  }
+  /* shine sweep clipado na silhueta do gem */
+  .shine{ position:absolute; inset:0; pointer-events:none; overflow:hidden;
+    clip-path:polygon(50% 1%,100% 27%,100% 73%,50% 99%,0 73%,0 27%); }
+  .gemwrap.lit .shine::after{
+    content:""; position:absolute; top:0; left:-60%; width:42%; height:100%;
+    background:linear-gradient(115deg, transparent, rgba(255,255,255,.78), transparent);
+    transform:skewX(-18deg); animation:sweep 3.6s ease-in-out infinite;
+  }
+  /* sparkle */
+  .gemwrap.lit::before{
+    content:""; position:absolute; top:16%; left:26%; width:7px; height:7px; z-index:2; pointer-events:none;
+    background:radial-gradient(circle, #fff 0 30%, transparent 62%);
+    filter:drop-shadow(0 0 5px rgba(255,255,255,.9)); animation:sparkle 2.6s ease-in-out infinite;
+  }
+
+  /* ===================== HEAD ===================== */
+  .head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:22px; position:relative; z-index:1; }
+  .tier{
+    font-size:30px; font-weight:800; letter-spacing:.01em; line-height:1;
+    background:linear-gradient(100deg, var(--txt-bottom), var(--txt-top) 38%, #fff 50%, var(--txt-top) 62%, var(--txt-bottom));
+    background-size:220% auto; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:tier-flow 4.5s linear infinite;
+  }
+  .points{ font-size:24px; font-weight:800; letter-spacing:.01em; font-variant-numeric:tabular-nums lining-nums; }
+  .points b{ color:#fff } .points span{ color:var(--mut); font-weight:600; font-size:15px; margin-left:3px }
+
+  /* ===================== PROGRESS (5 níveis) ===================== */
+  .togo{ color:var(--mut); font-size:13.5px; margin-bottom:11px; position:relative; z-index:1; }
+  .bar{ display:grid; grid-template-columns:repeat(5,1fr); gap:5px; position:relative; z-index:1; }
+  .seg{ height:11px; border-radius:99px; background:rgba(255,255,255,.07); box-shadow:inset 0 1px 2px rgba(0,0,0,.55); overflow:hidden; position:relative; }
+  .seg i{ position:absolute; inset:0; width:0; border-radius:99px;
+    background:linear-gradient(90deg, var(--barC), var(--barB) 55%, var(--barA));
+    animation:fill-up 1.05s cubic-bezier(.22,1,.36,1) .25s both; }
+  .seg.full i{ --to:100% } .seg.part i{ --to:60% } .seg.empty i{ --to:0% }
+  .labels{ display:grid; grid-template-columns:repeat(5,1fr); gap:5px; margin-top:9px; }
+  .labels span{ text-align:center; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--mut); }
+  .labels span.on{ color:var(--label-on); font-weight:700; }
+
+  /* ===================== PALETAS (gp7 = gp3 → face uniforme, sem linha) ===================== */
+  .t-bronze{ --gp1:#F6C98A;--gp2:#E89B53;--gp3:#C46A24;--gp4:#E89B53;--gp5:#955118;--gp6:#7C3F10;--gp7:#C46A24;--gp8:#955118;--gp9:#F6C98A;
+    --glow:#E08A3C; --txt-top:#F7CD93; --txt-bottom:#C46A24; --barA:#F6C98A; --barB:#D97E33; --barC:#955118; --label-on:#F2B978; }
+  .t-prata{ --gp1:#FBFDFF;--gp2:#E4ECF4;--gp3:#C2CDDA;--gp4:#E4ECF4;--gp5:#8D9AAC;--gp6:#737F91;--gp7:#C2CDDA;--gp8:#8D9AAC;--gp9:#FBFDFF;
+    --glow:#D6E2F0; --txt-top:#F2F7FC; --txt-bottom:#A9B6C6; --barA:#FBFDFF; --barB:#C6D2E0; --barC:#8D9AAC; --label-on:#E8EFF6; }
+  .t-ouro{ --gp1:#FEF399;--gp2:#FDE851;--gp3:#F7CA2A;--gp4:#FDE851;--gp5:#DDA519;--gp6:#C68915;--gp7:#F7CA2A;--gp8:#DDA519;--gp9:#FEF399;
+    --glow:#FBD64A; --txt-top:#FEF3A0; --txt-bottom:#E2A91C; --barA:#FEF399; --barB:#F7CA2A; --barC:#C68915; --label-on:#FDE851; }
+  .t-platina{ --gp1:#FBFEFF;--gp2:#E9F4F7;--gp3:#C7DDE4;--gp4:#E9F4F7;--gp5:#9DB4BD;--gp6:#82999F;--gp7:#C7DDE4;--gp8:#9DB4BD;--gp9:#FBFEFF;
+    --glow:#CFEAF2; --txt-top:#F4FBFD; --txt-bottom:#AFC8D1; --barA:#E4F3F7; --barB:#BCD7DF; --barC:#94B0B9; --label-on:#EAF6F9; }
+
+  @keyframes rank-in{ from{opacity:0; transform:translateY(14px) scale(.985)} to{opacity:1; transform:none} }
+  @keyframes gem-pop{ from{opacity:0; transform:translateY(10px) scale(.72)} to{opacity:1; transform:none} }
+  @keyframes sweep{ 0%,72%{ left:-60% } 88%,100%{ left:150% } }
+  @keyframes sparkle{ 0%,100%{ opacity:.2; transform:scale(.6) } 50%{ opacity:1; transform:scale(1) } }
+  @keyframes tier-flow{ to{ background-position:220% center } }
+  @keyframes fill-up{ from{ width:0 } to{ width:var(--to,0) } }
+  @media (prefers-reduced-motion:reduce){
+    *{ animation:none !important }
+    .seg i{ width:var(--to,0) }
+  }
+</style>
+</head>
+<body>
+  <!-- gem único (var-driven): clipado na silhueta + stroke só nas facetas escuras (p5,p6,p8) + miter -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="gem" viewBox="0 0 1572 1826" shape-rendering="geometricPrecision">
+    <clipPath id="gemClip"><path d="M1571.43 448.577v914.293l-794.287 462.87L0 1368.59V454.291L782.857 0l788.573 448.577Z"/></clipPath>
+    <g clip-path="url(#gemClip)" stroke-width="16" stroke-linejoin="miter" stroke-miterlimit="2">
+    <path style="fill:var(--gp1,#FEF399)" d="M1571.43 448.577v914.293l-794.287 462.87L0 1368.59V454.291L782.857 0l788.573 448.577Z"/>
+    <path style="fill:var(--gp2,#FDE851)" d="m777.143 0 794.287 448.577-302.86 182.86-491.427-268.575-471.429 268.575L0 454.291 777.143 0Z"/>
+    <path style="fill:var(--gp3,#F7CA2A)" d="M777.139 362.863 305.711 631.438v560.012l471.428 285.71 491.431-285.71V631.438L777.139 362.863Z"/>
+    <path style="fill:var(--gp4,#FDE851)" d="M305.714 631.438 0 454.293v914.297l305.714-177.14V631.438Z"/>
+    <path style="fill:var(--gp5,#DDA519);stroke:var(--gp5,#DDA519)" d="M777.141 1477.16v348.58l794.289-462.86-302.86-171.43-491.429 285.71Z"/>
+    <path style="fill:var(--gp6,#C68915);stroke:var(--gp6,#C68915)" d="m0 1368.59 777.143 457.15v-348.58l-471.429-285.71L0 1368.59Z"/>
+    <path style="fill:var(--gp7,#F8CA1B)" d="m305.711 1191.44 471.428 285.72 491.431-285.72V631.438L305.711 1191.44Z"/>
+    <path style="fill:var(--gp8,#DDA519);stroke:var(--gp8,#DDA519)" d="M1268.57 631.438v560.002l302.86 171.44V448.578l-302.86 182.86Z"/>
+    <path style="fill:var(--gp9,#FEF399)" d="m305.714 631.437 471.429-268.575V0L0 454.291l305.714 177.146Z"/>
+    </g>
+  </symbol></svg>
+
+  <!-- ===== 4 tiers × 5 níveis ===== -->
+  <div class="rank t-bronze">
+    <div class="gems">
+      <span class="gemwrap lit"><svg class="gem"><use href="#gem"/></svg><span class="shine"></span></span>
+      <span class="gemwrap lit"><svg class="gem"><use href="#gem"/></svg><span class="shine"></span></span>
+      <span class="gemwrap lit"><svg class="gem"><use href="#gem"/></svg><span class="shine"></span></span>
+      <span class="gemwrap off"><svg class="gem"><use href="#gem"/></svg></span>
+      <span class="gemwrap off"><svg class="gem"><use href="#gem"/></svg></span>
+    </div>
+    <div class="head"><div class="tier">Bronze 3</div><div class="points"><b>1,240</b> <span>pts</span></div></div>
+    <div class="togo">310 pts até Bronze 4</div>
+    <div class="bar"><div class="seg full"><i></i></div><div class="seg full"><i></i></div><div class="seg part"><i></i></div><div class="seg empty"><i></i></div><div class="seg empty"><i></i></div></div>
+    <div class="labels"><span>1</span><span>2</span><span class="on">3</span><span>4</span><span>5</span></div>
+  </div>
+
+  <div class="rank t-prata">
+    <div class="gems">
+      <span class="gemwrap lit"><svg class="gem"><use href="#gem"/></svg><span class="shine"></span></span>
+      <span class="gemwrap lit"><svg class="gem"><use href="#gem"/></svg><span class="shine"></span></span>
+      <span class="gemwrap off"><svg class="gem"><use href="#gem"/></svg></span>
+      <span class="gemwrap off"><svg class="gem"><use href="#gem"/></svg></span>
+      <span class="gemwrap off"><svg class="gem"><use href="#gem"/></svg></span>
+    </div>
+    <div class="head"><div class="tier">Prata 2</div><div class="points"><b>4,580</b> <span>pts</span></div></div>
+    <div class="togo">920 pts até Prata 3</div>
+    <div class="bar"><div class="seg full"><i></i></div><div class="seg part"><i></i></div><div class="seg empty"><i></i></div><div class="seg empty"><i></i></div><div class="seg empty"><i></i></div></div>
+    <div class="labels"><span>1</span><span class="on">2</span><span>3</span><span>4</span><span>5</span></div>
+  </div>
+
+  <div class="rank t-ouro">
+    <div class="gems">
+      <span class="gemwrap lit"><svg class="gem"><use href="#gem"/></svg><span class="shine"></span></span>
+      <span class="gemwrap lit"><svg class="gem"><use href="#gem"/></svg><span class="shine"></span></span>
+      <span class="gemwrap lit"><svg class="gem"><use href="#gem"/></svg><span class="shine"></span></span>
+      <span class="gemwrap lit"><svg class="gem"><use href="#gem"/></svg><span class="shine"></span></span>
+      <span class="gemwrap off"><svg class="gem"><use href="#gem"/></svg></span>
+    </div>
+    <div class="head"><div class="tier">Ouro 4</div><div class="points"><b>12,302</b> <span>pts</span></div></div>
+    <div class="togo">2,155 pts até Ouro 5</div>
+    <div class="bar"><div class="seg full"><i></i></div><div class="seg full"><i></i></div><div class="seg full"><i></i></div><div class="seg part"><i></i></div><div class="seg empty"><i></i></div></div>
+    <div class="labels"><span>1</span><span>2</span><span>3</span><span class="on">4</span><span>5</span></div>
+  </div>
+
+  <div class="rank t-platina">
+    <div class="gems">
+      <span class="gemwrap lit"><svg class="gem"><use href="#gem"/></svg><span class="shine"></span></span>
+      <span class="gemwrap off"><svg class="gem"><use href="#gem"/></svg></span>
+      <span class="gemwrap off"><svg class="gem"><use href="#gem"/></svg></span>
+      <span class="gemwrap off"><svg class="gem"><use href="#gem"/></svg></span>
+      <span class="gemwrap off"><svg class="gem"><use href="#gem"/></svg></span>
+    </div>
+    <div class="head"><div class="tier">Platina 1</div><div class="points"><b>28,940</b> <span>pts</span></div></div>
+    <div class="togo">4,060 pts até Platina 2</div>
+    <div class="bar"><div class="seg part"><i></i></div><div class="seg empty"><i></i></div><div class="seg empty"><i></i></div><div class="seg empty"><i></i></div><div class="seg empty"><i></i></div></div>
+    <div class="labels"><span class="on">1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+  </div>
+</body>
+</html>
