@@ -56,7 +56,8 @@ Sem framework/bundler: o `index.html` carrega os scripts por `<script>` na ordem
 
 ## `dev/` — playground (fora do deploy)
 - `build-gallery.mjs` (gerador de galeria), `*-motions*.html` / `like-motions.html` (demos de animação),
-  `rank-card.html` (demo de card de rank), `brand/` (artes-fonte do logo: PNG master/120/base).
+  `rank-card.html` (demo de card de rank), `brand/` (artes-fonte do logo: PNG master/120/base),
+  `emoji/` (16 PNGs fora de uso — movidos do deploy; religar se alguma tela passar a usá-los).
 - Nada aqui vai pro `dist/` — só `assets styles js fonts` + `pages/*` são publicados.
 
 ## Hospedagem atual
