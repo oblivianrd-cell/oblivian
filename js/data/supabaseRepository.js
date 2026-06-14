@@ -481,7 +481,7 @@
       if (!mem) return [];
       return self.sb.from("posts").select("id", { count: "exact", head: true }).eq("community_id", communityId).eq("user_id", uid)
         .then(function (r) {
-          var s = { posts: r.count || 0, rep: mem.reputation || 0, staff: ["owner", "admin", "lider", "curador", "mod"].indexOf(mem.role) >= 0 };
+          var s = { posts: r.count || 0, rep: mem.reputation || 0, staff: App.Roles.isMod(mem.role) };
           return self.ACHIEVEMENTS.map(function (a) { return { key: a.key, icon: a.icon, label: a.label, desc: a.desc, earned: !!a.test(s) }; });
         });
     });
@@ -525,7 +525,7 @@
   };
   P.levelInfo = function (reputation) { var rep = Math.max(0, reputation || 0), step = this.LEVEL_STEP, level = Math.floor(rep / step) + 1, into = rep % step; return { level: level, into: into, need: step, pct: Math.round(into / step * 100), rep: rep }; };
   P.canModerate = function (communityId, userId) {
-    return this._membership(communityId, userId || this._meId).then(function (m) { return !!m && ["owner", "admin", "lider", "curador", "mod"].indexOf(m.role) >= 0; });
+    return this._membership(communityId, userId || this._meId).then(function (m) { return !!m && App.Roles.isMod(m.role); });
   };
   P.setRole = function (communityId, userId, role) {
     var self = this;

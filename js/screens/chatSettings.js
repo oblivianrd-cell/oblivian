@@ -356,7 +356,7 @@
       function cohostsView() {
         var rows = [];
         if (isComm) {
-          communityMemberIds().filter(function (m) { return ["owner", "admin", "lider", "curador", "mod"].indexOf(m.role) >= 0; })
+          communityMemberIds().filter(function (m) { return App.Roles.isMod(m.role); })
             .forEach(function (m) { rows.push(userRow(m.userId, el("span", { class: "cset-roletag" }, m.role))); });
         } else if (chat.ownerId) {
           rows.push(userRow(chat.ownerId, el("span", { class: "cset-roletag" }, "dono")));

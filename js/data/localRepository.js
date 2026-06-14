@@ -508,7 +508,7 @@
     var mem = this._membership(communityId, userId || this._uid());
     if (!mem) return ok([]);
     var postCount = this.db.posts.filter(function (p) { return p.communityId === communityId && p.userId === mem.userId; }).length;
-    var s = { posts: postCount, rep: mem.reputation || 0, staff: ["owner", "admin", "lider", "curador", "mod"].indexOf(mem.role) >= 0 };
+    var s = { posts: postCount, rep: mem.reputation || 0, staff: App.Roles.isMod(mem.role) };
     return ok(this.ACHIEVEMENTS.map(function (a) {
       return { key: a.key, icon: a.icon, label: a.label, desc: a.desc, earned: !!a.test(s) };
     }));
@@ -1112,7 +1112,7 @@
       .filter(function (p) { return p.userId === me || myBlocked.indexOf(p.userId) < 0; })
       .filter(function (p) {
         // post ocultado pela moderação: só autor e mod veem
-        if (p.hidden) { var mm = self._membership(communityId, me); return p.userId === me || (mm && ["owner", "admin", "lider", "curador", "mod"].indexOf(mm.role) >= 0); }
+        if (p.hidden) { var mm = self._membership(communityId, me); return p.userId === me || (mm && App.Roles.isMod(mm.role)); }
         return true;
       })
       .filter(function (p) {

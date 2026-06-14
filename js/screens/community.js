@@ -413,7 +413,7 @@
       .then(function (r) {
         var community = r[0], posts = r[1], me = r[2], membership = r[3];
         if (!community) { App.util.mount(inner, ui.Empty("info", "Comunidade não encontrada")); return; }
-        var canMod = membership && ["owner", "admin", "lider", "curador", "mod"].indexOf(membership.role) >= 0;
+        var canMod = membership && App.Roles.isMod(membership.role);
         var item = posts.filter(function (x) { return x.post.id === pid; })[0];
         var accent = (community.theme && community.theme.accent) || App.store.get("accent");
         var backBtn = el("button", { class: "pv2__back", type: "button", title: "Voltar", onClick: function () { App.router.back("/c/" + cid + "/latest", /\/p\//); } }, App.icon("back"));

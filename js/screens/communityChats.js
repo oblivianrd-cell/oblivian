@@ -34,7 +34,7 @@
       if (!community) { App.util.mount(inner, ui.Empty("info", "Comunidade não encontrada")); return; }
       var accent = (community.theme && community.theme.accent) || App.store.get("accent");
       var isMember = !!membership;
-      var canCreate = membership && ["owner", "admin", "lider", "curador", "mod"].indexOf(membership.role) >= 0;
+      var canCreate = membership && App.Roles.isMod(membership.role);
 
       // ---------- header ----------
       var createBtn = el("button", { class: "mychats__create", type: "button", title: "Criar conversa", "aria-label": "Criar conversa" }, App.icon("envelope"));

@@ -11,8 +11,9 @@ Sem framework/bundler: o `index.html` carrega os scripts por `<script>` na ordem
 | `privacidade.html` | Política de Privacidade estática (exigência AdSense). URL: `/privacidade`. |
 | `manifest.webmanifest` | PWA (nome, ícone, cores). |
 | `README.md` | Visão geral + deploy. |
-| `netlify.toml` · `vercel.json` | Configs de deploy alternativas (atual: Cloudflare Pages). |
-| `Obliviny-debug.apk` | Build Android de teste (gerado em `mobile/`). |
+| `build.mjs` | Monta `dist/` p/ deploy (copia `js styles assets fonts`, `pages/*`, carimba versão). |
+| `apk-release.mjs` | Publica `oblivian.apk` no GitHub Releases (`gh` CLI). |
+| `logo.png` · `oblivian.apk` | Logo do site · binário Android (servido via Releases; `*.apk` gitignored). |
 
 ## `js/` — aplicação
 - **`app.js`** — bootstrap: instancia repo, aplica tema, monta shell, registra rotas.
@@ -52,6 +53,11 @@ Sem framework/bundler: o `index.html` carrega os scripts por `<script>` na ordem
 ## `docs/`
 - `PLANO_MONETIZACAO.md` — plano de produto (anúncios/moedas/armazenamento).
 - `ESTRUTURA.md` — este arquivo.
+
+## `dev/` — playground (fora do deploy)
+- `build-gallery.mjs` (gerador de galeria), `*-motions*.html` / `like-motions.html` (demos de animação),
+  `rank-card.html` (demo de card de rank), `brand/` (artes-fonte do logo: PNG master/120/base).
+- Nada aqui vai pro `dist/` — só `assets styles js fonts` + `pages/*` são publicados.
 
 ## Hospedagem atual
 - **Cloudflare Pages**: projetos `obliviny` (https://obliviny.pages.dev) e `sanguao` (legado).

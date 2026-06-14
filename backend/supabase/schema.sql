@@ -1085,6 +1085,123 @@ create trigger trg_handle_once before update on public.profiles
   for each row execute function public.enforce_handle_once();
 
 -- ============================================================
+-- SECURITY HARDENING II — ESCALADA DE PRIVILÉGIO (2026-06-13)
+-- BURACO: as policies "cprofiles insert/update" só checam user_id = auth.uid(),
+-- e RLS do Postgres NÃO filtra por coluna. Via REST direto um membro podia:
+--   • UPDATE community_profiles SET role='owner'  WHERE user_id=eu  → vira dono
+--   • UPDATE community_profiles SET status=null   WHERE user_id=eu  → tira o próprio ban/mute
+--   • INSERT ... role='owner'                                       → entra já como dono
+-- BLINDAGEM: trigger BEFORE INSERT/UPDATE. Backward-compatible — setRole/moderate
+-- legítimos rodam como STAFF (is_staff=true) e passam direto; só o auto-promote /
+-- auto-unban do PRÓPRIO usuário é barrado. O dono que cria a comunidade ainda
+-- entra como 'owner' (auth.uid() = communities.owner_id). Idempotente.
+-- ============================================================
+create or replace function public.guard_cprofile_privilege()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  uid        uuid    := auth.uid();
+  staff      boolean := private.is_staff(new.community_id);
+  comm_owner uuid;
+begin
+  if staff then return new; end if;                 -- staff/owner já autorizado
+
+  if tg_op = 'INSERT' then
+    select owner_id into comm_owner from public.communities where id = new.community_id;
+    if uid is distinct from comm_owner then          -- não é o dono fazendo o bootstrap
+      new.role       := 'member';
+      new.titles     := '{}'::text[];
+      new.reputation := 0;
+      new.status     := null;
+    end if;
+    return new;
+  end if;
+
+  -- UPDATE por NÃO-staff: campos privilegiados são imutáveis
+  if new.role       is distinct from old.role       then raise exception 'forbidden: cannot change role'; end if;
+  if new.status     is distinct from old.status     then raise exception 'forbidden: cannot change moderation status'; end if;
+  if new.reputation is distinct from old.reputation then raise exception 'forbidden: cannot change reputation'; end if;
+  if new.titles     is distinct from old.titles     then raise exception 'forbidden: cannot change titles'; end if;
+  return new;
+end $$;
+revoke execute on function public.guard_cprofile_privilege() from public, anon, authenticated;
+drop trigger if exists trg_guard_cprofile on public.community_profiles;
+create trigger trg_guard_cprofile before insert or update on public.community_profiles
+  for each row execute function public.guard_cprofile_privilege();
+
+-- ============================================================
+-- POSTS: pin/featured só por STAFF (era editável pelo próprio autor → self-pin /
+-- self-feature furava a economia de moedas). Autor segue editando título/corpo/etc.
+-- ============================================================
+create or replace function public.guard_post_privilege()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.community_id is null then return new; end if;   -- post de perfil/saguão: sem staff
+  if private.is_staff(new.community_id) then return new; end if;
+  if new.pinned         is distinct from old.pinned         then raise exception 'forbidden: only staff can pin'; end if;
+  if new.featured_until is distinct from old.featured_until then raise exception 'forbidden: only staff can feature'; end if;
+  return new;
+end $$;
+revoke execute on function public.guard_post_privilege() from public, anon, authenticated;
+drop trigger if exists trg_guard_post on public.posts;
+create trigger trg_guard_post before update on public.posts
+  for each row execute function public.guard_post_privilege();
+
+-- ============================================================
+-- CAPS DE TAMANHO — só em campos de IDENTIFICAÇÃO (texto puro de 1 linha, nunca
+-- contêm imagem). NÃO aplicar em posts.body / comments.body / messages.text:
+-- imagens vão inline (base64) no corpo → um cap quebraria. (Migrar p/ R2 resolve
+-- isso e ainda habilita moderação de imagem — ver nota no fim.) NOT VALID = não
+-- revalida linhas existentes (seguro no banco ao vivo), mas vale p/ escritas novas.
+-- ============================================================
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname='profiles_name_len')   then alter table public.profiles    add constraint profiles_name_len   check (char_length(name) <= 80)  not valid; end if;
+  if not exists (select 1 from pg_constraint where conname='profiles_handle_len') then alter table public.profiles    add constraint profiles_handle_len check (char_length(handle) <= 32) not valid; end if;
+  if not exists (select 1 from pg_constraint where conname='comm_name_len')       then alter table public.communities add constraint comm_name_len       check (char_length(name) <= 80)  not valid; end if;
+end $$;
+
+-- ============================================================
+-- ANTI-SPAM — rate limit de inserts por usuário (defesa server-side; o cliente já
+-- tem cooldown, mas é burlável via REST). Limites GENEROSOS p/ humano — ajuste o
+-- 'cap' ou remova os triggers se atrapalhar. Janela: 60s. Idempotente.
+-- ============================================================
+create or replace function public.rate_limit_inserts()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  uid uuid := auth.uid();
+  cnt int;
+  cap int;
+begin
+  if uid is null then return new; end if;
+  cap := case tg_table_name
+           when 'messages' then 30
+           when 'comments' then 20
+           when 'posts'    then 10
+           else 60 end;
+  execute format(
+    'select count(*) from public.%I where user_id = $1 and created_at > now() - interval ''60 seconds''',
+    tg_table_name) into cnt using uid;
+  if cnt >= cap then
+    raise exception 'rate limit: muitas ações em pouco tempo — aguarde um momento.';
+  end if;
+  return new;
+end $$;
+revoke execute on function public.rate_limit_inserts() from public, anon, authenticated;
+drop trigger if exists trg_rl_messages on public.messages;
+create trigger trg_rl_messages before insert on public.messages for each row execute function public.rate_limit_inserts();
+drop trigger if exists trg_rl_comments on public.comments;
+create trigger trg_rl_comments before insert on public.comments for each row execute function public.rate_limit_inserts();
+drop trigger if exists trg_rl_posts on public.posts;
+create trigger trg_rl_posts    before insert on public.posts    for each row execute function public.rate_limit_inserts();
+
+-- ============================================================
+-- NOTA — para fechar #upload/#imagem-adulta (futuro): hoje a imagem é base64 inline
+-- no corpo (sem storage real). Migrar p/ Cloudflare R2 via o Worker (backend/r2/
+-- upload-worker.js — FALTA validar o JWT do Supabase antes de assinar, linha ~17)
+-- destrava: (1) cap de tamanho real, (2) coluna media_files.scan_status='pending',
+-- (3) gancho p/ API de moderação de imagem. Placeholder de moderação fica p/ depois.
+-- ============================================================
+
+-- ============================================================
 -- HARDENING push_notification (2026-06-13): exige auth, valida tipo + rota,
 -- limita tamanho e taxa por remetente. Fecha spam/phishing em massa.
 -- ============================================================
