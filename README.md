@@ -84,11 +84,12 @@ Registro único em `js/core/icons.js` — adicione novos só ali. Sem emojis.
 ## Deploy (cloud)
 
 100% estático + **hash routing** (`#/rota`) → não precisa rewrite de SPA.
+Host atual: **Cloudflare Pages** (`oblivian.net`).
 
-- **GitHub Pages**: suba o repo, ative Pages (branch/root). `.nojekyll` impede ignorar `js/`.
-- **Netlify**: arraste a pasta ou conecte o repo (`netlify.toml`, `publish = "."`).
-- **Vercel**: importe (framework "Other"); `vercel.json` incluído.
-- **Qualquer host estático**: publique a pasta; entrada `index.html`.
+- **Build**: `npm run build` → gera `dist/` (só `js styles assets fonts` + `pages/*` + carimbo de versão). Ver `build.mjs`.
+- **Deploy**: `npm run deploy` (= build + `wrangler pages deploy dist`). Config em `wrangler.toml`.
+- **APK Android**: `node apk-release.mjs` publica `oblivian.apk` no GitHub Releases (não vai pro `dist/`).
+- **Qualquer host estático**: publique `dist/`; entrada `index.html`. `.nojekyll` impede ignorar `js/`.
 
 Para PWA/manifest: sirva por HTTP (`npx serve .` ou Live Server), não `file://`.
 Reset/seed: bump do `DB_KEY` em `js/data/localRepository.js` ou limpe o `localStorage`.
