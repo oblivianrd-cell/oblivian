@@ -322,58 +322,46 @@
   }
   App.components.openFramePurchase = openFramePurchase;
 
+  // Visualizador de foto em tela cheia (estilo galeria nativa):
+  // fundo preto, voltar (esq) + baixar (dir) no topo, imagem inteira centrada.
   function openAvatarViewer(opts) {
     opts = opts || {};
     var src = opts.src;
-    if (!src) return openImageViewer(src, opts);   // sem foto: nada a enquadrar
+    if (!src) return openImageViewer(src, opts);   // sem foto: nada a mostrar
 
-    var img = el("img", { class: "avview__img", src: src, alt: opts.name || "", draggable: "false" });
-    if (opts.pos) img.style.objectPosition = opts.pos;
-    var stage = el("div", { class: "avview__stage" }, img,
-      el("button", { class: "avview__save", type: "button", title: "Salvar imagem", "aria-label": "Salvar imagem",
-        onClick: function () { App.util.downloadMedia(src, opts.name ? "avatar-" + opts.name : ("avatar-" + Date.now())); } },
-        App.icon("download")));
+    var img = el("img", { class: "photoview__img", src: src, alt: opts.name || "", draggable: "false" });
 
-    // faixa de molduras (preenchida de forma assíncrona; some se não houver)
-    var framebar = el("div", { class: "framebar" });
-    var framesSection = el("div", { class: "avview__frames" },
-      el("div", { class: "avview__frameshead" }, App.icon("star", { size: "sm" }), el("span", "Molduras"),
-        el("span", { class: "u-grow" }), el("span", { class: "avview__frameshint u-muted" }, "Toque para ver")),
-      framebar);
-    framesSection.style.display = "none";
-
-    function frameChip(item) {
-      var chip = el("button", { class: "frame-chip", type: "button", title: item.name });
-      var av = el("div", { class: "frame-chip__av" }, frameRing(item.value),
-        el("div", { class: "frame-chip__inner" }, el("img", { src: src, alt: "" })));
-      chip.appendChild(av);
-      chip.appendChild(el("span", { class: "frame-chip__name" }, item.name || "Moldura"));
-      chip.appendChild(el("span", { class: "frame-chip__price" }, App.icon("coin", { size: "sm" }), App.util.formatCount(item.price || 0)));
-      chip.addEventListener("click", function () { openFramePurchase(item, src); });
-      return chip;
-    }
-    if (App.repo && App.repo.listStoreItems) {
-      try {
-        App.repo.listStoreItems().then(function (items) {
-          var frames = (items || []).filter(function (i) { return i.category === "frame"; });
-          if (!frames.length) return;
-          frames.forEach(function (f) { framebar.appendChild(frameChip(f)); });
-          framesSection.style.display = "";
-        }).catch(function () {});
-      } catch (e) {}
-    }
-
-    var ref = ui.openModal({
-      title: opts.title || "Foto de perfil", scrimClass: "scrim--centered scrim--imgview",
-      body: el("div", { class: "avview" }, stage, framesSection),
-      actions: [
-        ui.Button({ label: "Fechar", variant: "ghost", onClick: function () { ref.close(); } }),
-        ui.Button({ label: "Salvar imagem", icon: "download", variant: "primary", onClick: function () {
-          App.util.downloadMedia(src, opts.name ? "avatar-" + opts.name : ("avatar-" + Date.now()));
-        } })
-      ]
+    var backBtn = el("button", { class: "photoview__btn", type: "button", title: "Voltar", "aria-label": "Voltar" }, App.icon("back"));
+    var dlBtn = el("button", { class: "photoview__btn", type: "button", title: "Baixar", "aria-label": "Baixar" }, App.icon("download"));
+    dlBtn.addEventListener("click", function () {
+      App.util.downloadMedia(src, opts.name ? "avatar-" + opts.name : ("avatar-" + Date.now()));
     });
-    return ref;
+
+    var stage = el("div", { class: "photoview__stage" }, img);
+    var scrim = el("div", { class: "scrim photoview" },
+      el("div", { class: "photoview__bar" }, backBtn, dlBtn), stage);
+
+    var closing = false;
+    var prevFocus = document.activeElement;
+    function close() {
+      if (closing) return; closing = true;
+      if (App.sound) App.sound.play("close");
+      document.removeEventListener("keydown", onKey);
+      scrim.classList.add("is-closing");
+      setTimeout(function () { scrim.remove(); }, 180);
+      try { if (prevFocus && prevFocus.focus) prevFocus.focus(); } catch (e) {}
+      opts.onClose && opts.onClose();
+    }
+    function onKey(e) { if (e.key === "Escape") close(); }
+    backBtn.addEventListener("click", close);
+    // toque fora da imagem fecha
+    scrim.addEventListener("mousedown", function (e) {
+      if (e.target === scrim || e.target === stage) close();
+    });
+    document.addEventListener("keydown", onKey);
+    document.body.appendChild(scrim);
+    if (App.sound) App.sound.play("open");
+    return { close: close, root: scrim };
   }
   App.components.openAvatarViewer = openAvatarViewer;
 })(window.App = window.App || {});

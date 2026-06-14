@@ -615,6 +615,35 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 }
 .scrim--full .modal__body { flex: 1 1 auto; }
 
+/* visualizador de foto em tela cheia (estilo galeria nativa) */
+.scrim.photoview {
+  background: #000;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  padding: 0; display: flex; flex-direction: column; align-items: stretch; place-items: stretch;
+}
+.photoview__bar {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 0px) + var(--s-4)) var(--s-4) var(--s-4);
+  pointer-events: none;
+}
+.photoview__btn {
+  pointer-events: auto;
+  width: 44px; height: 44px; border-radius: var(--r-pill); border: none;
+  background: rgba(0,0,0,0.45); color: #fff; cursor: pointer;
+  display: grid; place-items: center;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.photoview__btn:active { transform: scale(0.92); }
+.photoview__btn .icon { width: 24px; height: 24px; }
+.photoview__stage {
+  flex: 1 1 auto; display: grid; place-items: center; overflow: hidden;
+}
+.photoview__img {
+  width: 100%; height: auto; max-height: 100%;
+  object-fit: contain; display: block;
+}
+
 /* ---------------- Toast ---------------- */
 .toast-host {
   position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
