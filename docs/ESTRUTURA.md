@@ -11,9 +11,9 @@ Sem framework/bundler: o `index.html` carrega os scripts por `<script>` na ordem
 | `privacidade.html` | Política de Privacidade estática (exigência AdSense). URL: `/privacidade`. |
 | `manifest.webmanifest` | PWA (nome, ícone, cores). |
 | `README.md` | Visão geral + deploy. |
-| `build.mjs` | Monta `dist/` p/ deploy (copia `js styles assets fonts`, `pages/*`, carimba versão). |
-| `apk-release.mjs` | Publica `oblivian.apk` no GitHub Releases (`gh` CLI). |
-| `logo.png` · `oblivian.apk` | Logo do site · binário Android (servido via Releases; `*.apk` gitignored). |
+| `scripts/build.mjs` | Monta `dist/` p/ deploy (copia `js styles assets fonts`, `pages/*`, carimba versão). |
+| `scripts/apk-release.mjs` | Publica `oblivian.apk` no GitHub Releases (`gh` CLI). |
+| `oblivian.apk` | Binário Android (servido via Releases; `*.apk` gitignored). |
 
 ## `js/` — aplicação
 - **`app.js`** — bootstrap: instancia repo, aplica tema, monta shell, registra rotas.
@@ -38,7 +38,11 @@ Sem framework/bundler: o `index.html` carrega os scripts por `<script>` na ordem
 
 ## `assets/` · `fonts/`
 - `assets/icon.svg` — ícone da marca (favicon + manifest).
+- `assets/logo.png` — logo do site (favicon PNG, apple-touch-icon, og:image, ícones do manifest). Servido em `/assets/logo.png`.
 - `fonts/` — Inter (woff2 latin / latin-ext), carregado via `@font-face` em `base.css`.
+
+## `scripts/` — automação (fora do deploy)
+- `build.mjs` — monta `dist/`. `apk-release.mjs` — publica o APK. Rodados via `npm run build` / `npm run apk` (cwd = raiz).
 
 ## `backend/` — nuvem (scaffold, precisa de chaves)
 - `supabase/schema.sql` — 10 tabelas + RLS + funções server-side (crédito de moeda / compra).

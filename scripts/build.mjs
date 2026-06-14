@@ -9,8 +9,9 @@ const OUT = "dist";
 
 // arquivos soltos da raiz que vão pro deploy
 // APK NÃO vai pro dist: é servido pelo GitHub Releases (releases/latest/download/oblivian.apk),
-// evitando o limite de 25MiB do Cloudflare. Atualize com `node apk-release.mjs`.
-const FILES = ["index.html", "logo.png", "manifest.webmanifest", ".nojekyll"];
+// evitando o limite de 25MiB do Cloudflare. Atualize com `node scripts/apk-release.mjs`.
+// logo.png vive em assets/ (copiado junto com a pasta) — não precisa estar aqui.
+const FILES = ["index.html", "manifest.webmanifest", ".nojekyll"];
 // páginas estáticas que vivem em pages/ mas são servidas na raiz do site (links do rodapé)
 const PAGES = ["privacidade.html", "termos.html", "diretrizes.html", "glass-test.html", "add-to-basket.html"];
 // pastas que vão pro deploy

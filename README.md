@@ -86,9 +86,9 @@ Registro único em `js/core/icons.js` — adicione novos só ali. Sem emojis.
 100% estático + **hash routing** (`#/rota`) → não precisa rewrite de SPA.
 Host atual: **Cloudflare Pages** (`oblivian.net`).
 
-- **Build**: `npm run build` → gera `dist/` (só `js styles assets fonts` + `pages/*` + carimbo de versão). Ver `build.mjs`.
+- **Build**: `npm run build` → gera `dist/` (só `js styles assets fonts` + `pages/*` + carimbo de versão). Ver `scripts/build.mjs`.
 - **Deploy**: `npm run deploy` (= build + `wrangler pages deploy dist`). Config em `wrangler.toml`.
-- **APK Android**: `node apk-release.mjs` publica `oblivian.apk` no GitHub Releases (não vai pro `dist/`).
+- **APK Android**: `npm run apk` (`node scripts/apk-release.mjs`) publica `oblivian.apk` no GitHub Releases (não vai pro `dist/`).
 - **Qualquer host estático**: publique `dist/`; entrada `index.html`. `.nojekyll` impede ignorar `js/`.
 
 Para PWA/manifest: sirva por HTTP (`npx serve .` ou Live Server), não `file://`.
