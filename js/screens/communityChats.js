@@ -1,7 +1,8 @@
 /* ============================================================
    screens/communityChats.js — Hub "Meus Chats" da COMUNIDADE.
    Tela cheia, individual por comunidade (cada comunidade tem o seu).
-   Aberto pelo ícone de chat ao lado do sino. Rota: /c/:id/chats
+   Aberto pelo ícone de chat ao lado do sino. Rota: /c/:id/mychats
+   (a aba "Chats" do feed → /c/:id/chats → hangout PÚBLICO, interface separada)
    - Favoritos: membros fixados p/ DM rápida (localStorage por USUÁRIO+comunidade)
    - Meus Chats: salas da comunidade (última msg + não-lidas + hora)
    - Criar: conversa privada (DM) ou nova sala (equipe)

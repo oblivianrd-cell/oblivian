@@ -261,7 +261,7 @@
       el("div", { class: "chat-thread__title" }, chat.visibility === "private" ? App.icon("lock", { size: "sm" }) : App.icon("globe", { size: "sm" }), "#" + chat.name),
       el("div", { class: "chat-thread__sub u-truncate" }, community.name));
     var head = el("div", { class: "chat-thread__head" },
-      ui.IconButton("back", { title: "Voltar", onClick: function () { App.router.navigate("/c/" + community.id + "/chats"); } }),
+      ui.IconButton("back", { title: "Voltar", onClick: function () { App.router.navigate("/c/" + community.id + (chat.visibility === "private" ? "/mychats" : "/chats")); } }),
       el("div", { class: "u-grow" }, titleWrap),
       ui.IconButton("more", { title: "Configurações", onClick: openSettings }));
     head.firstChild.classList.add("chat-thread__back");

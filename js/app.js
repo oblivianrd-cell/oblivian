@@ -54,7 +54,7 @@
     App.router.register("/c/:id/admin/:section", S.settingsAdminSection);
     App.router.register("/c/:id/customizar", S.settingsCustomize);
     App.router.register("/c/:id/notificacoes", S.notifications);
-    App.router.register("/c/:id/chats", S.communityChats);
+    App.router.register("/c/:id/mychats", S.communityChats);   // Meus Chats (privado) — aba "Chats" cai em /:tab → hangout público
     App.router.register("/c/:id/p/:postId", S.post);
     App.router.register("/c/:id/u/:userId/comentarios", S.comments);
     App.router.register("/c/:id/u/:userId/editar", S.editProfile);

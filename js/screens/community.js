@@ -277,7 +277,7 @@
     var items = [
       row("home", "Início", function () { go("/c/" + cid + "/featured"); }),
       row("community", "Sobre", function () { go("/c/" + cid); }),
-      row("chats", "Chats", function () { go("/c/" + cid + "/chats"); }),
+      row("chats", "Meus Chats", function () { go("/c/" + cid + "/mychats"); }),
       row("members", "Membros", function () { go("/c/" + cid + "/membros"); }),
       row("recent", "Recentes", function () { go("/c/" + cid + "/latest"); }),
       row("profile", "Meu perfil", function () { go("/c/" + cid + "/u/" + me.id); })
@@ -835,7 +835,7 @@
         ui.Avatar({ name: nameIn(membership, me), src: (membership && membership.avatar) || me.avatar, round: true, size: "sm" })),
       el("h1", { class: "camino-header__title u-truncate" }, community.name),
       notifBtn,
-      el("button", { class: "camino-header__chat", title: "Chats", onClick: function () { App.router.navigate("/c/" + cid + "/chats"); } }, App.icon("chat")));
+      el("button", { class: "camino-header__chat", title: "Meus Chats", onClick: function () { App.router.navigate("/c/" + cid + "/mychats"); } }, App.icon("chat")));
 
     // ----- Abas azuis -----
     // ordem e nomes das abas vêm das configurações da comunidade
@@ -1221,7 +1221,7 @@
         dockItem("chat", "Chat", false, function () {
           if (App.preview && App.preview.active(cid)) { ui.toast("Disponível depois de criar a comunidade", "ok"); return; }
           if (!membership) { ui.toast("Participe para abrir o chat", "danger"); return; }
-          App.router.navigate("/c/" + cid + "/chats");
+          App.router.navigate("/c/" + cid + "/mychats");
         }),
         dockItem("profile", "Eu", false, function () { App.router.navigate("/c/" + cid + "/u/" + me.id); })));
 
