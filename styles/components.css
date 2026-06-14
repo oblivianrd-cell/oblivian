@@ -401,6 +401,25 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 .imgview__sqimg { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
 /* lightbox: scrim um pouco mais escuro p/ destacar a imagem */
 .scrim--imgview { background: rgba(0,0,0,0.74); }
+/* estados do lightbox: carregando (spinner) e erro */
+.imgview__scroll, .imgview__square { position: relative; }
+.imgview__scroll.is-loading .imgview__img, .imgview__square.is-loading .imgview__sqimg { opacity: 0; }
+.imgview__loader {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.imgview__spin {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 3px solid var(--surface-3, rgba(255,255,255,0.18));
+  border-top-color: var(--accent, #7c5cff);
+  animation: imgview-spin 0.7s linear infinite;
+}
+@keyframes imgview-spin { to { transform: rotate(360deg); } }
+.imgview__error {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px; padding: 16px;
+  color: var(--muted, #9aa); text-align: center;
+}
 
 /* ---- visualizador de AVATAR (quadrado + salvar + molduras) ---- */
 .avview { display: flex; flex-direction: column; gap: var(--s-4); align-items: center; width: 100%; }

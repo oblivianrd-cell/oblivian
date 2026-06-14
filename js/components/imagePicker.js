@@ -217,30 +217,54 @@
     opts = opts || {};
     if (!src) return;
     var square = opts.shape === "square";
+    var name = opts.name || ("oblivian-" + Date.now());
+
+    // estados: carregando (spinner) → ok | erro
+    var loader = el("div", { class: "imgview__loader", "aria-label": "Carregando" }, el("span", { class: "imgview__spin" }));
+    var errBox = el("div", { class: "imgview__error" }, App.icon("alert", { size: "lg" }), el("span", "Não foi possível carregar a imagem."));
+    errBox.style.display = "none";
+
     var stage, img;
     if (square) {
       img = el("img", { class: "imgview__sqimg", src: src, alt: "", draggable: "false" });
       if (opts.fit) img.style.objectFit = opts.fit;
       if (opts.pos) img.style.objectPosition = opts.pos;
-      stage = el("div", { class: "imgview__square" }, img);
+      stage = el("div", { class: "imgview__square is-loading" }, img, loader, errBox);
     } else {
       img = el("img", { class: "imgview__img", src: src, alt: "", draggable: "false" });
-      // toque/click amplia (rola dentro do palco) — conforto em telas pequenas
-      img.addEventListener("click", function () {
+      img.addEventListener("click", function () {   // toque/click amplia
         var on = img.classList.toggle("is-zoomed");
         stage.classList.toggle("is-zoomed", on);
       });
-      stage = el("div", { class: "imgview__scroll" }, img);
+      stage = el("div", { class: "imgview__scroll is-loading" }, img, loader, errBox);
     }
+    img.addEventListener("load", function () { stage.classList.remove("is-loading"); loader.style.display = "none"; });
+    img.addEventListener("error", function () {
+      stage.classList.remove("is-loading"); loader.style.display = "none";
+      img.style.display = "none"; errBox.style.display = "";
+    });
+
+    // download com feedback (desabilita + spinner enquanto baixa)
+    var dlBtn = ui.Button({ label: "Salvar", icon: "download", variant: "primary", onClick: function () {
+      if (dlBtn.disabled) return;
+      dlBtn.disabled = true; dlBtn.setLoading(true);
+      try { App.util.downloadMedia(src, name); } catch (e) {}
+      setTimeout(function () { dlBtn.disabled = false; dlBtn.setLoading(false); }, 1200);
+    } });
+
+    var actions = [ ui.Button({ label: "Fechar", variant: "ghost", onClick: function () { ref.close(); } }) ];
+    // "Abrir original" só quando permitido (opts.allowOriginal) e há URL real
+    if (opts.allowOriginal && opts.original) {
+      actions.push(ui.Button({ label: "Abrir original", icon: "globe", variant: "outline", onClick: function () {
+        try { window.open(opts.original, "_blank", "noopener"); } catch (e) {}
+      } }));
+    }
+    actions.push(dlBtn);
+
     var ref = ui.openModal({
       title: opts.title || "Imagem", scrimClass: "scrim--centered scrim--imgview",
       body: el("div", { class: "imgview" + (square ? " imgview--square" : "") }, stage),
-      actions: [
-        ui.Button({ label: "Fechar", variant: "ghost", onClick: function () { ref.close(); } }),
-        ui.Button({ label: "Salvar", icon: "download", variant: "primary", onClick: function () {
-          App.util.downloadMedia(src, opts.name || ("oblivian-" + Date.now()));
-        } })
-      ]
+      actions: actions
     });
     return ref;
   }

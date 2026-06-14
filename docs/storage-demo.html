@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oblivian · Storage System — Demo</title>
+<link rel="stylesheet" href="storage-demo.css">
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== Hero ===== -->
+  <header class="hero">
+    <h1>Sistema de <b>Storage</b> · Oblivian</h1>
+    <p>Demonstração visual do fluxo de mídia: divisões app / web / shared, upload na nuvem,
+       compressão, conversão GIF→WebP/WebM, visualizador fullscreen e limpeza ao banir.
+       Sem backend — simulação visual.</p>
+    <div class="badges">
+      <span class="badge">Máx <b>10 MB</b></span>
+      <span class="badge">jpg · jpeg · png · webp · gif · webm</span>
+      <span class="badge">Saída: <b>WebP / WebM</b></span>
+      <span class="badge">EXIF <b>removido</b></span>
+    </div>
+  </header>
+
+  <!-- ===== Divisões ===== -->
+  <section>
+    <h2><span class="dot"></span>Divisões do projeto</h2>
+    <p class="sub">Duas divisões principais + camada compartilhada. Nada de duplicar arquivos grandes.</p>
+    <div class="divisions">
+      <div class="div-card app">
+        <h3><span class="ico">▣</span> app <span class="tag">mobile / Capacitor</span></h3>
+        <ul>
+          <li>Arquivos só do app (<code>mobile/www</code>)</li>
+          <li>Lógica mobile / APK</li>
+          <li>Assets do app</li>
+          <li>Regras de storage do app</li>
+        </ul>
+      </div>
+      <div class="div-card web">
+        <h3><span class="ico">◫</span> web <span class="tag">Cloudflare Pages</span></h3>
+        <ul>
+          <li>Arquivos do site (<code>dist/</code> via build.mjs)</li>
+          <li>Lógica web</li>
+          <li>Assets web</li>
+          <li>Regras de storage web</li>
+        </ul>
+      </div>
+      <div class="div-card shared">
+        <h3><span class="ico">◇</span> shared <span class="tag">comum a app + web</span></h3>
+        <div class="chips">
+          <span class="chip">componentes comuns</span>
+          <span class="chip">estilos comuns</span>
+          <span class="chip">utils comuns</span>
+          <span class="chip">tipos comuns</span>
+          <span class="chip">serviços de storage</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Árvore de storage ===== -->
+  <section>
+    <h2><span class="dot"></span>Pastas de storage</h2>
+    <p class="sub">Convenção de chaves de objeto. Cada <code>kind</code> roteia para uma pasta.</p>
+    <div class="tree">
+<span class="root">storage/</span>
+├─ <span class="f">users/</span>
+│  ├─ <span class="f">profile/</span>   <span class="c"># imagens do perfil</span>
+│  ├─ <span class="f">avatar/</span>    <span class="c"># compressão agressiva</span>
+│  └─ <span class="f">banner/</span>    <span class="c"># compressão moderada</span>
+├─ <span class="f">posts/</span>        <span class="c"># compressão segura</span>
+├─ <span class="f">comments/</span>
+├─ <span class="f">chats/</span>
+├─ <span class="f">communities/</span>
+├─ <span class="f">temp/</span>         <span class="c"># em processamento</span>
+├─ <span class="f">deleted/</span>      <span class="c"># log de removidos</span>
+└─ <span class="f">banned/</span>       <span class="c"># registro mínimo</span>
+    </div>
+  </section>
+
+  <!-- ===== Fluxo de upload ===== -->
+  <section>
+    <h2><span class="dot"></span>Fluxo de upload (8 passos)</h2>
+    <p class="sub">Selecionar → validar tipo → validar 10 MB → comprimir → converter → enviar → metadados → exibir.</p>
+    <div class="flow" id="flow">
+      <div class="step"><div class="n">1</div><h4>Seleciona</h4><p>usuário escolhe</p></div>
+      <div class="step"><div class="n">2</div><h4>Valida tipo</h4><p>jpg/png/webp/gif/webm</p></div>
+      <div class="step"><div class="n">3</div><h4>Limite 10 MB</h4><p>bloqueia maior</p></div>
+      <div class="step"><div class="n">4</div><h4>Comprime</h4><p>por destino</p></div>
+      <div class="step"><div class="n">5</div><h4>Converte</h4><p>GIF→WebP/WebM</p></div>
+      <div class="step"><div class="n">6</div><h4>Envia</h4><p>pasta correta</p></div>
+      <div class="step"><div class="n">7</div><h4>Metadados</h4><p>salva registro</p></div>
+      <div class="step"><div class="n">8</div><h4>Exibe</h4><p>imagem final</p></div>
+    </div>
+
+    <!-- simulador arquivo -> nuvem -->
+    <div class="sim">
+      <div class="node">
+        <span class="lbl">Arquivo local</span>
+        <div class="thumb big" id="srcThumb"></div>
+        <div class="meta-text" id="srcMeta">avatar.png · 8.4 MB</div>
+      </div>
+      <div class="pipe" id="pipe">
+        <div class="stage" id="pipeStage">pronto</div>
+        <div class="track"><div class="fill"></div><div class="packet"></div></div>
+      </div>
+      <div class="node">
+        <span class="lbl">Nuvem · storage/users/avatar</span>
+        <div class="thumb" id="dstThumb" style="opacity:.25"></div>
+        <div class="meta-text" id="dstMeta">aguardando…</div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn primary" id="runBtn">▶ Simular upload</button>
+      <button class="btn" id="resetBtn">↺ Reiniciar</button>
+    </div>
+  </section>
+
+  <!-- ===== Compressão + Conversão ===== -->
+  <section>
+    <h2><span class="dot"></span>Compressão & conversão</h2>
+    <p class="sub">Compressão por destino + conversão para formatos leves.</p>
+    <div class="grid2">
+      <div class="card">
+        <h3>Compressão por destino</h3>
+        <div class="bar"><span class="name">Avatar</span><div class="track"><div class="val" data-w="26"></div></div><span class="num">−74%</span></div>
+        <div class="bar"><span class="name">Banner</span><div class="track"><div class="val" data-w="45"></div></div><span class="num">−55%</span></div>
+        <div class="bar"><span class="name">Post</span><div class="track"><div class="val" data-w="62"></div></div><span class="num">−38%</span></div>
+        <p class="note" style="color:var(--muted);font-size:12.5px;margin:8px 0 0">Avatar agressivo · banner moderado · post seguro. EXIF removido na re-codificação.</p>
+      </div>
+      <div class="card">
+        <h3>Regras de conversão</h3>
+        <div class="conv-row"><span class="pill in">PNG / JPG</span><span class="arrow">→</span><span class="pill out">WebP</span></div>
+        <div class="conv-row"><span class="pill in">GIF animado</span><span class="arrow">→</span><span class="pill out">WebP / WebM</span></div>
+        <div class="conv-row"><span class="pill in">Animação grande</span><span class="arrow">→</span><span class="pill out">WebM</span></div>
+        <p class="note" style="color:var(--muted);font-size:12.5px;margin:4px 0 0">Estáticas viram WebP no cliente. GIF→WebM animado é server-side (endpoint opcional).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Visualizador fullscreen ===== -->
+  <section>
+    <h2><span class="dot"></span>Visualizador fullscreen</h2>
+    <p class="sub">Clique numa imagem: modal escuro, centrado, loading, download e abrir original.</p>
+    <div class="preview-strip" id="strip"></div>
+  </section>
+
+  <!-- ===== Limpeza ao banir ===== -->
+  <section>
+    <h2><span class="dot"></span>Limpeza ao banir</h2>
+    <p class="sub">Remove mídia pessoal, mantém registro mínimo legal. Modo dryRun por padrão.</p>
+    <div class="ban">
+      <label class="toggle"><input type="checkbox" id="dryRun" checked> Modo dryRun (prévia — não apaga)</label>
+      <div class="ban-cols">
+        <div>
+          <div class="colhead">Removido</div>
+          <ul class="ban-list" id="removeList">
+            <li class="removed"><span class="ic">🖼️</span> Avatar</li>
+            <li class="removed"><span class="ic">🏞️</span> Banner do perfil</li>
+            <li class="removed"><span class="ic">📷</span> Imagens do perfil</li>
+            <li class="removed"><span class="ic">🗂️</span> Uploads temporários</li>
+            <li class="removed"><span class="ic">♻️</span> Versões em cache</li>
+          </ul>
+        </div>
+        <div>
+          <div class="colhead">Mantido</div>
+          <ul class="ban-list">
+            <li class="kept"><span class="ic">🆔</span> ID do usuário</li>
+            <li class="kept"><span class="ic">📝</span> Motivo do ban</li>
+            <li class="kept"><span class="ic">📅</span> Data do ban</li>
+            <li class="kept"><span class="ic">🛡️</span> Logs de moderação</li>
+            <li class="kept"><span class="ic">👤</span> Registro mínimo</li>
+          </ul>
+        </div>
+      </div>
+      <div class="controls" style="justify-content:flex-start">
+        <button class="btn primary" id="banBtn">Executar limpeza</button>
+      </div>
+      <p class="note">Conteúdo público (posts/comentários) <b>não</b> é removido sem regra de moderação.
+         Imagens removidas viram placeholder. Ao voltar, o usuário reenviar avatar/banner manualmente.</p>
+    </div>
+  </section>
+
+  <!-- ===== Uso de storage antes/depois ===== -->
+  <section>
+    <h2><span class="dot"></span>Uso de storage · antes / depois</h2>
+    <p class="sub">Compressão + conversão + limpeza reduzem o consumo.</p>
+    <div class="usage">
+      <div class="meter before">
+        <small>Antes</small>
+        <div class="big">100%</div>
+        <div class="track"><div class="val" data-w="100"></div></div>
+        <small>imagens originais, com EXIF, GIFs pesados</small>
+      </div>
+      <div class="meter after">
+        <small>Depois</small>
+        <div class="big" id="afterPct">42%</div>
+        <div class="track"><div class="val" data-w="42"></div></div>
+        <small>WebP/WebM, comprimido, sem metadados</small>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Oblivian · demo de storage — visual, sem backend. Lógica real em
+    <code>js/core/storage.js</code>, <code>js/core/banCleanup.js</code> e <code>backend/r2/</code>.
+  </footer>
+</div>
+
+<!-- ===== Lightbox ===== -->
+<div class="lightbox" id="lightbox">
+  <div class="frame">
+    <div class="lb-loader" id="lbLoader"><div class="spin"></div></div>
+    <img id="lbImg" alt="">
+  </div>
+  <div class="actions">
+    <button class="btn" id="lbClose">Fechar</button>
+    <button class="btn" id="lbOriginal">Abrir original</button>
+    <button class="btn primary" id="lbDownload">⬇ Baixar</button>
+  </div>
+</div>
+
+<script>
+/* ---- imagens de demo: SVG inline (sem deps externas) ---- */
+function img(c1, c2, label) {
+  var s = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">' +
+    '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0" stop-color="' + c1 + '"/><stop offset="1" stop-color="' + c2 + '"/></linearGradient></defs>' +
+    '<rect width="400" height="400" fill="url(#g)"/>' +
+    '<circle cx="300" cy="110" r="60" fill="rgba(255,255,255,.25)"/>' +
+    '<text x="24" y="370" font-family="sans-serif" font-size="34" fill="rgba(255,255,255,.9)">' + label + '</text></svg>';
+  return 'data:image/svg+xml;base64,' + btoa(s);
+}
+var IMGS = [
+  { src: img('#7c5cff', '#5ad1c9', 'avatar'), name: 'avatar' },
+  { src: img('#ff5d6c', '#ffb454', 'banner'), name: 'banner' },
+  { src: img('#3ddc84', '#5ad1c9', 'post'), name: 'post' },
+  { src: img('#5ad1c9', '#7c5cff', 'gif→webm'), name: 'gif' }
+];
+
+/* ---- simulador de upload ---- */
+var srcThumb = document.getElementById('srcThumb');
+var dstThumb = document.getElementById('dstThumb');
+var srcMeta = document.getElementById('srcMeta');
+var dstMeta = document.getElementById('dstMeta');
+srcThumb.style.backgroundImage = 'url(' + IMGS[0].src + ')';
+dstThumb.style.backgroundImage = 'url(' + IMGS[0].src + ')';
+
+var STEPS = document.querySelectorAll('#flow .step');
+var pipe = document.getElementById('pipe');
+var pipeStage = document.getElementById('pipeStage');
+var runBtn = document.getElementById('runBtn');
+var STAGE_TXT = ['validando tipo…', 'checando 10 MB…', 'comprimindo…', 'convertendo…', 'enviando…', 'salvando metadados…', 'pronto ✓'];
+
+function clearFlow() {
+  STEPS.forEach(function (s) { s.classList.remove('active', 'done'); });
+  pipe.classList.remove('run');
+  dstThumb.style.opacity = .25; dstMeta.textContent = 'aguardando…';
+  pipeStage.textContent = 'pronto';
+}
+function runSim() {
+  clearFlow();
+  runBtn.disabled = true;
+  pipe.classList.add('run');
+  var i = 0;
+  var t = setInterval(function () {
+    if (i > 0) STEPS[i - 1].classList.add('done');
+    if (i < STEPS.length) {
+      STEPS[i].classList.add('active');
+      pipeStage.textContent = STAGE_TXT[Math.min(i, STAGE_TXT.length - 1)];
+      i++;
+    } else {
+      clearInterval(t);
+      STEPS[STEPS.length - 1].classList.add('done');
+      dstThumb.style.opacity = 1; dstMeta.textContent = 'avatar.webp · 2.2 MB ✓';
+      pipeStage.textContent = 'concluído ✓';
+      runBtn.disabled = false;
+    }
+  }, 480);
+}
+runBtn.addEventListener('click', runSim);
+document.getElementById('resetBtn').addEventListener('click', clearFlow);
+
+/* ---- barras (anima ao entrar na viewport) ---- */
+function animateBars() {
+  document.querySelectorAll('.val[data-w]').forEach(function (v) { v.style.width = v.getAttribute('data-w') + '%'; });
+}
+if ('IntersectionObserver' in window) {
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) e.target.style.width = e.target.getAttribute('data-w') + '%'; });
+  }, { threshold: .4 });
+  document.querySelectorAll('.val[data-w]').forEach(function (v) { io.observe(v); });
+} else { animateBars(); }
+
+/* ---- strip de prévia + lightbox ---- */
+var strip = document.getElementById('strip');
+IMGS.forEach(function (it) {
+  var d = document.createElement('div');
+  d.className = 'pv'; d.style.backgroundImage = 'url(' + it.src + ')';
+  d.addEventListener('click', function () { openLightbox(it); });
+  strip.appendChild(d);
+});
+var lb = document.getElementById('lightbox');
+var lbImg = document.getElementById('lbImg');
+var lbLoader = document.getElementById('lbLoader');
+var lbDownload = document.getElementById('lbDownload');
+function openLightbox(it) {
+  lb.classList.add('open');
+  lbLoader.style.display = 'grid'; lbImg.style.opacity = 0;
+  lbImg.onload = function () { lbLoader.style.display = 'none'; lbImg.style.opacity = 1; };
+  // simula latência de carregamento
+  setTimeout(function () { lbImg.src = it.src; lbImg.dataset.name = it.name; }, 600);
+}
+function closeLightbox() { lb.classList.remove('open'); }
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+lb.addEventListener('click', function (e) { if (e.target === lb) closeLightbox(); });
+document.getElementById('lbOriginal').addEventListener('click', function () { window.open(lbImg.src, '_blank', 'noopener'); });
+lbDownload.addEventListener('click', function () {
+  if (lbDownload.disabled) return;
+  lbDownload.disabled = true;
+  var old = lbDownload.innerHTML; lbDownload.innerHTML = '<span class="spin"></span> Baixando…';
+  var a = document.createElement('a'); a.href = lbImg.src; a.download = (lbImg.dataset.name || 'oblivian') + '.svg';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { lbDownload.disabled = false; lbDownload.innerHTML = old; }, 1200);
+});
+
+/* ---- limpeza ao banir ---- */
+var removeList = document.getElementById('removeList');
+document.getElementById('banBtn').addEventListener('click', function () {
+  var dry = document.getElementById('dryRun').checked;
+  var items = removeList.querySelectorAll('li');
+  removeList.classList.add('removing');
+  items.forEach(function (li, k) {
+    setTimeout(function () { if (!dry) li.classList.add('gone'); else li.style.outline = '1px dashed var(--warn)'; }, k * 180);
+  });
+  setTimeout(function () {
+    document.getElementById('afterPct').textContent = dry ? '42%' : '18%';
+    var v = document.querySelector('.meter.after .val'); if (v) v.style.width = dry ? '42%' : '18%';
+  }, items.length * 180 + 200);
+});
+</script>
+</body>
+</html>
