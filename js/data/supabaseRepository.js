@@ -18,8 +18,27 @@
   function SupabaseRepository() {
     if (!App.config || !App.config.supabase) throw new Error("App.config.supabase ausente (veja config.example.js)");
     if (typeof window.supabase === "undefined") throw new Error("supabase-js não carregado");
+    // Backend fora do ar (projeto pausado/quota → HTTP 402, ou DNS/rede caiu como em 14/jul):
+    // avisa o usuário 1x/min em vez de deixar telas quebradas com erro silencioso.
+    var _downAt = 0;
+    function _warnDown(msg) {
+      var now = Date.now();
+      if (now - _downAt < 60000) return;
+      _downAt = now;
+      if (App.ui && App.ui.toast) App.ui.toast(msg, "danger");
+    }
+    function _watchedFetch(input, init) {
+      return fetch(input, init).then(function (res) {
+        if (res.status === 402) _warnDown("Servidor excedeu a cota — tente novamente mais tarde");
+        return res;
+      }).catch(function (err) {
+        _warnDown("Sem conexão com o servidor — verifique sua internet");
+        throw err;
+      });
+    }
     this.sb = window.supabase.createClient(App.config.supabase.url, App.config.supabase.anonKey, {
-      auth: { persistSession: true, autoRefreshToken: true }
+      auth: { persistSession: true, autoRefreshToken: true },
+      global: { fetch: _watchedFetch }
     });
     // ---- caches p/ métodos síncronos ----
     this._meId = null;
