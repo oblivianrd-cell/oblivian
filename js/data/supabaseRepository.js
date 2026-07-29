@@ -1332,7 +1332,7 @@
   P.addImage = function (dataURL) { if (!dataURL) return Promise.reject(new Error("Imagem inválida")); return Promise.resolve(dataURL); };
   P.getImage = function (code) {
     code = String(code || "");
-    if (code.indexOf("data:") === 0) return code;   // dataURL embutido (novo, cross-user)
+    if (code.indexOf("data:") === 0 || /^https?:\/\//.test(code)) return code;   // dataURL embutido ou URL do Storage
     try { return localStorage.getItem("oblivian.media." + code) || localStorage.getItem("obliviny.media." + code) || null; } catch (e) { return null; }  // legado
   };
 

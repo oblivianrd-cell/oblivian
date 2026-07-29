@@ -265,18 +265,32 @@
 
   /* APLICA globalmente: envolve App.util.downscaleImage p/ que TODA tela que já
      o usa (createPost, profile, community, chat…) ganhe re-encode forçado + AVIF
-     + EXIF removido, sem editar cada arquivo. Mantém a assinatura (Promise<dataURL>),
-     respeita opts.mime (ex.: R2 pede webp) e preserva GIF/WebM (animação). */
+     + EXIF removido, sem editar cada arquivo. Mantém a assinatura (Promise<string>):
+     com bucket ligado (provider:"supabase") o string é a URL pública do Storage;
+     sem bucket (ou upload falhou) é o dataURL inline — telas não mudam. */
+  function extOfDataUrl(d) {
+    var mime = (String(d || "").match(/^data:([^;]+)/) || [])[1] || "image/webp";
+    var sub = mime.split("/")[1] || "webp";
+    return sub === "jpeg" ? "jpg" : sub;
+  }
+  // dataURL comprimido → bucket; resolve URL pública. Qualquer falha → dataURL (degrada, não quebra).
+  function uploadDataUrl(out) {
+    if (!supabaseConfigured()) return Promise.resolve(out);
+    var ext = extOfDataUrl(out);
+    var m = { dataUrl: out, thumbUrl: null, id: hashId(out), ext: ext, mime: ALLOWED[ext] || ("image/" + ext), folder: "storage/img" };
+    return supabaseUpload(m).catch(function () { return out; });
+  }
   (function patchDownscale() {
     if (!util || typeof util.downscaleImage !== "function" || util.__storagePatched) return;
     var orig = util.downscaleImage;
     util.downscaleImage = function (file, opts) {
       opts = opts || {};
       var t = (file && file.type) || "";
-      if (t === "image/gif" || t === "video/webm") return orig.call(util, file, opts);   // anima: mantém
+      if (t === "image/gif" || t === "video/webm") return orig.call(util, file, opts);   // anima: mantém inline
       var mime = opts.mime || bestMime().mime;                                            // respeita mime pedido
       return readDataUrl(file)
         .then(function (raw) { return reencode(raw, { maxDim: opts.maxDim || 1600, quality: opts.quality || 0.82, mime: mime }); })
+        .then(uploadDataUrl)
         .catch(function () { return orig.call(util, file, opts); });                      // qualquer erro → caminho antigo
     };
     util.__storagePatched = true;

@@ -45,9 +45,12 @@ create policy "media owner delete" on storage.objects
 storage: { provider: "supabase", bucket: "media" }
 ```
 
-Pronto. `App.storage.upload(file, {kind})` passa a subir no bucket
-(`<kind>/<hash>.<ext>`) e devolve a URL pública. Conteúdo igual = mesma chave =
-não duplica. Se o upload falhar, cai pro base64 inline (degrada sem quebrar).
+Pronto. **Toda tela** que anexa imagem (post, avatar, capa, chat, wallpaper,
+comunidade) passa a subir no bucket automaticamente — o wrapper global de
+`downscaleImage` (js/core/storage.js) comprime e sobe `img/<hash>.<ext>`,
+devolvendo a URL pública no lugar do dataURL. Conteúdo igual = mesma chave =
+não duplica. Upload falhou → cai pro base64 inline (degrada sem quebrar).
+GIF/WebM animados continuam inline (sem re-encode no cliente).
 
 ## Segurança
 - Cliente usa só a **publishable key** (já no config). Nenhum segredo no front.
