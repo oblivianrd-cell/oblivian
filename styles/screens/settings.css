@@ -120,7 +120,7 @@
   display: flex; flex-direction: column; gap: var(--s-4); padding: var(--s-6);
   border-radius: var(--r-xl);
   background: var(--surface); border: 1px solid var(--border);
-  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  box-shadow: var(--shadow-pop);
   animation: pop var(--t-mid);
 }
 .bigfield-x { position: absolute; right: var(--s-3); top: var(--s-3); width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: var(--surface-2); color: var(--text); }

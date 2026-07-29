@@ -710,7 +710,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
   width: min(420px, 100%); background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--r-xl); padding: var(--s-6) var(--s-5); text-align: center;
   display: flex; flex-direction: column; align-items: center; gap: var(--s-3);
-  box-shadow: var(--shadow-strong, 0 20px 60px rgba(0,0,0,.4)); animation: pop .25s ease both;
+  box-shadow: var(--shadow-pop); animation: pop .25s ease both;   /* token do app (era --shadow-strong, indefinido → fog 20/60) */
 }
 .onb__icon {
   width: 72px; height: 72px; border-radius: var(--r-lg); display: grid; place-items: center;
