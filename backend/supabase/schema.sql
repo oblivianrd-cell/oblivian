@@ -200,9 +200,10 @@ begin
     raise exception 'already owned';
   end if;
 
-  update public.wallets set balance = balance - it.price, updated_at = now()
-    where user_id = uid and balance >= it.price
-    returning balance into new_balance;
+  -- "balance" qualificado em TODA expressão: solto é ambíguo com o OUT param → toda compra falhava
+  update public.wallets set balance = wallets.balance - it.price, updated_at = now()
+    where user_id = uid and wallets.balance >= it.price
+    returning wallets.balance into new_balance;
   if not found then raise exception 'insufficient coins'; end if;
 
   insert into public.user_items(user_id, item_id) values (uid, p_item_id);

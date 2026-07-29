@@ -1,0 +1,21 @@
+# Smoke test diário (hurl) contra o Supabase real e o oblivian.net.
+# Substitui o supabase-keepalive: o GET no REST já conta como atividade pro free tier.
+# Só roda cron a partir da main — ativa após o merge.
+name: smoke
+on:
+  schedule:
+    - cron: "17 3 * * *" # 1x/dia, 03:17 UTC
+  push:
+    paths: ["backend/supabase/smoke.hurl", ".github/workflows/smoke.yml"]
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: instalar hurl
+        run: |
+          curl -sLO https://github.com/Orange-OpenSource/hurl/releases/download/6.1.1/hurl_6.1.1_amd64.deb
+          sudo dpkg -i hurl_6.1.1_amd64.deb
+      - name: rodar smoke
+        run: hurl --test backend/supabase/smoke.hurl
