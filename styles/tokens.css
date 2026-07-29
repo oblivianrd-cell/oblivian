@@ -98,8 +98,12 @@
   --scrim: rgba(0, 0, 0, 0.6);
 }
 
-/* ---------- Tema claro ---------- */
-[data-theme="light"] {
+/* ---------- Tema claro ----------
+   .auth entra junto DE PROPÓSITO: a tela de login é vitrine da marca (fundo
+   líquido colorido desenhado pro claro) e NÃO tem botão de tema — quem escolhia
+   escuro e saía da conta ficava preso num login escuro, sem saída pela interface.
+   Escopar os tokens no .auth resolve sem JS: some sozinho ao sair da tela. */
+[data-theme="light"], .auth {
   --bg: #f4f5fb;
   --bg-grad: radial-gradient(1200px 600px at 80% -10%, rgba(124, 89, 236, 0.12), transparent 60%), #f4f5fb;
   --surface: #ffffff;

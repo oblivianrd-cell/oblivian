@@ -4,6 +4,10 @@
    ============================================================ */
 
 .auth {
+  /* tokens claros vêm de tokens.css (seletor [data-theme="light"], .auth).
+     `color` precisa ser reafirmado aqui: sem isto o texto HERDA a cor do body
+     (escuro) e fica branco sobre branco. */
+  color: var(--text);
   position: relative;
   min-height: 100vh;
   min-height: 100dvh;        /* viewport real (mobile/desktop) — centraliza vertical */
