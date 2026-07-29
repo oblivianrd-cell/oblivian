@@ -1,0 +1,29 @@
+# Push na main → build → deploy no Cloudflare Pages (oblivian.net).
+# Requer secret CLOUDFLARE_API_TOKEN no repo (token com permissão "Cloudflare Pages: Edit").
+name: deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      # config.js é gitignored (chaves públicas). Recupera a que já está em produção.
+      # ponytail: se mudar config.js, faça UM deploy manual primeiro (npm run deploy).
+      - name: restore config.js
+        run: |
+          curl -fsS https://oblivian.net/js/data/config.js -o js/data/config.js
+          grep -q "supabase" js/data/config.js
+      - name: build
+        run: node scripts/build.mjs
+      - name: deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # conta Oblivianrd@gmail.com — é onde vive o projeto Pages "obliviny"
+          accountId: b851193bcdd9a4fe035662c44485cca5
+          command: pages deploy dist --project-name=obliviny
