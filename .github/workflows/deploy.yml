@@ -1,0 +1,41 @@
+# Deploy automático: push na main → build + publish no Cloudflare Pages (obliviny / oblivian.net).
+# Precisa de 2 secrets em Settings → Secrets and variables → Actions:
+#   CLOUDFLARE_API_TOKEN  — criar em dash.cloudflare.com → My Profile → API Tokens
+#                            (template "Edit Cloudflare Workers" ou custom com permissão Cloudflare Pages: Edit)
+#   CLOUDFLARE_ACCOUNT_ID — visível em `npx wrangler whoami` ou na sidebar do dashboard
+# Sem os secrets o job termina cedo SEM erro — o site continua publicando via `npm run deploy`/`npm run ship` local.
+name: deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checar secrets
+        id: check
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -n "$CF_TOKEN" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "CLOUDFLARE_API_TOKEN ausente — deploy pulado (adicione os secrets p/ ativar o auto-deploy)."
+          fi
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.ok == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.ok == 'true'
+        with:
+          node-version: 20
+      - name: build
+        if: steps.check.outputs.ok == 'true'
+        run: node scripts/build.mjs
+      - name: deploy Cloudflare Pages
+        if: steps.check.outputs.ok == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=obliviny --branch=main
