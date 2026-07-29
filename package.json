@@ -6,6 +6,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "deploy": "node scripts/build.mjs && wrangler pages deploy dist",
+    "ship": "git push && npm run deploy",
     "preview": "node scripts/build.mjs && npx serve dist",
     "apk": "node scripts/apk-release.mjs"
   },
