@@ -628,7 +628,6 @@
   flex: none;                       /* NUNCA encolhe: overflow-x:auto faria o flex-item colapsar a 0 em páginas altas (ex.: Destaques) */
   /* cor SÓLIDA da paleta (sem translucidez/blur que clareiam com o branco atrás) */
   background: var(--c-tabs);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
   position: sticky; top: 64px; z-index: calc(var(--z-sticky) - 1);
   overflow-x: auto;                 /* rola se não couber; nome sempre visível */
   scrollbar-width: none;
@@ -659,11 +658,11 @@
 }
 .camino-frow--tabs .camino-fpill:hover { color: #fff; background: none; }
 .camino-frow--tabs .camino-fpill.is-active {
-  color: #fff; border-bottom-color: #fff; background: rgba(255,255,255,0.08);
+  color: #fff; border-bottom-color: #fff;
 }
 /* nome + ícone sempre visíveis em todas as abas */
 .camino-tabs__item span { display: inline-block; white-space: nowrap; }
-.camino-tabs__item.is-active { color: #fff; border-bottom-color: #fff; background: rgba(255,255,255,0.08); }
+.camino-tabs__item.is-active { color: #fff; border-bottom-color: #fff; }
 
 /* faixa de pins — cor do tema, mais escura */
 .camino-pins {
@@ -769,8 +768,8 @@
 
 /* faixa "Recentes" */
 .camino-latest-bar {
-  /* vidro: mesma receita do dock — tinta translúcida + desfoque */
-  background: var(--c-bar);
+  /* MESMA cor das abas (camino-tabs) — direto no var pra ficar idêntico */
+  background: var(--c-tabs);
   border-top: 1px solid rgba(255,255,255,0.10);
   border-bottom: 1px solid rgba(255,255,255,0.06);
   color: #fff; font-weight: var(--fw-bold);
@@ -815,7 +814,7 @@
 .camino-post__time { color: var(--text-mute); font-size: var(--fs-xs); }
 .camino-post__more { color: var(--text-mute); margin-left: auto; }
 .camino-post__title { color: var(--text); margin: var(--s-3) 0; }
-.camino-post__stats { display: flex; gap: var(--s-4); }
+.camino-post__stats { display: flex; gap: var(--s-4); margin-top: var(--s-3); }   /* respiro entre corpo e coração */
 .camino-post__stats .camino-stat { font-size: var(--fs-sm); }
 
 .camino-section { padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-2); }
@@ -837,10 +836,10 @@
 .camino-dock__status { display: flex; align-items: center; gap: var(--s-2); }
 .camino-dock__chip, .camino-dock__pill {
   display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(18,17,26,0.56);
-  border: 1px solid rgba(255,255,255,0.14);
-  backdrop-filter: blur(30px) saturate(1.5) brightness(0.85);
-  -webkit-backdrop-filter: blur(30px) saturate(1.5) brightness(0.85);
+  background: rgba(20,19,28,0.46);
+  border: none;
+  backdrop-filter: blur(32px) saturate(1.7);
+  -webkit-backdrop-filter: blur(32px) saturate(1.7);
   color: #fff;
   padding: var(--s-2) var(--s-4); border-radius: var(--r-pill);
   font-size: var(--fs-sm); font-weight: var(--fw-semibold);
@@ -867,14 +866,14 @@
 /* barra de navegação inferior — glass */
 .camino-dock__bar {
   display: flex; align-items: center; gap: var(--s-2);
-  /* vidro escuro: frost forte → texto atrás vira borrão (não vaza legível) */
-  background: rgba(18,17,26,0.58);
-  border: 1px solid rgba(255,255,255,0.14);
-  backdrop-filter: blur(32px) saturate(1.5) brightness(0.85);
-  -webkit-backdrop-filter: blur(32px) saturate(1.5) brightness(0.85);
+  /* vidro escuro translúcido: mostra mais do fundo borrado (lê como vidro, sem escurecer demais) */
+  background: rgba(20,19,28,0.46);
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);  /* borda na cor do tema do APP (não da comunidade) */
+  backdrop-filter: blur(34px) saturate(1.7);
+  -webkit-backdrop-filter: blur(34px) saturate(1.7);
   border-radius: var(--r-pill);
   padding: 6px;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
 }
 .camino-dock__item {
   display: inline-flex; align-items: center; justify-content: center; gap: 7px;
@@ -900,32 +899,21 @@
   transition: transform 0.25s cubic-bezier(0.2,0.8,0.3,1.4), box-shadow var(--t-fast), filter var(--t-fast);
 }
 .camino-dock__create svg.icon { width: 24px; height: 24px; position: relative; z-index: 1; transition: transform 0.3s ease; }
-/* anel de brilho pulsando */
-.camino-dock__create::after {
-  content: ""; position: absolute; inset: -3px; border-radius: 50%;
-  border: 2px solid color-mix(in srgb, var(--c-base) 60%, #fff);
-  opacity: 0; animation: create-ring 2.6s ease-in-out infinite;
-}
-@keyframes create-ring {
-  0% { transform: scale(0.9); opacity: 0.6; }
-  70%, 100% { transform: scale(1.45); opacity: 0; }
-}
 .camino-dock__create:hover svg.icon { transform: rotate(135deg); }
 .camino-dock__create:active { transform: scale(0.96); }
-@media (prefers-reduced-motion: reduce) {
-  .camino-dock__create::after { animation: none; }
-}
+.camino-dock__create:focus, .camino-dock__create:focus-visible { outline: none; }   /* sem anel de foco no "+" */
 .camino-dock__item.is-active svg.icon { animation: dock-bounce 0.5s ease; }
 @keyframes dock-bounce {
   0% { transform: scale(0.6); } 60% { transform: scale(1.2); } 100% { transform: scale(1); }
 }
 
 /* entrada da dock + ponto online pulsando */
-/* entrada sem transform (anima bottom) p/ não quebrar o backdrop-filter dos filhos */
+/* entrada SEM transform E SEM opacity: ambos (com fill:both) isolam/compõem o .camino-dock
+   → viram backdrop root → matam o backdrop-filter do bar filho. Anima só bottom (layout, não isola). */
 .camino-dock { animation: dock-in 0.4s cubic-bezier(0.2,0.7,0.3,1) both; }
 @keyframes dock-in {
-  from { opacity: 0; bottom: calc(var(--s-5) - 16px); }
-  to   { opacity: 1; bottom: var(--s-5); }
+  from { bottom: calc(var(--s-5) - 16px); }
+  to   { bottom: var(--s-5); }
 }
 .camino-dock .camino-online__dot { animation: dock-pulse 1.6s ease-in-out infinite; }
 @keyframes dock-pulse {
@@ -940,8 +928,8 @@
 @media (max-width: 639px) {
   .camino-feature__media { height: 280px; }
   .camino-tabs { top: 60px; }
-  /* mobile: 4 itens + FAB não cabem com texto → dock vira só ícone */
-  .camino-dock__item { min-width: 0; width: 50px; padding: 0; height: 46px; gap: 0; }
+  /* mobile: 4 itens + FAB não cabem com texto → dock vira só ícone (círculo, não oval) */
+  .camino-dock__item { min-width: 0; width: 46px; height: 46px; padding: 0; gap: 0; border-radius: 50%; }
   .camino-dock__item span { display: none; }
   .camino-dock__bar { gap: var(--s-1); padding: 5px; }
   .camino-dock__create { width: 50px; height: 50px; }
@@ -1110,65 +1098,111 @@
 
 .camino-stat--btn { cursor: pointer; }
 .camino-stat--btn.is-on { color: var(--danger); }
+/* curtir no destaque: coração rosa/vermelho do like (mesma cor do LikeButton) quando curtido + pop ao clicar */
+.camino-stat.is-liked { color: var(--danger); }
+.camino-stat.is-pop svg.icon { animation: heart-pop 0.45s cubic-bezier(0.2,0.8,0.3,1.5); transform-origin: center; }
+@keyframes heart-pop { 0% { transform: scale(1); } 25% { transform: scale(1.4); } 45% { transform: scale(0.85); } 70% { transform: scale(1.12); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .camino-stat.is-pop svg.icon { animation: none; } }
 .camino-more-imgs { color: var(--text-mute); font-size: var(--fs-sm); }
 
 /* ============================================================
    Painel de criação (grade de círculos coloridos, estilo Amino)
    ============================================================ */
 .scrim--create {
-  display: grid; place-items: center;
-  padding: var(--s-4);
-  background: rgba(8,8,11,0.62);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  display: grid; place-items: end center;            /* popup colado acima do dock; X fixo no dock */
+  padding: var(--s-4) var(--s-3) calc(env(safe-area-inset-bottom, 0px) + 100px);
+  background: transparent;                            /* sem dim — menu junto da barra */
+  backdrop-filter: none; -webkit-backdrop-filter: none;   /* reseta o blur(6px) da .scrim base (era o desfoque) */
 }
 .scrim--create.is-closing { opacity: 0; transition: opacity 0.2s; }
 
+/* popover PEQUENO — não toma a tela; sobe do "+".
+   SEM transform/opacity aqui: ancestral transformado zeraria o backdrop-filter (vidro) do card. */
 .create-sheet {
-  width: min(440px, 94vw);
-  display: flex; flex-direction: column; align-items: center; gap: var(--s-4);
-  animation: stack-in 0.3s cubic-bezier(0.2,0.8,0.3,1.05) both;
+  width: min(330px, 88vw); max-height: min(56vh, 100%);
+  overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  display: flex; flex-direction: column; align-items: stretch;
 }
+.create-sheet::-webkit-scrollbar { display: none; }
+/* card ÚNICO com VIDRO igual ao dock.
+   O backdrop-filter NÃO clipa no border-radius quando está no MESMO elemento (cantos quadrados).
+   Solução: vidro numa camada FILHA (::before); o card pai com overflow:hidden + border-radius
+   clipa essa camada na curva. O card em si NÃO tem backdrop-filter. */
 .create-sheet__card {
-  width: 100%;
-  background: color-mix(in srgb, var(--accent) 16%, rgba(20,20,26,0.92));
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 22px;
-  padding: var(--s-4) var(--s-3);
-  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  position: relative;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 16px;
+  overflow: hidden;                                  /* clipa o ::before (vidro) na curva */
+  padding: var(--s-2) var(--s-2) var(--s-3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);  /* só brilho interno — drop escuro vazava nos cantos sobre o rosa */
+  display: flex; flex-direction: column; gap: var(--s-2);
 }
+/* camada de VIDRO (clipada pelo overflow:hidden do pai → curva perfeita) */
+.create-sheet__card::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background: rgba(18,17,26,0.58);
+  backdrop-filter: blur(32px) saturate(1.5) brightness(0.85);
+  -webkit-backdrop-filter: blur(32px) saturate(1.5) brightness(0.85);
+}
+/* anti-flash: durante o "aquecimento" o vidro fica quase opaco (esconde o frame frio nítido) */
+.create-sheet__card.is-warming::before { background: rgba(18,17,26,0.97); }
+.create-sheet__card > * { position: relative; z-index: 1; }   /* conteúdo acima do vidro */
+/* linha Go Live slim no topo do card: label esq, ícone dir */
+.create-sheet__live { display: flex; justify-content: flex-end;
+  padding: 0 var(--s-2) var(--s-2) 0;                /* respiro à direita → badge LV5 não é clipado pelo overflow:hidden */
+  border-bottom: 1px solid rgba(255,255,255,0.07); }
+.create-grid__item--wide { flex-direction: column; align-items: center; }
+.create-grid__item--wide .create-grid__icon { width: 42px; height: 42px; }
 
-/* grade de tipos: 4 colunas de círculos coloridos */
-.create-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3) var(--s-2); }
+/* grade de tipos: 4 colunas de círculos coloridos (compacta) */
+.create-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2) 2px; }
 .create-grid__item {
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
   background: none; border: 0; cursor: pointer;
-  color: #fff; font-weight: var(--fw-semibold); font-size: var(--fs-sm);
-  padding: 6px 2px; border-radius: var(--r-lg);
+  color: #fff; font-weight: var(--fw-semibold); font-size: 10.5px;
+  padding: 2px; border-radius: var(--r-lg);
   transition: transform var(--t-fast);
 }
 .create-grid__item:active { transform: scale(0.92); }
 .create-grid__icon {
-  width: 58px; height: 58px; border-radius: 50%; flex: none;
+  position: relative;
+  width: 42px; height: 42px; border-radius: 50%; flex: none;
   display: grid; place-items: center; color: #fff;
   box-shadow: 0 6px 16px rgba(0,0,0,0.35);
 }
-.create-grid__icon svg.icon { width: 26px; height: 26px; }
+.create-grid__icon svg.icon { width: 20px; height: 20px; }
 .create-grid__label { text-align: center; line-height: 1.1; }
-
-/* botão X (fechar), círculo branco abaixo do card */
-.create-grid__close {
-  width: 56px; height: 56px; border-radius: 50%; flex: none;
-  display: grid; place-items: center;
-  background: #fff; color: #111; border: 0; cursor: pointer;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  transition: transform var(--t-fast);
+/* selo de nível (cadeado LV5) no canto do ícone */
+.create-grid__lv {
+  position: absolute; right: -8px; bottom: -4px;
+  display: inline-flex; align-items: center; gap: 2px;
+  height: 18px; padding: 0 5px 0 3px; border-radius: var(--r-pill);
+  background: #1b1b22; color: #fff; font-size: 9px; font-weight: var(--fw-bold);
+  border: 1.5px solid rgba(255,255,255,0.85);
 }
-.create-grid__close:active { transform: scale(0.9); }
+.create-grid__lv svg.icon { width: 10px; height: 10px; }
+
+/* X (fechar) no CENTRO do dock — substitui o "+" enquanto aberto */
+.create-grid__close {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + var(--s-5));
+  transform: translateX(-50%);
+  width: 56px; height: 56px; border-radius: 50%; flex: none; z-index: 2;
+  display: grid; place-items: center;
+  background: #fff; color: var(--accent); border: 0; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  transition: transform var(--t-fast), opacity 0.2s ease;
+}
+.create-grid__close:active { transform: translateX(-50%) scale(0.9); }
 .create-grid__close svg.icon { width: 24px; height: 24px; }
 
 @keyframes stack-in { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .create-sheet { animation: none; } }
+
+/* criador EMBUTIDO na interface (acima do dock) — mesmos cards ESCUROS do popup */
+.create-inline { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-3) var(--s-4) var(--s-5); }
+.create-inline .create-sheet__card { box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+.create-inline .create-sheet__card--wide { min-height: 64px; }
 
 /* ============================================================
    Painel lateral (estilo Amino) — abre pelo "Menu" da dock
@@ -1192,10 +1226,10 @@
 .srail::-webkit-scrollbar { display: none; }
 .srail__list { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); flex: 1 0 auto; }
 .srail__sep { width: 28px; height: 1px; background: rgba(255,255,255,0.12); flex: none; }
-.srail__btn { width: 46px; height: 46px; border-radius: 50%; flex: none; display: grid; place-items: center; cursor: pointer; background: none; padding: 0; transition: transform var(--t-fast); position: relative; }
+.srail__btn { width: 46px; height: 46px; border-radius: 14px; flex: none; display: grid; place-items: center; cursor: pointer; background: none; padding: 0; transition: transform var(--t-fast); position: relative; }
 .srail__btn:hover { transform: scale(1.06); }
 .srail__btn.is-active::before { content: ""; position: absolute; left: -10px; top: 50%; transform: translateY(-50%); width: 4px; height: 26px; border-radius: 0 3px 3px 0; background: var(--accent); }
-.rail-ico { width: 46px; height: 46px; border-radius: 50%; background: var(--surface-2) center/cover no-repeat; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+.rail-ico { width: 46px; height: 46px; border-radius: 14px; background: var(--surface-2) center/cover no-repeat; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
 .srail__btn.is-active .rail-ico { box-shadow: 0 0 0 2px var(--accent); }
 .rail-ico--glyph { display: grid; place-items: center; color: var(--text); }
 .rail-ico--txt { display: grid; place-items: center; color: var(--text); font-weight: var(--fw-bold); background: linear-gradient(160deg, var(--accent), color-mix(in srgb, var(--accent) 50%, #000)); }
@@ -1399,7 +1433,13 @@
 .pv2__post { max-width: 760px; width: 100%; margin: 0 auto; padding: var(--s-4) var(--s-4) calc(var(--s-7) + 64px); display: flex; flex-direction: column; gap: var(--s-4); }
 .pv2__title { font-size: var(--fs-2xl); font-weight: var(--fw-bold); line-height: 1.2; }
 .pv2__sep { height: 1px; background: var(--border); }
-.pv2__author { display: flex; align-items: center; gap: var(--s-3); }
+/* autor: barra larga full-width (mesmo padrão da faixa "Comentários" e do perfil) */
+.pv2__author {
+  display: flex; align-items: center; gap: var(--s-3);
+  margin: 0 calc(-1 * var(--s-4)) var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  background: var(--surface-2);
+}
 .pv2__authorleft { display: flex; align-items: center; gap: var(--s-3); flex: 1; min-width: 0; color: var(--text); }
 .pv2__authorname { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; line-height: 1.3; }
 .pv2__authorname > strong { line-height: 1.3; }

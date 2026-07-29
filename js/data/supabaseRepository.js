@@ -670,6 +670,14 @@
         });
       });
   };
+  // UM post (com autor + hidratação) — abre a tela do post sem baixar o feed inteiro
+  P.getPost = function (postId) {
+    var self = this;
+    return this.sb.from("posts").select("*, author:profiles!user_id(*)").eq("id", postId).maybeSingle().then(function (r) {
+      var row = r.data; if (!row) return null;
+      return self._hydratePosts([row]).then(function () { return { post: self._mapPost(row), user: self._userOr(row.author, row.user_id) }; });
+    });
+  };
   P.createPost = function (communityId, data) {
     if (typeof data === "string") data = { text: data };
     data = data || {};

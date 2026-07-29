@@ -132,14 +132,7 @@ svg.icon[data-fill] { fill: currentColor; stroke: none; }
 /* Entrada suave ao trocar de tela (aplicada pelo router ao nó montado) */
 .route-enter { animation: route-enter .26s cubic-bezier(0.2,0.8,0.3,1) both; }
 @keyframes route-enter { from { transform: translateY(8px); } }
-/* barra fina de carregamento no topo (sem esvaziar a tela = sem flash preto) */
-.view.is-route-loading::after {
-  content: ""; position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 9999; pointer-events: none;
-  background: linear-gradient(90deg, transparent, var(--accent, #7c5cff), transparent);
-  background-size: 45% 100%; background-repeat: no-repeat;
-  animation: route-load .9s linear infinite;
-}
-@keyframes route-load { 0% { background-position: -45% 0; } 100% { background-position: 145% 0; } }
+/* barra de loading do topo removida (a pedido) — troca de aba é instantânea via cache */
 
 /* Cross-fade de cores ao alternar tema claro/escuro (transitório) */
 .theme-anim,

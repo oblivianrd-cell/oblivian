@@ -1130,6 +1130,12 @@
       .map(function (p) { return { post: p, user: db.users[p.userId] }; });
     return ok(list);
   };
+  // UM post (com autor) — abre a tela do post sem varrer o feed inteiro
+  P.getPost = function (postId) {
+    var db = this.db;
+    var p = (db.posts || []).filter(function (x) { return x.id === postId; })[0];
+    return ok(p ? { post: p, user: db.users[p.userId] } : null);
+  };
   /* store de imagens por código curto (p/ marcação [IMG|código] no texto) */
   P.addImage = function (dataURL) {
     if (!dataURL) return fail("Imagem inválida");

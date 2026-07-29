@@ -409,12 +409,11 @@
   function postScreen(ctx) {
     var cid = ctx.params.id, pid = ctx.params.postId;
     var inner = el("div", { class: "view__inner view__inner--flush camino-host" });
-    Promise.all([App.repo.getCommunity(cid), App.repo.listPosts(cid), App.repo.getCurrentUser(), App.repo.getMembership(cid)])
+    Promise.all([App.repo.getCommunity(cid), App.repo.getPost(pid), App.repo.getCurrentUser(), App.repo.getMembership(cid)])
       .then(function (r) {
-        var community = r[0], posts = r[1], me = r[2], membership = r[3];
+        var community = r[0], item = r[1], me = r[2], membership = r[3];
         if (!community) { App.util.mount(inner, ui.Empty("info", "Comunidade não encontrada")); return; }
         var canMod = membership && App.Roles.isMod(membership.role);
-        var item = posts.filter(function (x) { return x.post.id === pid; })[0];
         var accent = (community.theme && community.theme.accent) || App.store.get("accent");
         var backBtn = el("button", { class: "pv2__back", type: "button", title: "Voltar", onClick: function () { App.router.back("/c/" + cid + "/latest", /\/p\//); } }, App.icon("back"));
 
@@ -522,9 +521,7 @@
             heroCard,
             label,
             p.title ? el("h1", { class: "pv2__title pv2__title--center" }, p.title) : null,
-            el("div", { class: "pv2__sep" }),
             authorWrap,
-            el("div", { class: "pv2__sep" }),
             p.text ? el("div", { class: "pv2__bodytext" }, App.markup.render(p.text, { media: p.payload && p.payload.media })) : null,
             galleryRow ? el("div", { class: "pv2__sep" }) : null,
             galleryRow);
@@ -546,9 +543,7 @@
           }
           article = el("article", { class: "pv2__post" },
             titleEl,
-            el("div", { class: "pv2__sep" }),
             authorWrap,
-            el("div", { class: "pv2__sep" }),
             el("div", { class: "pv2__bodytext" }, bodyNode),
             attachSec);
         }
@@ -831,8 +826,6 @@
     });
     var header = el("div", { class: "camino-header" },
       el("button", { class: "camino-header__chat", title: "Voltar ao menu", onClick: function () { App.router.navigate("/sanguao"); } }, App.icon("back")),
-      el("button", { class: "camino-header__avatar", onClick: function () { App.router.navigate("/c/" + cid + "/u/" + me.id); } },
-        ui.Avatar({ name: nameIn(membership, me), src: (membership && membership.avatar) || me.avatar, round: true, size: "sm" })),
       el("h1", { class: "camino-header__title u-truncate" }, community.name),
       notifBtn,
       el("button", { class: "camino-header__chat", title: "Meus Chats", onClick: function () { App.router.navigate("/c/" + cid + "/mychats"); } }, App.icon("chat")));
@@ -874,7 +867,7 @@
     var activeTabEl = null;
     var tabsEl = el("nav", { class: "camino-tabs" }, TABS.map(function (t) {
       var item = el("a", { class: "camino-tabs__item" + (t.key === current ? " is-active" : ""), href: "#/c/" + cid + "/" + t.key },
-        App.icon(t.icon, { size: "sm" }), el("span", t.label));
+        el("span", t.label));
       if (t.key === current) activeTabEl = item;
       return item;
     }));
@@ -965,14 +958,26 @@
       if (!item) return el("div", { class: "camino-feature camino-feature--empty" }, el("span", "Sem publicações em destaque ainda."));
       var p = item.post, u = item.user;
       var mediaStyle = p.payload && p.payload.image ? { backgroundImage: "url(" + p.payload.image + ")" } : {};
+      // curtir/comentar clicáveis, MESMA cor (camino-stat). stopPropagation: não dispara a navegação do card
+      var liked = (p.likes || []).indexOf(me.id) >= 0;
+      var likeCount = el("span", String((p.likes || []).length));
+      var likeBtn = el("button", { class: "camino-stat" + (liked ? " is-liked" : ""), type: "button", title: "Curtir" }, App.icon("heart", { size: "sm", fill: true }), likeCount);
+      likeBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var willLike = !likeBtn.classList.contains("is-liked");
+        likeBtn.classList.toggle("is-liked");
+        if (willLike) { likeBtn.classList.remove("is-pop"); void likeBtn.offsetWidth; likeBtn.classList.add("is-pop"); }   // dispara o pop
+        App.repo.toggleLikePost(p.id).then(function (n) { if (typeof n === "number") likeCount.textContent = String(n); }).catch(function () { likeBtn.classList.toggle("is-liked"); });
+      });
+      var commentBtn = el("button", { class: "camino-stat", type: "button", onClick: function (e) { e.stopPropagation(); App.router.navigate("/c/" + cid + "/p/" + p.id); } },
+        App.icon("comment", { size: "sm", fill: true }), String(p.comments));
       return el("article", { class: "camino-feature", onClick: function () { App.router.navigate("/c/" + cid + "/p/" + p.id); } },
         el("div", { class: "camino-feature__media", style: mediaStyle }),
         el("div", { class: "camino-feature__body" },
           el("h2", { class: "camino-feature__title" }, "『 " + (p.text.split("\n")[0].slice(0, 40) || "Publicação") + " 』"),
           el("div", { class: "camino-feature__more" }, "LER MAIS"),
           el("div", { class: "camino-feature__stats" },
-            el("span", { class: "camino-stat" }, App.icon("heart", { size: "sm", fill: true }), String(p.likes.length)),
-            el("span", { class: "camino-stat" }, App.icon("comment", { size: "sm", fill: true }), String(p.comments)),
+            likeBtn, commentBtn,
             el("span", { class: "u-grow" }),
             el("button", { class: "camino-share", onClick: function (e) { e.stopPropagation(); sharePost(p); } }, App.icon("send", { size: "sm" })))));
     }
@@ -1126,24 +1131,8 @@
       card.addEventListener("keydown", function (e) { if (e.key === "Enter") go(); });
       return card;
     }
-    // criar sala PÚBLICA direto na aba (só staff, igual ao "Nova sala" privado)
-    function createPublicRoom() {
-      var nameI = ui.Input({ placeholder: "Nome da sala", maxlength: 40 });
-      var ref = ui.openModal({ title: "Nova sala pública", scrimClass: "scrim--centered",
-        body: el("div", { class: "u-col u-gap-3" }, ui.Field("Nome", nameI)),
-        actions: [
-          ui.Button({ label: "Cancelar", variant: "ghost", onClick: function () { ref.close(); } }),
-          ui.Button({ label: "Criar", variant: "primary", onClick: function () {
-            var nm = (nameI.value || "").trim(); if (!nm) { ui.toast("Dê um nome", "danger"); return; }
-            App.repo.createChat(cid, { name: nm, visibility: "public", allowedRoles: null })
-              .then(function (c) { ref.close(); App.router.navigate("/chats/" + c.id); })
-              .catch(function (e) { ui.toast((e && e.message) || "Falha", "danger"); });
-          } })
-        ] });
-    }
-    var chatsHead = canMod ? el("div", { class: "camino-chats__head" },
-      ui.Button({ label: "Criar sala pública", icon: "plus", variant: "primary", size: "sm", onClick: createPublicRoom })) : null;
-    var chatsSection = el("div", { class: "camino-chats" }, chatsHead, chatsGrid);
+    // criar sala pública mudou para o botão "+" do dock (openCreatePublicRoom) — staff only
+    var chatsSection = el("div", { class: "camino-chats" }, chatsGrid);
     App.repo.listChats(cid, { visibility: "public" }).then(function (list) {
       App.util.clear(chatsGrid);
       if (!list.length) { chatsGrid.appendChild(el("div", { class: "u-muted", style: { padding: "var(--s-3)", gridColumn: "1 / -1" } }, "Sem chats públicos ainda.")); return; }
@@ -1203,7 +1192,8 @@
     createBtn.addEventListener("click", function (e) {
       if (App.preview && App.preview.active(cid)) { ui.toast("Disponível depois de criar a comunidade", "ok"); return; }
       if (!membership) { ui.toast("Participe para publicar", "danger"); return; }
-      openCreateMenu(e.currentTarget, community);
+      var lv = (App.repo.levelInfo && membership) ? (App.repo.levelInfo(membership.reputation || 0).level || 1) : 1;
+      openCreateMenu(e.currentTarget, community, { canMod: canMod, level: lv });
     });
 
     // item "Online" DENTRO da barra (presença real; ponto verde sobrevive ao modo icon-only do mobile)
@@ -1229,9 +1219,9 @@
     // paleta derivada do acento (shade<0 escurece, >0 clareia)
     var sh = App.store.color.shade, hexA = App.store.color.hexA;
     page.style.setProperty("--c-base", accent);
-    page.style.setProperty("--c-tabs", sh(accent, -22));   // abas: médio-escuro
-    page.style.setProperty("--c-pins", sh(accent, -42));   // pins: escuro
-    page.style.setProperty("--c-bar",  sh(accent, -42));   // faixa recentes: escuro (= pins) p/ contraste c/ texto branco
+    page.style.setProperty("--c-tabs", accent);            // abas + "Todas as publicações": cor do tema PURA
+    page.style.setProperty("--c-pins", sh(accent, -26));   // fixados: tom mais claro (distinto, mas suave)
+    page.style.setProperty("--c-bar",  accent);            // "Todas as publicações" (caso use --c-bar): cor do tema
     page.style.setProperty("--c-fab",  accent);
     page.style.setProperty("--c-tint", hexA(accent, 0.16));
     page.style.setProperty("--c-line", sh(accent, -55));
@@ -1245,14 +1235,22 @@
     var prevDock = document.getElementById("camino-dock-portal");
     if (prevDock) prevDock.remove();
     dock.id = "camino-dock-portal";
-    requestAnimationFrame(function () {
-      if (!page.isConnected) return;                 // tela já trocou antes de pintar
-      document.body.appendChild(dock);               // sai do scroller → backdrop real
+    // Espera a PÁGINA conectar antes de portar. O router monta via swapIn (assíncrono):
+    // no 1º rAF a page quase nunca está conectada → guarda antiga abortava o portal e a
+    // dock ficava dentro do .view (scroller) → backdrop-filter morto. Retenta até conectar.
+    var tries = 0;
+    (function portalDock() {
+      if (!page.isConnected) {
+        if (++tries > 180) return;                   // ~3s: tela descartada antes de montar
+        requestAnimationFrame(portalDock);
+        return;
+      }
+      if (dock.parentNode !== document.body) document.body.appendChild(dock);  // sai do scroller → backdrop real
       var mo = new MutationObserver(function () {
         if (!page.isConnected) { dock.remove(); mo.disconnect(); }
       });
       mo.observe(document.body, { childList: true, subtree: true });
-    });
+    })();
     return page;
   }
 
@@ -1461,39 +1459,95 @@
   }
 
   /* painel de criação: lista vertical empilhada, item central destacado */
-  function openCreateMenu(anchor, community) {
-    // grade estilo Amino: círculos coloridos por tipo + botão X p/ fechar
-    var types = ["text", "image", "link", "quiz", "question", "poll", "wiki", "blog"];
-    var labels = { text: "Post", image: "Imagem", link: "Link", quiz: "Quiz", question: "Pergunta", poll: "Enquete", wiki: "Wiki", blog: "Blog" };
+  // criar SALA pública — staff only, erro de RLS vira aviso amigável
+  function openCreatePublicRoom(cid) {
+    var nameI = ui.Input({ placeholder: "Nome da sala", maxlength: 40 });
+    var priv = { v: false };
+    var sw = ui.Switch(false, function (v) { priv.v = v; });
+    var ref = ui.openModal({ title: "Nova sala", scrimClass: "scrim--centered",
+      body: el("div", { class: "u-col u-gap-3" }, ui.Field("Nome", nameI), ui.Field("Privada (só equipe)", sw)),
+      actions: [
+        ui.Button({ label: "Cancelar", variant: "ghost", onClick: function () { ref.close(); } }),
+        ui.Button({ label: "Criar", variant: "primary", onClick: function () {
+          var nm = (nameI.value || "").trim(); if (!nm) { ui.toast("Dê um nome", "danger"); return; }
+          App.repo.createChat(cid, { name: nm, visibility: priv.v ? "private" : "public", allowedRoles: priv.v ? ["owner", "admin", "lider", "curador", "mod"] : null })
+            .then(function (c) { ref.close(); App.router.navigate("/chats/" + c.id); })
+            .catch(function (e) { var msg = (e && e.message) || ""; ui.toast(/violat|row-level|permiss|denied|policy/i.test(msg) ? "Só a equipe cria salas" : (msg || "Falha"), "danger"); });
+        } })
+      ] });
+  }
+
+  // menu de criar estilo referência: card "Go Live" largo + grids agrupados + locks de nível (LV)
+  // monta os cards do criador (Go Live + grids) — reusado no popup E inline na home.
+  // opts: { canMod, level, onPick } — onPick é chamado ao escolher (fecha o popup; inline = noop).
+  function createGridSections(community, opts) {
+    opts = opts || {};
+    var level = opts.level || 1, canMod = !!opts.canMod, cid = community.id;
+    var done = opts.onPick || function () {};
+    function go(t) { done(); App.router.navigate("/c/" + cid + "/criar-post?tipo=" + t); }
+    function ico(t) { return postMeta(t).icon; }
+    function makeItem(it) {
+      var icon = el("span", { class: "create-grid__icon", style: { background: it.color } }, App.icon(it.icon, { size: "lg" }));
+      if (it.lv) icon.appendChild(el("span", { class: "create-grid__lv" }, App.icon("lock", { size: "sm" }), "LV" + it.lv));
+      var btn = el("button", { class: "create-grid__item" + (it.wide ? " create-grid__item--wide" : ""), type: "button" },
+        icon, el("span", { class: "create-grid__label" }, it.label));
+      btn.addEventListener("click", function () {
+        if (it.lv && level < it.lv) { ui.toast("Desbloqueia no nível " + it.lv, "danger"); return; }
+        if (it.staff && !canMod) { ui.toast("Só a equipe cria salas", "danger"); return; }
+        it.onClick();
+      });
+      return btn;
+    }
+    function gridOf(items) { var g = el("div", { class: "create-grid" }); items.forEach(function (it) { g.appendChild(makeItem(it)); }); return g; }
+
+    // popup compacto: 1 card só → Go Live slim no topo + grade 4-col com todos os tipos
+    var liveRow = el("div", { class: "create-sheet__live" },
+      makeItem({ label: "Go Live", icon: "video", color: "#a855f7", lv: 5, wide: true, onClick: function () { ui.toast("Transmissão ao vivo — em breve", "ok"); } }));
+    var grid = gridOf([
+      { label: "Sala pública", icon: "chat", color: "#22c55e", staff: true, onClick: function () { done(); openCreatePublicRoom(cid); } },
+      { label: "Link", icon: ico("link"), color: TYPE_COLOR.link, onClick: function () { go("link"); } },
+      { label: "Quiz", icon: ico("quiz"), color: TYPE_COLOR.quiz, onClick: function () { go("quiz"); } },
+      { label: "Pergunta", icon: ico("question"), color: TYPE_COLOR.question, onClick: function () { go("question"); } },
+      { label: "Enquete", icon: ico("poll"), color: TYPE_COLOR.poll, onClick: function () { go("poll"); } },
+      { label: "Wiki", icon: ico("wiki"), color: TYPE_COLOR.wiki, lv: 5, onClick: function () { go("wiki"); } },
+      { label: "Blog", icon: ico("blog"), color: TYPE_COLOR.blog, lv: 5, onClick: function () { go("blog"); } },
+      { label: "Rascunhos", icon: "bookmark", color: "#475569", onClick: function () { done(); ui.toast("Rascunhos — em breve", "ok"); } },
+      { label: "Post", icon: ico("text"), color: TYPE_COLOR.text, onClick: function () { go("text"); } },
+      { label: "Imagem", icon: ico("image"), color: TYPE_COLOR.image, onClick: function () { go("image"); } }
+    ]);
+    var card = el("div", { class: "create-sheet__card" }, liveRow, grid);
+    return [card];
+  }
+
+  function openCreateMenu(anchor, community, opts) {
+    opts = opts || {};
     var accent = (community.theme && community.theme.accent) || App.store.get("accent");
 
-    var grid = el("div", { class: "create-grid" });
-    types.forEach(function (t) {
-      var m = postMeta(t);
-      var item = el("button", { class: "create-grid__item", type: "button" },
-        el("span", { class: "create-grid__icon", style: { background: TYPE_COLOR[t] || "#888" } }, App.icon(m.icon, { size: "lg" })),
-        el("span", { class: "create-grid__label" }, labels[t]));
-      item.addEventListener("click", function () { close(); App.router.navigate("/c/" + community.id + "/criar-post?tipo=" + t); });
-      grid.appendChild(item);
-    });
-
+    // X fica FORA do scrim (backdrop-filter ancestral quebra position:fixed) → no body, fixo no centro do dock
     var closeBtn = el("button", { class: "create-grid__close", type: "button", title: "Fechar", "aria-label": "Fechar" }, App.icon("close"));
     closeBtn.addEventListener("click", function () { close(); });
 
-    var panel = el("div", { class: "create-sheet" },
-      el("div", { class: "create-sheet__card" }, grid),
-      closeBtn);
+    var sections = createGridSections(community, { canMod: opts.canMod, level: opts.level, onPick: function () { close(); } });
+    var panel = el("div", { class: "create-sheet" }, sections);
+    var card = panel.querySelector(".create-sheet__card");
     var scrim = el("div", { class: "scrim scrim--create" }, panel);
     scrim.style.setProperty("--accent", accent);
     scrim.addEventListener("mousedown", function (e) { if (e.target === scrim) close(); });
     function onKey(e) { if (e.key === "Escape") close(); }
     function close() {
       document.removeEventListener("keydown", onKey);
-      scrim.classList.add("is-closing");
-      setTimeout(function () { scrim.remove(); }, 200);
+      scrim.classList.add("is-closing"); closeBtn.style.opacity = "0";
+      setTimeout(function () { scrim.remove(); closeBtn.remove(); }, 200);
     }
     document.addEventListener("keydown", onKey);
+    // Anti-flash do vidro: o backdrop-filter recém-montado nasce FRIO (1º frame mostra o fundo nítido,
+    // só depois borra). Solução: o card já pinta (aquece o layer do filtro), mas com fundo QUASE OPACO
+    // nos 2 primeiros frames — esconde o "vê-através nítido". Aí troco pro vidro translúcido: o layer já
+    // está quente → o blur aparece instantâneo. (visibility/opacity não serviam: ou não pintam, ou matam o vidro.)
+    if (card) card.classList.add("is-warming");
     document.body.appendChild(scrim);
+    document.body.appendChild(closeBtn);
+    if (card) requestAnimationFrame(function () { requestAnimationFrame(function () { card.classList.remove("is-warming"); }); });
   }
 
   /* ---------------- Tela de Membros ---------------- */
@@ -1601,6 +1655,11 @@
   }
 
   /* ---------------- Render ---------------- */
+  // cache da comunidade p/ troca de aba INSTANTÂNEA (sem re-baixar community+membership+posts toda vez).
+  // invalida em mutação de post ou TTL de 25s.
+  var _ccache = null;
+  ["post:new", "post:deleted", "post:updated", "post:hidden", "post:pinned"].forEach(function (ev) { App.bus.on(ev, function () { _ccache = null; }); });
+
   function render(ctx) {
     var id = ctx.params.id;
     var tab = ctx.params.tab;
@@ -1610,6 +1669,15 @@
     // descritor da tela; resolvemos a Promise só DEPOIS de preencher o `inner`
     // → o router mantém o conteúdo atual durante o load (sem flash preto entre abas).
     var ret = { node: inner, active: "sanguao", title: "Comunidade", communityId: id, immersive: true, flush: !tab };
+
+    // TROCA DE ABA: reusa o cache recente → render SÍNCRONO, instantâneo (zero rede, zero loading)
+    if (tab && tab !== "membros" && _ccache && _ccache.id === id && (Date.now() - _ccache.at) < 25000) {
+      var c = _ccache, canModC = !!c.membership && App.Roles.isMod(c.membership.role);
+      if (App.repo.joinPresence) { ONLINE = new Set(); App.repo.joinPresence(id, setOnline); }
+      try { App.util.mount(inner, communityUI(c.community, c.membership, canModC, c.me, c.postItems, tab)); }
+      catch (err) { App.util.mount(inner, ui.Empty("info", "Erro ao abrir esta página", (err && err.message) || String(err))); }
+      return Promise.resolve(ret);
+    }
 
     // PERF: tudo em paralelo numa só rodada (antes era community/membership →
     // getCurrentUser → listPosts em série = ~3 idas à rede). getCurrentUser é
@@ -1650,6 +1718,9 @@
 
         // aba "membros" → tela dedicada de membros
         if (tab === "membros") { membersScreen(community, membership, canMod, me, inner, ctx); return ret; }
+
+        // guarda no cache p/ as próximas trocas de aba virem instantâneas
+        if (tab && postItems) _ccache = { id: id, at: Date.now(), community: community, membership: membership, me: me, postItems: postItems };
 
         var page;
         // rede de segurança: qualquer erro ao montar a aba vira mensagem visível (nunca tela branca)

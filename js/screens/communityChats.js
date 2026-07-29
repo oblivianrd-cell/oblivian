@@ -141,7 +141,7 @@
         var items = [{ icon: "chat", label: "Conversa privada", onClick: function () {
           App.repo.listMembers(cid).then(function (ms) { pickMember(ms || [], function (u) { App.repo.getOrCreateDirect(u.id).then(function (c) { App.router.navigate("/chats/" + c.id); }).catch(function (e) { ui.toast((e && e.message) || "Falha", "danger"); }); }); });
         } }];
-        if (canCreate) items.push({ icon: "addround", label: "Nova sala", onClick: newRoom });
+        if (canCreate) items.push({ icon: "addround", label: "Nova sala", onClick: newRoom });   // pública/privada — só staff
         App.ui.openMenu(anchor, items);
       }
       function newRoom() {
@@ -154,10 +154,9 @@
             ui.Button({ label: "Cancelar", variant: "ghost", onClick: function () { ref.close(); } }),
             ui.Button({ label: "Criar", variant: "primary", onClick: function () {
               var nm = (nameI.value || "").trim(); if (!nm) { ui.toast("Dê um nome", "danger"); return; }
-              // privada → libera TODA a equipe (inclui curador/mod) p/ o criador não ficar de fora da própria sala
               App.repo.createChat(cid, { name: nm, visibility: priv.v ? "private" : "public", allowedRoles: priv.v ? ["owner", "admin", "lider", "curador", "mod"] : null })
                 .then(function (c) { ref.close(); App.router.navigate("/chats/" + c.id); })
-                .catch(function (e) { ui.toast(e.message || "Falha", "danger"); });
+                .catch(function (e) { var msg = (e && e.message) || ""; ui.toast(/violat|row-level|permiss|denied|policy/i.test(msg) ? "Só a equipe cria salas" : (msg || "Falha"), "danger"); });
             } })
           ] });
       }

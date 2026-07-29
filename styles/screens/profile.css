@@ -403,8 +403,6 @@
 .profile-tabs-wrap { display: flex; flex-direction: column; }
 .profile-tabs {
   display: flex;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
   background: var(--surface-2);
 }
 .profile-tabs__tab {
@@ -1310,9 +1308,3 @@
 @media (prefers-reduced-motion: reduce) {
   .pfx-fade,.pfx-blur,.pfx-rise,.pfx-pop,.pfx-zoom,.pfx-curtain { animation: none; }
 }
-
-/* prévia ao vivo da bio no editor (mostra imagens inseridas) */
-.bio-preview { margin-top: var(--s-3); border: 1px dashed var(--border); border-radius: var(--r-lg); padding: var(--s-3); background: var(--surface-2); }
-.bio-preview__label { font-size: 11px; font-weight: var(--fw-bold); letter-spacing: .06em; text-transform: uppercase; color: var(--text-mute); margin-bottom: var(--s-2); }
-.bio-preview__body { font-size: var(--fs-sm); color: var(--text); line-height: var(--lh-normal); word-break: break-word; }
-.bio-preview__body .mk-img { display: block; max-width: 100%; max-height: 220px; width: auto; border-radius: var(--r-md); margin: var(--s-2) 0; }
