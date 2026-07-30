@@ -201,7 +201,9 @@
 .invite-row__act--del:hover { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); }
 
 /* Cor de destaque: container de card + swatches em grid */
-.cust-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: var(--s-5); gap: var(--s-3); }
+/* 2 classes: em telas <=560px a l.379 redeclara `.settings-block { padding: 16 }`
+   — mesma especificidade, declarada depois — e engolia estes 24px no mobile. */
+.settings-block.cust-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: var(--s-5); gap: var(--s-3); }
 .cust-block .section-sub { margin: 0; }
 .cust-swatches { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: var(--s-3); }
 .cust-swatches .swatch { width: 100%; height: auto; aspect-ratio: 1 / 1; }

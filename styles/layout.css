@@ -234,7 +234,12 @@
 /* filhos diretos não podem inflar o container (rail tem largura própria) */
 .view__inner > * { min-width: 0; }
 .view__inner--wide { max-width: 1600px; }
-.view__inner--flush { padding: 0; max-width: none; flex: 1; }
+/* 2 classes DE PROPÓSITO: `.view__inner` é redeclarado dentro de 4 media queries,
+   e duas delas (max-width:1023px e o landscape baixo) NÃO reafirmavam o flush.
+   Vindo depois desta regra, o padding voltava — toda tela imersiva ganhava margem
+   em tablet e em celular deitado. Com 2 classes vence sem precisar repetir a
+   exceção em cada breakpoint (e o próximo breakpoint novo já nasce correto). */
+.view__inner.view__inner--flush { padding: 0; max-width: none; flex: 1; }
 
 /* ---------------- Barra de abas inferior (mobile) ---------------- */
 .bottom-nav {
