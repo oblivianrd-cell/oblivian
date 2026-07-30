@@ -59,15 +59,13 @@
   --z-modal: 1000;
   --z-toast: 1100;
 
-  /* Acento padrão (sobrescrito por comunidade).
-     Ramp gerada em OKLCH p/ matiz perceptual + contraste AA com branco:
-     branco sobre --accent = 4.67:1, sobre --accent-2 = 4.66:1 (ambos passam WCAG AA).
-     Hex = fallback srgb p/ WebView antigo; oklch() = valor real (idêntico em pixel). */
-  --accent: #7c59ec;                 /* fallback srgb */
-  --accent: oklch(0.58 0.21 289);
-  --accent-2: #a14bd6;               /* fallback srgb */
-  --accent-2: oklch(0.585 0.21 310);
-  --accent-soft: rgba(124, 89, 236, 0.16);
+  /* Acento GRAFITE NEUTRO (sobrescrito por comunidade).
+     Paleta sem matiz: zero roxo/azul. Contraste com branco:
+     #3f3f46 = 10.4:1 e #52525b = 7.8:1 — os dois passam WCAG AA e AAA.
+     Sem oklch aqui: cinza puro não precisa de correção perceptual de matiz. */
+  --accent: #3f3f46;
+  --accent-2: #52525b;
+  --accent-soft: rgba(63, 63, 70, 0.16);
   --accent-contrast: #ffffff;
 
   /* Status */
@@ -82,16 +80,20 @@
 /* ---------- Tema escuro (padrão) ---------- */
 :root,
 [data-theme="dark"] {
-  --bg: #0e0f15;
-  --bg-grad: radial-gradient(1200px 600px at 80% -10%, rgba(124, 89, 236, 0.10), transparent 60%), #0e0f15;
-  --surface: #171922;
-  --surface-2: #1f222e;
-  --surface-3: #272b39;
-  --border: #2a2e3c;
-  --border-strong: #3a3f50;
-  --text: #f2f3f7;
-  --text-dim: #b9bdcc;
-  --text-mute: #7d8295;
+  /* CINZA NEUTRO (R=G=B). Antes tudo puxava azul — o canal B ficava ~7 pontos
+     acima dos outros (#0e0f15 = 14/15/21), o que dava o tom navy. Mesma
+     luminosidade de cada degrau, só sem o desvio de matiz. */
+  --bg: #111111;
+  /* aura removida: era um radial violeta que tingia o topo da tela */
+  --bg-grad: #111111;
+  --surface: #1b1b1b;
+  --surface-2: #252525;
+  --surface-3: #2e2e2e;
+  --border: #313131;
+  --border-strong: #424242;
+  --text: #f4f4f4;
+  --text-dim: #c0c0c0;
+  --text-mute: #888888;
   --on-accent: #ffffff;
   --shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.35);
   --shadow-pop: 0 12px 40px rgba(0, 0, 0, 0.5);
@@ -104,18 +106,19 @@
    escuro e saía da conta ficava preso num login escuro, sem saída pela interface.
    Escopar os tokens no .auth resolve sem JS: some sozinho ao sair da tela. */
 [data-theme="light"], .auth {
-  --bg: #f4f5fb;
-  --bg-grad: radial-gradient(1200px 600px at 80% -10%, rgba(124, 89, 236, 0.12), transparent 60%), #f4f5fb;
+  /* CINZA NEUTRO também no claro — era azulado (#f4f5fb = 244/245/251) */
+  --bg: #f5f5f5;
+  --bg-grad: #f5f5f5;   /* aura violeta removida (ver tema escuro) */
   --surface: #ffffff;
-  --surface-2: #f4f5fb;
-  --surface-3: #e9ebf5;
-  --border: #e2e5f0;
-  --border-strong: #cdd2e3;
-  --text: #16181f;
-  --text-dim: #4a4f60;
-  --text-mute: #868ba0;
+  --surface-2: #f5f5f5;
+  --surface-3: #ebebeb;
+  --border: #e4e4e4;
+  --border-strong: #d1d1d1;
+  --text: #1a1a1a;
+  --text-dim: #525252;
+  --text-mute: #8c8c8c;
   --on-accent: #ffffff;
-  --shadow-soft: 0 6px 20px rgba(20, 24, 60, 0.10);
-  --shadow-pop: 0 14px 40px rgba(20, 24, 60, 0.18);
-  --scrim: rgba(20, 24, 40, 0.45);
+  --shadow-soft: 0 6px 20px rgba(0, 0, 0, 0.08);
+  --shadow-pop: 0 14px 40px rgba(0, 0, 0, 0.14);
+  --scrim: rgba(24, 24, 24, 0.45);
 }

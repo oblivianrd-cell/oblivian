@@ -196,11 +196,11 @@
       opts.onChange && opts.onChange(value);
     }
 
-    var node = el("div", { class: "upload" }, preview,
-      el("div", { class: "u-col u-gap-2 u-grow" },
-        actions,
-        el("span", { class: "field__hint" }, opts.hint || "PNG / JPG / GIF até ~3MB.")),
-      file);
+    // hint: "" (string vazia) OMITE a legenda — sem span vazio ocupando espaço.
+    // Só undefined cai no texto padrão.
+    var col = el("div", { class: "u-col u-gap-2 u-grow" }, actions);
+    if (opts.hint !== "") col.appendChild(el("span", { class: "field__hint" }, opts.hint || "PNG / JPG / GIF até ~3MB."));
+    var node = el("div", { class: "upload" }, preview, col, file);
 
     return { node: node, getValue: function () { return value; }, setValue: setValue };
   }

@@ -19,7 +19,7 @@
     { emoji: "🪙", tag: "Loja", title: "Ganhe moedas assistindo anúncio", cta: "Abrir", href: "#/loja", accent: "#e8a32b" },
     { emoji: "✨", tag: "Comunidades", title: "Crie a sua própria comunidade", cta: "Criar", href: "#/criar", accent: "#36d399" },
     { emoji: "🔥", tag: "Explorar", title: "Descubra comunidades novas", cta: "Ver", href: "#/explorer", accent: "#ff5470" },
-    { emoji: "🎨", tag: "Perfil", title: "Personalize o seu perfil", cta: "Editar", href: "#/perfil", accent: "#7c59ec" },
+    { emoji: "🎨", tag: "Perfil", title: "Personalize o seu perfil", cta: "Editar", href: "#/perfil", accent: "#3f3f46" },
     { emoji: "💬", tag: "Privado", title: "Converse com seus amigos", cta: "Abrir", href: "#/chats", accent: "#3b82f6" }
   ];
   var _rot = 0;
@@ -99,7 +99,11 @@
     var wrap = el("div", { class: "ad-wrap" });
     var x = el("button", { class: "ad-wrap__close", type: "button", title: "Fechar anúncio", "aria-label": "Fechar anúncio" }, "✕");
     x.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); if (wrap.parentNode) wrap.parentNode.removeChild(wrap); });
-    wrap.appendChild(node); wrap.appendChild(x);
+    // X DENTRO do banner (não irmão): as animações — translateY no hover e o fade
+    // do rodízio (.is-swapping) — vivem no .house-ad. Como irmão, o X ficava
+    // parado enquanto o banner se movia e chegava a sair da borda.
+    // Dentro, herda qualquer transform/opacity sem precisar sincronizar nada.
+    wrap.appendChild(node); node.appendChild(x);
     return wrap;
   }
 

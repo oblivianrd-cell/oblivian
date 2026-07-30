@@ -9,7 +9,7 @@
 
   function featured(community) {
     if (!community) return null;
-    var accent = (community.theme && community.theme.accent) || "#7c59ec";
+    var accent = (community.theme && community.theme.accent) || "#3f3f46";
     var bg = el("div", { class: "featured__bg",
       style: community.cover ? { backgroundImage: "url(" + community.cover + ")" }
         : { background: "linear-gradient(135deg," + accent + "," + App.store.color.shade(accent, 30) + ")" } });

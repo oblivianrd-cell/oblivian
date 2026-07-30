@@ -1162,7 +1162,7 @@
       sw.style.background = colorVal || "";
       function paintSw() { sw.classList.toggle("is-set", !!colorVal); sw.style.background = colorVal || ""; }
       sw.addEventListener("click", function () {
-        ui.pickColor(colorVal || "#7c59ec", function (hex) { colorVal = hex || ""; paintSw(); refreshPreview(); }, { title: "Cor do perfil", allowClear: true });
+        ui.pickColor(colorVal || "#3f3f46", function (hex) { colorVal = hex || ""; paintSw(); refreshPreview(); }, { title: "Cor do perfil", allowClear: true });
       });
       var clrBtn = ui.Button({ label: "Sem cor", icon: "close", size: "sm", variant: "ghost", onClick: function () { colorVal = ""; paintSw(); refreshPreview(); } });
 
@@ -1517,7 +1517,7 @@
           var list = demo ? ["__g1", "__g2", "__g3"] : imgs;
           list.forEach(function (s, i) {
             var img = el("div", { class: "cover-slide__img" });
-            if (s === "__g1") img.style.background = "linear-gradient(135deg,#7c59ec,#3b82f6)";
+            if (s === "__g1") img.style.background = "linear-gradient(135deg,#3f3f46,#3b82f6)";
             else if (s === "__g2") img.style.background = "linear-gradient(135deg,#ff5fa2,#f59e0b)";
             else if (s === "__g3") img.style.background = "linear-gradient(135deg,#22c55e,#14b8a6)";
             else { img.style.backgroundImage = "url(" + s + ")"; img.style.backgroundSize = "cover"; img.style.backgroundPosition = "center"; }

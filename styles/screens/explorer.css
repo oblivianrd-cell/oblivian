@@ -17,7 +17,10 @@
   padding: var(--s-5);
   color: #fff;
   background: var(--surface-3);
-  border: 1px solid var(--border);
+  /* era border: 1px solid var(--border) — com a paleta neutra --border virou
+     #313131 (cinza médio) e desenhava uma linha CLARA em volta do card colorido.
+     Translúcido escuro acompanha qualquer capa, sem risco visível. */
+  border: 1px solid rgba(0,0,0,0.22);
 }
 .featured__bg {
   position: absolute; inset: 0;

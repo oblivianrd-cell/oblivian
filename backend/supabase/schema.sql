@@ -217,7 +217,7 @@ end; $$;
 create or replace function public.ensure_wallet()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  insert into public.wallets(user_id, balance) values (new.id, 200)
+  insert into public.wallets(user_id, balance) values (new.id, 0)
     on conflict (user_id) do nothing;
   return new;
 end; $$;

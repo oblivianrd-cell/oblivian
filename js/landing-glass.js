@@ -108,9 +108,12 @@
     container.addEventListener("pointermove", function (e) {
       var r = container.getBoundingClientRect();
       var x = e.clientX - r.left, y = e.clientY - r.top;
-      // mantém a lente DENTRO da band (nunca cruza a borda/canto = sem vazamento)
-      lx = r.width  > 2 * R ? Math.max(R, Math.min(r.width  - R, x)) : r.width / 2;
-      ly = r.height > 2 * R ? Math.max(R, Math.min(r.height - R, y)) : r.height / 2;
+      // Pode passar um pouco da borda e ser CORTADA pelo clip-path da band — nada além disso.
+      // lx/ly = centro; centro em R = tangente à borda, centro em R-OVER = OVER px para fora.
+      var OVER = R * 0.6;
+      var lo = R - OVER;
+      lx = r.width  > 2 * R ? Math.max(lo, Math.min(r.width  - R + OVER, x)) : r.width / 2;
+      ly = r.height > 2 * R ? Math.max(lo, Math.min(r.height - R + OVER, y)) : r.height / 2;
       lens.classList.add("is-on");
       if (!raf) raf = requestAnimationFrame(paint);
     });
@@ -144,8 +147,9 @@
       }, 30);
     });
 
-    // lente de vidro seguindo o mouse na CTA
-    followLens(document.querySelector(".lp-cta"), { size: 168, depth: 64, curv: 1.5, scale: 48, blur: 1.5, sat: 1.25 });
+    // A lente da CTA foi substituída pela bolha WebGL2 (js/landing-bubble.js).
+    // followLens() fica aqui como utilitário, sem chamador — se voltar a usar,
+    // é uma linha. O efeito de vidro acima (nav + menu de idioma) continua ativo.
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

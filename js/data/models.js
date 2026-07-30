@@ -54,7 +54,7 @@
       description: data.description || "",
       ownerId: data.ownerId,
       tags: data.tags || [],           // tags/categorias da comunidade
-      theme: data.theme || { accent: "#7c59ec" }, // customização visual independente
+      theme: data.theme || { accent: "#3f3f46" }, // customização visual independente
       settings: Object.assign({
         visibility: "public",          // 'public' | 'private'
         joinPolicy: "open",            // 'open' | 'request'

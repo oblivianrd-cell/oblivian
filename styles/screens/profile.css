@@ -865,11 +865,16 @@
 .cp__quick { display: flex; flex-direction: column; gap: var(--s-1); }
 .cp__quicklbl { color: var(--text-mute); font-size: var(--fs-xs); font-weight: var(--fw-semibold); }
 .cp__swatches { display: grid; grid-template-columns: repeat(11, 1fr); gap: 5px; }
-.cp__sw { aspect-ratio: 1/1; border-radius: var(--r-sm); box-shadow: inset 0 0 0 1px rgba(128,128,128,.35); cursor: pointer; transition: transform .1s; }
+/* box-shadow ENTRA na transição: antes só o transform era animado, então o anel
+   de seleção aparecia instantâneo enquanto o quadrado crescia suave. */
+.cp__sw { aspect-ratio: 1/1; border-radius: var(--r-sm); box-shadow: inset 0 0 0 1px rgba(128,128,128,.35); cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; }
 .cp__sw:hover { transform: scale(1.18); }
-.cp__sw.is-active { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--accent); transform: scale(1.1); }
+/* anel em var(--text), não var(--accent): o accent virou grafite e o anel ficava
+   da MESMA cor do swatch grafite — seleção invisível. --text contrasta com
+   qualquer cor de swatch e se inverte sozinho entre tema claro e escuro. */
+.cp__sw.is-active { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--text); transform: scale(1.1); }
 .cp__sw--custom { display: grid; place-items: center; background: var(--surface-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--border); }
-.cp__sw--custom.is-active { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); }
+.cp__sw--custom.is-active { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text); }
 .cp__panel { display: none; flex-direction: column; gap: var(--s-2); }
 .cp__panel.is-open { display: flex; }
 .cp__sv { position: relative; width: 100%; height: 130px; border-radius: var(--r-md); cursor: crosshair; touch-action: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }

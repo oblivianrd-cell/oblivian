@@ -316,24 +316,16 @@
 /* seletor de idioma flutuante no mobile (a nav__links some) */
 @media (max-width: 720px){ .lp-nav__links { display: none; } }
 
-/* ===== lente de vidro que segue o mouse (CTA) ===== */
-.lp-lens {
-  position: absolute; top: 0; left: 0; border-radius: 50%; z-index: 0; pointer-events: none;
-  opacity: 0; transform: translateY(-24px) scale(.9);
-  transition: opacity .3s ease, transform .4s cubic-bezier(.22,1,.36,1);
-  will-change: left, top, transform;
-  -webkit-backdrop-filter: blur(2px) saturate(1.2); backdrop-filter: blur(2px) saturate(1.2);
-  background: linear-gradient(140deg, rgba(255,255,255,.14), rgba(255,255,255,0) 55%);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.35), inset 5px 7px 14px rgba(255,255,255,.22),
-              inset -5px -7px 16px rgba(0,0,0,.16), 0 10px 30px rgba(0,0,0,.18);
+/* ===== bolha líquida WebGL2 que segue o mouse (CTA) — js/landing-bubble.js =====
+   Canvas cobre a band inteira; o shader desenha só onde a bolha está (scissor).
+   z-index 0: fica atrás do texto (.lp__wrap tem z-index 1). */
+.lp-bubble {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none; display: block;
 }
-.lp-lens.is-on { opacity: 1; transform: translateY(0) scale(1); }
-.lp-lens::after { content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
-  background: linear-gradient(135deg, rgba(255,255,255,.6), transparent 42%); mix-blend-mode: screen; opacity: .8; }
-.lp-cta > .lp__wrap { position: relative; z-index: 1; }   /* texto acima da lente */
-@media (prefers-reduced-motion: reduce) { .lp-lens { display: none; } }
-/* touch/mobile: sem mouse → esconde a lente (não fica parada cobrindo o texto) */
-@media (hover: none), (pointer: coarse) { .lp-lens { display: none !important; } }
+.lp-cta > .lp__wrap { position: relative; z-index: 1; }   /* texto acima da bolha */
+/* touch/mobile: sem mouse não há o que seguir (o JS já nem monta o canvas) */
+@media (hover: none), (pointer: coarse) { .lp-bubble { display: none !important; } }
 
 /* ===== efeito vidro (landing-glass.js aplica a refração no backdrop) ===== */
 .lp-glass { box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 1px 0 rgba(0,0,0,.02); }

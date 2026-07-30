@@ -10,7 +10,7 @@
   var el = App.util.el, ui = App.ui, C = App.components;
   App.screens = App.screens || {};
 
-  var PALETTE = ["#7c59ec", "#ff5fa2", "#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#14b8a6", "#a855f7"];
+  var PALETTE = ["#3f3f46", "#ff5fa2", "#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#14b8a6", "#a855f7"];
 
   function swatches(current, onPick) {
     var box = el("div", { class: "swatches" });
@@ -26,7 +26,7 @@
     // lápis = cor personalizada → abre o seletor geral
     var custom = el("button", { class: "swatch swatch--custom", type: "button", title: "Cor personalizada" }, App.icon("edit", { size: "sm" }));
     custom.addEventListener("click", function () {
-      ui.pickColor(current || "#7c59ec", function (hex) {
+      ui.pickColor(current || "#3f3f46", function (hex) {
         if (!hex) return;
         App.util.qsa(".swatch", box).forEach(function (x) { x.classList.remove("is-active"); });
         current = hex; onPick(hex);

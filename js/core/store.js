@@ -10,7 +10,7 @@
   /* Marca padrão: paleta OKLCH definida em tokens.css (contraste AA com branco).
      Quando o acento é este valor, applyTheme NÃO sobrescreve inline — deixa
      tokens.css valer (que traz --accent/--accent-2 em oklch). */
-  var DEFAULT_ACCENT = "#7c59ec";
+  var DEFAULT_ACCENT = "#3f3f46";
 
   var defaults = {
     theme: "light",           // 'dark' | 'light' — PADRÃO: claro/branco
@@ -95,7 +95,7 @@
     }).join("");
   }
   function parse(hex) {
-    hex = (hex || "#7c59ec").replace("#", "");
+    hex = (hex || "#3f3f46").replace("#", "");
     if (hex.length === 3) hex = hex.split("").map(function (x) { return x + x; }).join("");
     return { r: parseInt(hex.slice(0, 2), 16), g: parseInt(hex.slice(2, 4), 16), b: parseInt(hex.slice(4, 6), 16) };
   }

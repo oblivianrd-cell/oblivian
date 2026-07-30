@@ -411,7 +411,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 .imgview__spin {
   width: 34px; height: 34px; border-radius: 50%;
   border: 3px solid var(--surface-3, rgba(255,255,255,0.18));
-  border-top-color: var(--accent, #7c5cff);
+  border-top-color: var(--accent, #3f3f46);
   animation: imgview-spin 0.7s linear infinite;
 }
 @keyframes imgview-spin { to { transform: rotate(360deg); } }
@@ -645,9 +645,15 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 }
 
 /* ---------------- Toast ---------------- */
+/* left:0/right:0 + align-items:center em vez de left:50% + translateX:
+   com left:50% a largura DISPONÍVEL do elemento fixed virava metade da viewport
+   (o translateX recentra visualmente mas não devolve espaço), então o texto
+   quebrava em 2 linhas mesmo sobrando tela dos lados.
+   Fica ACIMA, logo abaixo da topbar. */
 .toast-host {
-  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
-  display: flex; flex-direction: column; gap: var(--s-2);
+  position: fixed; left: 0; right: 0; top: calc(var(--topbar-h) + var(--s-3));
+  display: flex; flex-direction: column; align-items: center; gap: var(--s-2);
+  padding: 0 var(--s-4);
   z-index: var(--z-toast); pointer-events: none;
 }
 .toast {
@@ -657,11 +663,13 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
   border-radius: var(--r-pill); box-shadow: var(--shadow-pop);
   border: 1px solid var(--border);
   animation: pop var(--t-mid);
+  /* 1 linha; só quebra se não couber mesmo na tela */
+  white-space: nowrap; max-width: 100%;
 }
+.toast > span { overflow: hidden; text-overflow: ellipsis; }
+.toast svg.icon { flex: none; }   /* ícone não encolhe nem desalinha */
 .toast--ok { color: var(--ok); }
 .toast--danger { color: var(--danger); }
-
-@media (max-width: 639px) { .toast-host { bottom: calc(var(--bottomnav-h) + 16px); } }
 
 /* ---------------- Menu de contexto (dropdown) ---------------- */
 .menu {

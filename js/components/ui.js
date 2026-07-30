@@ -83,7 +83,7 @@
   /* Botão de curtir com animação (pop + anel + faíscas).
      opts: { count, liked, onToggle(next) -> Promise<count>|count } */
   /* ---- animações de curtir (yui540, 2026-06-07, MIT) escolhíveis ---- */
-  var LK_PAL = ["#ff3b6b", "#ff5fa2", "#ffb13b", "#7c59ec", "#22c55e", "#3b82f6"];
+  var LK_PAL = ["#ff3b6b", "#ff5fa2", "#ffb13b", "#3f3f46", "#22c55e", "#3b82f6"];
   var LK_VARIANTS = [
     { key: "a", label: "Explosão" },   // partículas radiais + onda
     { key: "b", label: "Corações" },   // anel pulsante + coraçõezinhos

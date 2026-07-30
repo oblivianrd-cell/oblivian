@@ -245,7 +245,9 @@
   width: 46px; height: 46px; border-radius: var(--r-lg);
   border: 2px solid transparent; cursor: pointer; position: relative;
   box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
-  transition: transform .1s ease, box-shadow var(--t-fast);
+  /* border-color na transição: a is-active troca a borda e ela pulava seca
+     enquanto o scale animava (mesmo problema do .cp__sw no colorPicker). */
+  transition: transform .1s ease, box-shadow var(--t-fast), border-color var(--t-fast);
 }
 .swatch:hover { transform: scale(1.08); }
 .swatch.is-active { border-color: var(--text); transform: scale(1.06); box-shadow: 0 4px 14px rgba(0,0,0,.2); }

@@ -107,6 +107,16 @@
 
   function resolve() {
     var parsed = parseHash();
+    // Rascunho de pré-visualização (App.preview) vive só em MEMÓRIA. Num reload
+    // (F5 ou o auto-reload do carimbo de build) ele morre, e qualquer uma das 16
+    // rotas /c/:id iria ao Postgres com o id sintético "preview-draft" →
+    // "invalid input syntax for type uuid". Guarda aqui porque é o ponto único
+    // por onde todas passam.
+    if (App.preview && App.preview.id && !App.preview.draft &&
+        parsed.path.indexOf("/c/" + App.preview.id) === 0) {
+      location.hash = "#/criar";
+      return;
+    }
     var matched = match(parsed.path);
     var ctx = { path: parsed.path, query: parsed.query, params: matched ? matched.params : {} };
     var my = ++token;

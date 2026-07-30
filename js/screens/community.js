@@ -38,7 +38,7 @@
 
   /* ---------------- Tela de entrada: "Sobre a comunidade" ---------------- */
   function introScreen(community, membership, ownerData) {
-    var accent = (community.theme && community.theme.accent) || "#7c59ec";
+    var accent = (community.theme && community.theme.accent) || "#3f3f46";
     var icon = community.icon
       ? el("div", { class: "cintro__icon", style: { backgroundImage: "url(" + community.icon + ")" } })
       : el("div", { class: "cintro__icon", style: { background: "linear-gradient(135deg," + accent + "," + App.store.color.shade(accent, 25) + ")" } }, App.icon("community", { size: "xl" }));
@@ -75,6 +75,16 @@
             el("div", { class: "cintro__members" }, App.util.formatCount(community.memberCount) + " Membros"),
             el("div", { class: "u-muted" }, "Português"))),
         el("div", { class: "cintro__id" }, "ID Oblivian: " + community.id),
+        // tags: eram gravadas mas NUNCA exibidas aqui — parecia que não salvavam.
+        // O CSS .cintro__tags/.cintro__tag já existia esperando esta marcação.
+        // Clique busca a tag no explorador (o CSS já tinha cursor:pointer).
+        (community.tags && community.tags.length)
+          ? el("div", { class: "cintro__tags" }, community.tags.map(function (t) {
+              var b = el("button", { class: "cintro__tag", type: "button" }, t);
+              b.addEventListener("click", function () { App.router.navigate("/busca?q=" + encodeURIComponent(t)); });
+              return b;
+            }))
+          : null,
         community.description ? el("p", { class: "cintro__slogan" }, ((community.description.replace(/\[[^\]]*\]/g, "").split(".")[0] || community.name).trim() + "!") ) : null,
         ownerRow,
         el("div", { class: "cintro__cta" }, actionBtn),
@@ -92,7 +102,7 @@
   /* Transição de entrada: véu de vidro com o ícone da comunidade,
      que desfoca/escurece e some aos poucos enquanto o feed surge. */
   function playEnterTransition(host, community) {
-    var accent = (community.theme && community.theme.accent) || "#7c59ec";
+    var accent = (community.theme && community.theme.accent) || "#3f3f46";
     var glyph = community.icon
       ? el("div", { class: "enter-veil__glyph", style: { backgroundImage: "url(" + community.icon + ")" } })
       : el("div", { class: "enter-veil__glyph", style: { background: "linear-gradient(135deg," + accent + "," + App.store.color.shade(accent, 25) + ")" } }, App.icon("community", { size: "xl" }));
@@ -803,7 +813,7 @@
 
   function communityUI(community, membership, canMod, me, postItems, tab) {
     var cid = community.id;
-    var accent = (community.theme && community.theme.accent) || "#7c59ec";
+    var accent = (community.theme && community.theme.accent) || "#3f3f46";
 
     // ----- Header preto -----
     function unreadNow() { return (App.repo.unreadCount ? App.repo.unreadCount(me.id) : 0) || 0; }
@@ -1256,7 +1266,7 @@
 
   /* cor de fundo do ícone por tipo (estilo do modelo) */
   var TYPE_COLOR = {
-    text: "#ef9aa0", blog: "#7c59ec", image: "#36d399", poll: "#3b82f6",
+    text: "#ef9aa0", blog: "#3f3f46", image: "#36d399", poll: "#3b82f6",
     quiz: "#ffcf5c", link: "#14b8a6", question: "#ff5470", wiki: "#a855f7"
   };
 
@@ -1703,8 +1713,12 @@
         if (tab && App.repo.joinPresence) { ONLINE = new Set(); App.repo.joinPresence(id, setOnline); }
 
         // sem tab: MEMBRO entra direto no feed (com a barra de abas); visitante vê o "Sobre".
+        // EXCEÇÃO preview=1 (criar comunidade): o rascunho fabrica membership de
+        // owner, então sem isto o redirect abaixo disparava e a tela ficava BRANCA
+        // (retorna sem montar + navegação substituta se atropela com a original).
+        var isPv = !!(ctx.query && ctx.query.preview);
         if (!tab) {
-          if (membership && !pvDesc) {
+          if (membership && !pvDesc && !isPv) {
             var home = (community.settings && community.settings.home) || "featured";
             App.router.navigate("/c/" + community.id + "/" + home, { replace: true });
             return ret; // navegação substitui; o router descarta este commit pelo token

@@ -140,7 +140,7 @@
     return {
       id: row.id, name: row.name, slug: row.slug || null, icon: row.icon || null, cover: row.cover || null,
       description: row.description || "", ownerId: row.owner_id, tags: row.tags || [],
-      theme: row.theme || { accent: "#7c59ec" }, settings: row.settings || {},
+      theme: row.theme || { accent: "#3f3f46" }, settings: row.settings || {},
       memberCount: row.members_count != null ? row.members_count : (row.memberCount || 0),
       createdAt: ms(row.created_at)
     };
@@ -503,7 +503,7 @@
   P.createCommunity = function (data) {
     var self = this, me = this._meId;
     var autoSlug = (App.models.slugify(data.name) + "-" + Math.random().toString(36).slice(2, 6));
-    var ins = { name: data.name, slug: data.slug || autoSlug, description: data.description || "", icon: data.icon || null, cover: data.cover || null, owner_id: me, tags: data.tags || [], theme: data.theme || { accent: "#7c59ec" }, settings: data.settings || {} };
+    var ins = { name: data.name, slug: data.slug || autoSlug, description: data.description || "", icon: data.icon || null, cover: data.cover || null, owner_id: me, tags: data.tags || [], theme: data.theme || { accent: "#3f3f46" }, settings: data.settings || {} };
     return this.sb.from("communities").insert(ins).select().single().then(function (r) {
       var c = self._mapCommunity(pick(r));
       return self.sb.from("community_profiles").insert({ community_id: c.id, user_id: me, role: "owner", titles: ["Fundador(a)"] })

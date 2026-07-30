@@ -12,10 +12,26 @@
    aqui usamos campos de formulário, então damos padding e espaçamento. */
 .cc-create .cc-section { padding: var(--s-4); gap: var(--s-4); }
 
-/* ícone + capa lado a lado (empilha no estreito) */
-.cc-create .cc-media { display: grid; grid-template-columns: 1fr; gap: var(--s-4); }
+/* cores de destaque centradas — a última quebrava sozinha, encostada à esquerda */
+.cc-create .swatches { justify-content: center; }
+
+/* ícone + capa lado a lado; empilha só quando não couber.
+   auto-fit decide pelo espaço REAL do container — antes era @media 640px, que
+   media a janela: numa janela de 637px sobrava espaço de sobra e mesmo assim
+   empilhava. 170px é a largura mínima confortável do ImagePicker. */
+.cc-create .cc-media {
+  display: grid; gap: var(--s-4);
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
 .cc-create .cc-media > * { min-width: 0; }   /* colunas encolhem — evita a Capa estourar pra direita */
-@media (min-width: 640px) { .cc-create .cc-media { grid-template-columns: 1fr 1fr; } }
+/* dentro de cada coluna: prévia e botão empilhados e CENTRADOS.
+   Antes o .upload era flex-row e sobrava um vão morto à direita da prévia. */
+.cc-create .cc-media .upload {
+  flex-direction: column; align-items: center; gap: var(--s-3);
+}
+.cc-create .cc-media .upload > .u-col { width: 100%; align-items: center; }
+.cc-create .cc-media .upload .u-row { justify-content: center; width: 100%; }
+.cc-create .cc-media .upload .btn { width: 100%; }   /* botão acompanha a largura da coluna */
 
 /* ---------- Preview do INTERIOR da comunidade ---------- */
 .ccp {
@@ -120,18 +136,22 @@
 }
 .ccpv__actions > .btn { flex: 1; }
 
-/* ---------- Barra flutuante da PRÉ-VISUALIZAÇÃO real ---------- */
-/* fica fixa no rodapé sobre a tela real da comunidade (z acima do dock) */
+/* ---------- Barra flutuante da PRÉ-VISUALIZAÇÃO real ----------
+   Vive no TOPO (era rodapé, cobria o fim do conteúdo). `body` ganha
+   padding-top via .has-preview-bar p/ não esconder o header da comunidade. */
 .preview-bar {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1200;
+  position: fixed; left: 0; right: 0; top: 0; z-index: 1200;
   display: flex; align-items: center; gap: var(--s-3);
-  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+  padding: 8px 12px calc(8px + env(safe-area-inset-top)) 12px;
+  padding-top: calc(8px + env(safe-area-inset-top));
   background: var(--surface);
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.28);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
+/* empurra o app pra baixo enquanto a barra existe — sem isto ela tapa o header */
+body.has-preview-bar { padding-top: 56px; }
 .preview-bar__tag {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: 0.04em;
