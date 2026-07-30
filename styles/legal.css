@@ -37,7 +37,9 @@ a { color: inherit; }
 .ldoc .updated { color: var(--text-mute); font-size: 14px; margin-top: 16px; }
 .ldoc .lead { color: var(--text-dim); font-size: 18px; margin-top: 20px; max-width: 760px; }
 .ldoc h2 { font-family: "Clash Display", "Inter", system-ui, sans-serif; font-weight: 800; font-size: 30px; letter-spacing: -.02em; margin: 48px 0 12px; }
-.ldoc h3 { font-size: 18px; font-weight: 700; margin: 24px 0 6px; }
+/* 18 empatava com .lead (l.38) e ficava a 1.125 do corpo — abaixo do piso 1.15.
+   20 dá 20/16 = 1.25 e h2/h3 = 1.5. */
+.ldoc h3 { font-size: 20px; font-weight: 700; margin: 24px 0 6px; }
 .ldoc p, .ldoc li { color: var(--text-dim); font-size: 16px; }
 .ldoc p { margin-top: 10px; max-width: 840px; }
 .ldoc ul { margin: 10px 0 10px 22px; max-width: 840px; }

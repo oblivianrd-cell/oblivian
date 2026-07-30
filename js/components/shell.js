@@ -82,8 +82,16 @@
     refs.handle = handle;
 
     var view = el("div", { class: "view" });
+    // avatar do usuário no canto: ocupa a MESMA vaga da seta de voltar, e só
+    // aparece quando ela não aparece (abas raiz) — ver .topbar__me no layout.css.
+    // Leva ao perfil global, igual ao me-chip da sidebar.
+    function meAvatar(u) {
+      return el("a", { class: "topbar__me", href: "#/profile", title: "Meu perfil", "aria-label": "Meu perfil" },
+        ui.Avatar({ name: u ? u.name : "", src: u ? u.avatar : null, size: "sm", round: true }));
+    }
     var topbar = el("header", { class: "topbar" },
       ui.IconButton("back", { title: "Voltar", onClick: function () { history.back(); } }),
+      meAvatar(user),
       el("a", { class: "brand", href: "#/explorer" },
         el("span", { class: "brand__name" }, "Oblivian")),
       el("h1", { class: "topbar__title" }, "Explorer"),
@@ -114,7 +122,9 @@
 
     var bottom = el("nav", { class: "bottom-nav" },
       el("div", { class: "bottom-nav__list" },
-        PRIMARY.concat([{ key: "profile", label: "Perfil", icon: "profile", path: "/profile" }]).map(bottomItem)));
+        // Sem a aba "Perfil": o avatar do usuário na topbar (.topbar__me) já leva
+        // a /profile. Eram dois caminhos para a mesma tela ocupando espaço fixo.
+        PRIMARY.map(bottomItem)));
 
     var scrim = el("div", { class: "sidebar__scrim", "aria-hidden": "true" });
     scrim.addEventListener("click", function () { setExpanded(false); });
@@ -308,6 +318,10 @@
     App.bus.on("user:updated", function (u) {
       var chip = refs.sidebar.querySelector(".me-chip");
       if (chip && chip.replaceWith) chip.replaceWith(meChip(u));
+      // avatar da topbar segue o mesmo evento — senão ficaria a foto antiga
+      // depois de trocar o avatar no perfil.
+      var me = refs.topbar && refs.topbar.querySelector(".topbar__me");
+      if (me && me.replaceWith) me.replaceWith(meAvatar(u));
       applyEquippedFrame();
     });
     applyEquippedFrame();

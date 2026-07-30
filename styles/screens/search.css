@@ -25,7 +25,7 @@
   border-radius: var(--r-pill);
   transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
-.gsearch__field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.gsearch__field:focus-within { border-color: var(--accent-fg); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
 .gsearch__field > svg { color: var(--text-mute); flex: none; }
 .gsearch__field input {
   flex: 1; min-width: 0; height: 100%;
@@ -51,7 +51,7 @@
   transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
 }
 .gsearch__tab:hover { color: var(--text); background: var(--surface); }
-.gsearch__tab.is-active { color: var(--accent); border-bottom-color: var(--accent); }
+.gsearch__tab.is-active { color: var(--accent-fg); border-bottom-color: var(--accent-fg); }
 .gsearch__tab svg { flex: none; }
 .gsearch__count { font-size: var(--fs-xs); opacity: .8; }
 .gsearch__count:empty { display: none; }
@@ -78,7 +78,7 @@
   background: var(--surface); color: var(--text); text-decoration: none;
   transition: border-color var(--t-fast), transform var(--t-fast);
 }
-.gsearch__user:hover { border-color: var(--accent); transform: translateY(-1px); }
+.gsearch__user:hover { border-color: var(--accent-fg); transform: translateY(-1px); }
 .gsearch__user-meta { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .gsearch__user-meta strong { font-size: var(--fs-sm); }
 .gsearch__user-meta .u-muted { font-size: var(--fs-xs); }
@@ -92,7 +92,7 @@
   width: 64px; height: 64px; display: grid; place-items: center;
   border-radius: var(--r-pill);
   background: color-mix(in srgb, var(--accent) 14%, transparent);
-  color: var(--accent);
+  color: var(--accent-fg);
 }
 .gsearch__tips { list-style: none; padding: 0; margin: var(--s-2) 0 0; display: flex; flex-direction: column; gap: var(--s-2); width: 100%; max-width: 380px; }
 .gsearch__tips li {
@@ -100,8 +100,8 @@
   padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-md);
   background: var(--surface); color: var(--text-mute); font-size: var(--fs-sm); text-align: left;
 }
-.gsearch__tips li svg { flex: none; color: var(--accent); }
-.gsearch__tips b { color: var(--accent); }
+.gsearch__tips li svg { flex: none; color: var(--accent-fg); }
+.gsearch__tips b { color: var(--accent-fg); }
 
 .gsearch__empty { padding: var(--s-6) var(--s-4); }
 

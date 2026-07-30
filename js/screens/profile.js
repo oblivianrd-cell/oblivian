@@ -201,9 +201,21 @@
     document.body.appendChild(scrim);
     document.addEventListener("keydown", onKey);
 
-    // registro da comunidade: união das tags de todos os membros (nome + cor)
+    // Títulos padrão: sempre no catálogo, mesmo em comunidade nova. Sem eles a
+    // área ficava VAZIA enquanto ninguém tivesse tags — e quem tem 1 membro só
+    // (o dono) nunca via sugestão nenhuma, porque paintSugg filtra o que o
+    // membro já possui. Cor vazia = usa a cor padrão do chip.
+    var DEFAULTS = [
+      { name: "Boas-vindas", color: "" },
+      { name: "Veterano(a)", color: "" },
+      { name: "Colaborador(a)", color: "" }
+    ];
+    ed.setSuggestions(DEFAULTS);   // aparece na hora, sem esperar a rede
+
+    // registro da comunidade: união dos padrões + tags de todos os membros
     App.repo.listMembers(community.id).then(function (list) {
       var seen = {}, catalog = [];
+      DEFAULTS.forEach(function (d) { seen[d.name] = d.color; catalog.push({ name: d.name, color: d.color }); });
       (list || []).forEach(function (it) {
         var m = it.membership; if (!m) return;
         (m.tags || []).forEach(function (t) {

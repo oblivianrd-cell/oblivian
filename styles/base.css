@@ -165,8 +165,10 @@ svg.icon[data-fill] { fill: currentColor; stroke: none; }
 .update-banner {
   position: fixed; top: 0; left: 50%; z-index: 9999;
   transform: translate(-50%, -130%);
-  display: inline-flex; align-items: center; gap: 10px;
-  padding: 11px 22px; border-radius: 0 0 16px 16px;
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  /* eram 10/11/22 — nenhum na escala 4/8/12/16/24. A razao pretendida
+     22/11 = 2.0 fica preservada em 24/12 = 2.0, agora com degraus reais. */
+  padding: var(--s-3) var(--s-5); border-radius: 0 0 16px 16px;
   /* degradê derivado da cor do fundo: topo levemente mais escuro, base mais clara */
   background: linear-gradient(180deg,
     color-mix(in srgb, var(--bg, #f4f5fb) 86%, #000 14%),

@@ -67,6 +67,13 @@
   --accent-2: #52525b;
   --accent-soft: rgba(63, 63, 70, 0.16);
   --accent-contrast: #ffffff;
+  /* --accent-fg = o acento usado como TEXTO/ÍCONE (não como fundo).
+     Derivado de --accent, então acompanha o acento da COMUNIDADE também.
+     Necessário porque o acento neutro é escuro: como fundo de botão com texto
+     branco funciona, mas como cor de texto no tema escuro ficava mais APAGADO
+     que o texto inativo — o item selecionado parecia desligado.
+     Cada tema empurra pro lado legível; o fallback cru vale em WebView antigo. */
+  --accent-fg: var(--accent);
 
   /* Status */
   --danger: #ff5470;
@@ -95,6 +102,12 @@
   --text-dim: #c0c0c0;
   --text-mute: #888888;
   --on-accent: #ffffff;
+  /* Tema escuro: clareia MUITO o acento p/ uso como texto/ícone.
+     22% é calibrado, não estimado: o item INATIVO usa --text-dim (#c0c0c0), que
+     dá 10.4:1 sobre o fundo. O ativo tem que PASSAR disso, senão o selecionado
+     fica mais apagado que o resto — que era exatamente o defeito. Com 22% dá
+     ~12.8:1. Em 55% dava 6.3:1, ainda mais escuro que os inativos. */
+  --accent-fg: color-mix(in oklab, var(--accent) 22%, #ffffff);
   --shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.35);
   --shadow-pop: 0 12px 40px rgba(0, 0, 0, 0.5);
   --scrim: rgba(0, 0, 0, 0.6);
@@ -118,6 +131,8 @@
   --text-dim: #525252;
   --text-mute: #8c8c8c;
   --on-accent: #ffffff;
+  /* tema claro: escurece um pouco, p/ contraste sobre fundo branco */
+  --accent-fg: color-mix(in oklab, var(--accent) 88%, #000000);
   --shadow-soft: 0 6px 20px rgba(0, 0, 0, 0.08);
   --shadow-pop: 0 14px 40px rgba(0, 0, 0, 0.14);
   --scrim: rgba(24, 24, 24, 0.45);

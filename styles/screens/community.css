@@ -15,7 +15,7 @@
 .post__body { font-size: var(--fs-sm); line-height: var(--lh-normal); white-space: pre-wrap; word-break: break-word; }
 .post__actions { display: flex; gap: var(--s-4); color: var(--text-mute); }
 .post__action { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-sm); }
-.post__action:hover { color: var(--accent); }
+.post__action:hover { color: var(--accent-fg); }
 .post__action.is-on { color: var(--danger); }
 
 .composer { display: flex; gap: var(--s-3); padding: var(--s-4); }
@@ -33,7 +33,7 @@
 .member-row__tags { display: inline-flex; gap: 4px; flex-wrap: wrap; }
 .member-row__tag { background: var(--surface-3); color: var(--text-mute); border: none; cursor: pointer; border-radius: var(--r-pill); padding: 1px 8px; font-size: 10px; }
 .member-row__tag:hover { color: var(--text); }
-.member-row__tag.is-on { background: var(--accent-soft); color: var(--accent); }
+.member-row__tag.is-on { background: var(--accent-soft); color: var(--accent-fg); }
 .cmembers__tags { display: flex; gap: var(--s-2); flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 0 var(--s-4) var(--s-2); }
 .cmembers__tags::-webkit-scrollbar { display: none; }
 .member-tagchip {
@@ -42,11 +42,11 @@
   border: 1px solid var(--border); background: var(--surface-2); color: var(--text-mute);
 }
 .member-tagchip:hover { color: var(--text); }
-.member-tagchip.is-on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.member-tagchip.is-on { background: var(--accent); border-color: var(--accent-fg); color: #fff; }
 .member-tagchip__n { opacity: .7; font-size: 10px; }
 .role-pill { font-size: 10px; font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: 0.04em; padding: 2px 8px; border-radius: var(--r-pill); }
 .role-pill--owner { background: rgba(255,207,92,0.15); color: var(--rep); }
-.role-pill--admin, .role-pill--lider { background: var(--accent-soft); color: var(--accent); }
+.role-pill--admin, .role-pill--lider { background: var(--accent-soft); color: var(--accent-fg); }
 .role-pill--curador { background: rgba(54,211,153,0.15); color: #36d399; }
 .role-pill--mod { background: rgba(59,130,246,0.15); color: #3b82f6; }
 .role-pill--member { background: var(--surface-3); color: var(--text-mute); }
@@ -70,7 +70,7 @@
 }
 .cmembers__search:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 .cmembers__search:focus-within {
-  border-color: var(--accent);
+  border-color: var(--accent-fg);
   background: var(--surface);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
 }
@@ -78,7 +78,7 @@
   flex: none; color: var(--text-mute);
   transition: color var(--t-fast);
 }
-.cmembers__search:focus-within .cmembers__search-ic { color: var(--accent); }
+.cmembers__search:focus-within .cmembers__search-ic { color: var(--accent-fg); }
 .cmembers__input {
   flex: 1; min-width: 0;
   background: none; border: none; outline: none;
@@ -97,7 +97,7 @@
   transition: background var(--t-fast), color var(--t-fast);
 }
 .cmembers__search.has-value .cmembers__clear { display: inline-flex; }
-.cmembers__clear:hover { background: var(--accent-soft); color: var(--accent); }
+.cmembers__clear:hover { background: var(--accent-soft); color: var(--accent-fg); }
 .member-list { flex: 1; overflow-y: auto; padding: var(--s-2) var(--s-3) var(--s-6); display: flex; flex-direction: column; gap: 2px; }
 
 /* administração */
@@ -170,6 +170,11 @@
   backdrop-filter: blur(16px) saturate(1.3); -webkit-backdrop-filter: blur(16px) saturate(1.3);
   border-color: rgba(255,255,255,0.22); color: #fff;
 }
+/* ID desce um tier de contraste: no bloco has-cover ele estava em #fff (tier 1) E
+   sobre rgba(0,0,0,.34), enquanto o NOME tem só o gradiente atrás — o metadado
+   ficava com mais contraste local que o título. .cintro__owner segue em #fff
+   de propósito: carrega nome de pessoa. */
+.cintro.has-cover .cintro__id { color: rgba(255,255,255,0.78); }
 .cintro.has-cover .cintro__owner:hover { background: rgba(0,0,0,0.44); border-color: rgba(255,255,255,0.4); }
 /* hover do back/tags na capa: fundo translúcido (não branco) p/ o ícone/texto branco não sumir */
 .cintro.has-cover .cintro__head .icon-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
@@ -243,7 +248,10 @@
   -webkit-backdrop-filter: blur(14px) saturate(1.3);
   border: 1px solid color-mix(in srgb, #fff 12%, transparent);
   padding: var(--s-3) var(--s-4); border-radius: var(--r-md);
-  font-weight: var(--fw-bold); font-size: var(--fs-sm);
+  /* Era bold/14, empatando em peso com o NOME da comunidade (h1, 700 via
+     base.css). Um identificador de copiar-e-colar não pode disputar o topo da
+     hierarquia. Ranking correto: nome 700 > membros 600 > ID 500. */
+  font-weight: var(--fw-medium); font-size: var(--fs-xs);
 }
 .cintro__slogan { text-align: center; font-size: var(--fs-lg); font-weight: var(--fw-semibold); }
 .cintro__tags { display: flex; gap: var(--s-2); flex-wrap: wrap; justify-content: center; }
@@ -257,8 +265,8 @@
 .cintro__tag:hover {
   transform: translateY(-3px);
   background: var(--accent-soft);
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--accent-fg);
+  color: var(--accent-fg);
   box-shadow: 0 6px 16px var(--accent-soft);
 }
 .cintro__tag:active { transform: translateY(-1px) scale(0.97); }
@@ -276,14 +284,17 @@
 .cintro__owner:hover {
   transform: translateY(-2px);
   background: color-mix(in srgb, var(--surface-3) 55%, transparent);
-  border-color: var(--accent);
+  border-color: var(--accent-fg);
 }
 .cintro__owner:active { transform: translateY(0) scale(0.99); }
 .cintro__owner .avatar { transition: transform var(--t-fast); }
 .cintro__owner:hover .avatar { transform: scale(1.08); }
 
 .cintro__section { display: flex; flex-direction: column; gap: var(--s-2); }
-.cintro__h { font-size: var(--fs-xl); }
+/* Era --fs-xl (22), IDÊNTICO ao .cintro__name no mobile — um rótulo de seção
+   ("Descrição") gritava no mesmo volume que o nome próprio da comunidade.
+   18 mantém a diferença por peso (700 vs 400 do corpo) sem empatar com o nome. */
+.cintro__h { font-size: var(--fs-lg); }
 .cintro__desc { color: var(--text-dim); white-space: pre-wrap; }
 
 /* botão entrar (inline): brilho deslizante + elevação no hover */
@@ -356,7 +367,7 @@
   position: absolute;
   width: 150px; height: 150px; border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.12);
-  border-top-color: var(--accent);
+  border-top-color: var(--accent-fg);
   animation: veil-spin 0.9s linear infinite;
 }
 
@@ -585,17 +596,19 @@
   .notif__row.is-unread::after, .nfull__row.is-unread::after { animation: none !important; transition: none; }
 }
 .notif__row {
-  display: flex; align-items: center; gap: 9px;
-  width: 100%; padding: 7px 4px; border-radius: var(--r-sm);
+  /* 9/7/30/15 nao existem na escala de 4px. Com 8/8/32/16 a altura vira
+     8+32+8 = 48 (alvo de toque ideal) e o eixo do texto fecha em 48 redondo. */
+  display: flex; align-items: center; gap: var(--s-2);
+  width: 100%; padding: var(--s-2); border-radius: var(--r-sm);
   text-align: left; border-bottom: 1px solid var(--border);
 }
 .notif__row:last-child { border-bottom: none; }
 .notif__row:hover { background: var(--surface-2); }
 .notif__icon {
-  width: 30px; height: 30px; border-radius: 50%; flex: none;
+  width: 32px; height: 32px; border-radius: 50%; flex: none;
   display: grid; place-items: center; color: var(--text); background: var(--surface-3);
 }
-.notif__icon svg.icon { width: 15px; height: 15px; }
+.notif__icon svg.icon { width: 16px; height: 16px; }
 .notif__icon--all { background: var(--surface-3); color: var(--text-dim); }
 .notif__icon--mention { background: var(--accent); color: var(--on-accent); }
 .notif__icon--system { background: var(--surface-3); color: var(--text-mute); }
@@ -618,7 +631,7 @@
 .notif__foot {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   padding: 12px; border-top: 1px solid var(--border);
-  color: var(--accent); font-weight: var(--fw-bold); font-size: var(--fs-sm);
+  color: var(--accent-fg); font-weight: var(--fw-bold); font-size: var(--fs-sm);
 }
 .notif__foot:hover { background: var(--surface-2); }
 
@@ -804,7 +817,7 @@
   transition: background .12s ease, color .12s ease, border-color .12s ease;
 }
 .camino-fpill:hover { color: var(--text); }
-.camino-fpill.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.camino-fpill.is-active { background: var(--accent); border-color: var(--accent-fg); color: #fff; }
 
 /* lista latest */
 .camino-latest { display: flex; flex-direction: column; gap: var(--s-3); padding: var(--s-3) var(--s-3) var(--s-6); }
@@ -1029,7 +1042,7 @@
 .act-sec { background: var(--surface-2); border-radius: var(--r-lg); padding: var(--s-3); }
 .act-sec__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s-2); }
 .act-sec__title { display: flex; align-items: center; gap: var(--s-2); color: var(--text-mute); font-size: var(--fs-sm); font-weight: var(--fw-semibold); }
-.act-sec__all { color: var(--accent); font-size: var(--fs-sm); font-weight: var(--fw-semibold); cursor: pointer; }
+.act-sec__all { color: var(--accent-fg); font-size: var(--fs-sm); font-weight: var(--fw-semibold); cursor: pointer; }
 .act-rail { display: flex; gap: var(--s-3); overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .act-rail::-webkit-scrollbar { display: none; }
 .act-railitem { flex: none; width: 64px; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text); text-decoration: none; }
@@ -1038,7 +1051,7 @@
 .act-list { display: flex; flex-direction: column; }
 .act-row { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-2) 0; color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border); }
 .act-row:last-child { border-bottom: none; }
-.act-row:hover { color: var(--accent); }
+.act-row:hover { color: var(--accent-fg); }
 .act-row__name { font-weight: var(--fw-semibold); }
 
 /* player de quiz (tela cheia) */
@@ -1069,7 +1082,7 @@
   font-size: var(--fs-lg); font-weight: var(--fw-medium); cursor: pointer;
   transition: border-color var(--t-fast), background var(--t-fast), transform var(--t-fast);
 }
-.quiz-play__opt:hover:not(.is-done) { border-color: var(--accent); transform: translateX(2px); }
+.quiz-play__opt:hover:not(.is-done) { border-color: var(--accent-fg); transform: translateX(2px); }
 .quiz-play__opt.is-done { cursor: default; }
 .quiz-play__opt.is-correct { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 18%, var(--surface-2)); }
 .quiz-play__opt.is-wrong { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 16%, var(--surface-2)); }
@@ -1189,7 +1202,7 @@
   transform: translateX(-50%);
   width: 56px; height: 56px; border-radius: 50%; flex: none; z-index: 2;
   display: grid; place-items: center;
-  background: #fff; color: var(--accent); border: 0; cursor: pointer;
+  background: #fff; color: var(--accent-fg); border: 0; cursor: pointer;
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
   transition: transform var(--t-fast), opacity 0.2s ease;
 }
@@ -1347,7 +1360,10 @@
 @keyframes side-row { from { opacity: 0; transform: translateX(-24px); } }
 
 /* separador só ENTRE itens (não no último) */
-.sidepanel__row:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,0.05); }
+/* divisor recuado 76 = 16 (padding) + 44 (ícone) + 16 (gap) — eixo do texto.
+   box-shadow em vez de border: o :hover abaixo muda o padding-left p/ 24, e um
+   border ficaria parado enquanto o conteúdo anda 8px (desalinhava a cada hover). */
+.sidepanel__row:not(:last-child) { box-shadow: inset 76px -1px 0 rgba(255,255,255,0.05); }
 .sidepanel__row:hover { background: rgba(255,255,255,0.05); padding-left: var(--s-5); }
 .sidepanel__icon {
   width: 44px; height: 44px; border-radius: 50%; flex: none;
@@ -1523,13 +1539,13 @@
 .pv2__cactions { display: flex; gap: var(--s-3); margin-top: 4px; }
 .pv2__caction { display: inline-flex; align-items: center; gap: 4px; color: var(--text-mute); font-size: var(--fs-xs); font-weight: var(--fw-semibold); background: none; border: none; cursor: pointer; padding: 2px 2px; border-radius: var(--r-sm); }
 .pv2__caction:hover { color: var(--text); }
-.pv2__caction.is-on { color: var(--accent); }
+.pv2__caction.is-on { color: var(--accent-fg); }
 .pv2__caction--del:hover { color: var(--danger, #ef4444); }
 .pv2__replybar { align-items: center; justify-content: space-between; gap: var(--s-2); padding: 6px var(--s-3); margin-bottom: 6px; font-size: var(--fs-xs); color: var(--text-mute); background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: var(--r-md); }
 .pv2__replybar span { display: inline-flex; align-items: center; gap: 4px; }
 .pv2__replyx { background: none; border: none; color: var(--text-mute); cursor: pointer; display: inline-flex; }
 .pv2__replyx:hover { color: var(--text); }
-.pv2__mention { color: var(--accent); font-weight: var(--fw-semibold); }
+.pv2__mention { color: var(--accent-fg); font-weight: var(--fw-semibold); }
 .pv2__reactwrap { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-3) 0; }
 .pv2__reacts { display: flex; flex-wrap: wrap; gap: var(--s-2); }
 .pv2__react {
@@ -1538,11 +1554,11 @@
   cursor: pointer; transition: transform .12s ease, border-color .12s ease, background .12s ease;
 }
 .pv2__react:hover { transform: translateY(-1px); }
-.pv2__react.is-on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.pv2__react.is-on { border-color: var(--accent-fg); background: color-mix(in srgb, var(--accent) 16%, transparent); }
 .pv2__react.is-zero { opacity: .6; }
 .pv2__reactemo { font-size: 15px; line-height: 1; }
 .pv2__reactn { font-size: var(--fs-xs); font-weight: var(--fw-semibold); color: var(--text-mute); }
-.pv2__react.is-on .pv2__reactn { color: var(--accent); }
+.pv2__react.is-on .pv2__reactn { color: var(--accent-fg); }
 
 .pview { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--bg); }
 .pview__head {

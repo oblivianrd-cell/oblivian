@@ -44,12 +44,9 @@
   function CreateCommunityCard() {
     var card = el("button", { class: "create-card", type: "button" },
       el("span", { class: "create-card__plus" }, App.icon("plus")),
-      el("strong", "Criar comunidade"),
-      // Legenda de 1 linha. O texto anterior tinha 20 chars e pedia ~130px, mas
-      // o card mínimo é 120px e sobram ~96px após o padding — quebrava sempre.
-      // Este tem 8 chars (~56px), cabe em qualquer largura, e informa algo NOVO
-      // em vez de repetir o título logo acima ("Criar comunidade").
-      el("span", { class: "create-card__sub u-muted" }, "É grátis"));
+      // Sem legenda: "Criar comunidade" já diz tudo. A linha extra só repetia o
+      // título ou informava algo dispensável, e forçava o card a caber 2 textos.
+      el("strong", "Criar comunidade"));
     card.addEventListener("click", function () { App.router.navigate("/criar"); });
     return card;
   }

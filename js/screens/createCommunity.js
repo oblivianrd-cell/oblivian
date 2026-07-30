@@ -28,8 +28,15 @@
 
     var name = ui.Input({ placeholder: "Nome da comunidade", maxlength: 40 });
     if (pre && pre.name && pre.name !== "Nova comunidade") name.value = pre.name;
-    var desc = ui.Textarea({ placeholder: "Sobre o que é a comunidade?", maxlength: 280 });
-    if (pre && pre.description) desc.value = pre.description;
+    // Editor rico (negrito/itálico/sublinhado/tachado/link + expandir), o MESMO
+    // App.components.richText usado na descrição em Configurações da comunidade e
+    // na bio do perfil. noImage: a descrição vira slogan no "Sobre" e imagem em
+    // base64 ali só engordaria a linha da comunidade.
+    var descEd = App.components.richText((pre && pre.description) || "", {
+      fullTitle: "Descrição",
+      placeholder: "Conte sobre a comunidade. Use negrito, itálico e links.",
+      noImage: true
+    });
     // hint:"" omite a legenda — o "*" no rótulo já sinaliza obrigatório e o
     // seletor de arquivo já filtra os formatos.
     var icon = C.ImagePicker({ value: (pre && pre.icon) || null, hint: "", onChange: syncAccent });
@@ -87,7 +94,7 @@
       if (nameErr) { ui.toast(nameErr, "danger"); name.focus(); return; }
       var payload = {
         name: (name.value || "").trim() || "Nova comunidade",
-        description: (desc.value || "").trim(),
+        description: (descEd.getValue() || "").trim(),
         icon: icon.getValue(), cover: cover.getValue(),
         tags: tags.getValue(), theme: { accent: accent }, settings: { visibility: visibility }
       };
@@ -109,11 +116,16 @@
       ui.IconButton("eye", { title: "Pré-visualizar", onClick: openPreview }));
 
     var scroll = el("div", { class: "cset-scroll cc-scroll" },
-      group("Identidade", ui.Field("Nome", name), ui.Field("Descrição (Sobre)", desc)),
+      // Visibilidade vive em Identidade: pública/privada é o que a comunidade É,
+      // e a pessoa decide isso junto com o nome — não no fim do formulário.
+      group("Identidade", ui.Field("Nome", name), ui.Field("Visibilidade", visSeg)),
+      // Descrição em seção PRÓPRIA: com a barra de formatação e o botão de
+      // expandir, ela é alta demais p/ dividir card com Nome e Visibilidade.
+      group("Descrição", descEd.node),
       group("Aparência",
-        ui.Field("Cor de destaque", swatchBox),
-        el("div", { class: "cc-media" }, ui.Field("Ícone *", icon.node), ui.Field("Capa", cover.node))),
-      group("Descoberta", ui.Field("Tags", tags.node), ui.Field("Visibilidade", visSeg)));
+        el("div", { class: "cc-media" }, ui.Field("Ícone *", icon.node), ui.Field("Capa", cover.node)),
+        ui.Field("Cor de destaque", swatchBox)),
+      group("Descoberta", ui.Field("Tags", tags.node)));
 
     // Barra de ações removida: era redundante e cobria o fim do formulário.
     // As duas ações vivem no header — seta "←" = cancelar, olho = pré-visualizar.

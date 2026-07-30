@@ -488,6 +488,42 @@
       action || null);
   }
 
+  /* ---------------- Tooltip (data-tip) ----------------
+     Substitui o `title` nativo, que é sem estilo e demora ~1s pra aparecer.
+     Vive no BODY, não dentro do elemento: barras como a de formatação têm
+     overflow-x:auto (pra rolar em tela estreita) e recortariam um tooltip
+     posicionado dentro delas. Um listener delegado atende qualquer
+     [data-tip] do app, agora e no futuro. */
+  var _tipEl = null, _tipTimer = 0;
+  function hideTip() {
+    clearTimeout(_tipTimer);
+    if (_tipEl) { _tipEl.classList.remove("is-on"); }
+  }
+  function showTip(target) {
+    var text = target.getAttribute("data-tip");
+    if (!text) return;
+    if (!_tipEl) { _tipEl = el("div", { class: "tip", role: "tooltip" }); document.body.appendChild(_tipEl); }
+    _tipEl.textContent = text;
+    _tipEl.classList.remove("is-on");            // remede sempre com o texto novo
+    var r = target.getBoundingClientRect();
+    var tw = _tipEl.offsetWidth, th = _tipEl.offsetHeight;
+    var x = r.left + r.width / 2 - tw / 2;
+    x = Math.max(8, Math.min(window.innerWidth - tw - 8, x));   // não vaza pelas laterais
+    var above = r.top - th - 8;
+    var y = above >= 8 ? above : r.bottom + 8;                  // sem espaço acima → embaixo
+    _tipEl.classList.toggle("tip--below", above < 8);
+    _tipEl.style.left = Math.round(x) + "px";
+    _tipEl.style.top = Math.round(y) + "px";
+    _tipTimer = setTimeout(function () { _tipEl.classList.add("is-on"); }, 120);
+  }
+  document.addEventListener("mouseover", function (e) {
+    var t = e.target && e.target.closest ? e.target.closest("[data-tip]") : null;
+    if (t) showTip(t); else hideTip();
+  });
+  // some ao clicar/rolar: com o elemento saindo do lugar, o tooltip ficaria solto
+  document.addEventListener("mousedown", hideTip, true);
+  window.addEventListener("scroll", hideTip, true);
+
   App.ui = {
     Avatar: Avatar, Tag: Tag, Button: Button, IconButton: IconButton, Stat: Stat, LikeButton: LikeButton,
     Switch: Switch, Segmented: Segmented, openModal: openModal, confirm: confirm, prompt: prompt,
