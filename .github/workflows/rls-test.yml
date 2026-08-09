@@ -1,0 +1,43 @@
+# Testa schema.sql + RLS/hardening num backend Supabase-compatível descartável (tinbase,
+# Postgres-em-WASM, sem Docker). Roda quando o schema ou o teste mudam.
+# Pega: escalada de privilégio, RLS furada, trigger quebrado, função com erro de SQL.
+name: rls-test
+on:
+  push:
+    paths: ["backend/supabase/**"]
+  pull_request:
+    paths: ["backend/supabase/**"]
+  workflow_dispatch:
+jobs:
+  rls:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: preparar projeto tinbase
+        run: |
+          mkdir -p /tmp/tb/supabase/migrations
+          # compat: o Supabase real já provisiona a publication; PGlite não
+          cat > /tmp/tb/supabase/migrations/0000_compat.sql <<'EOF'
+          do $$ begin
+            if not exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
+              create publication supabase_realtime;
+            end if;
+          end $$;
+          EOF
+          cp backend/supabase/schema.sql /tmp/tb/supabase/migrations/0001_schema.sql
+          cp backend/supabase/rls.test.mjs /tmp/tb/
+          cd /tmp/tb && npm init -y && npm i --no-fund --no-audit tinbase @supabase/supabase-js@2.111.0
+      - name: subir tinbase + rodar testes
+        run: |
+          cd /tmp/tb
+          npx tinbase start --engine wasm --memory --port 54321 > tinbase.log 2>&1 &
+          ok=""
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://127.0.0.1:54321/auth/v1/health && ok=1 && break
+            sleep 2
+          done
+          if [ -z "$ok" ]; then echo "tinbase não subiu:"; cat tinbase.log; exit 1; fi
+          node rls.test.mjs || { echo "--- tinbase.log ---"; cat tinbase.log; exit 1; }

@@ -91,6 +91,10 @@ svg.icon[data-fill] { fill: currentColor; stroke: none; }
 .u-gap-2 { gap: var(--s-2); }
 .u-gap-3 { gap: var(--s-3); }
 .u-gap-4 { gap: var(--s-4); }
+/* u-gap-5/6 eram usados no JS (sanguao, store) mas nunca definidos aqui:
+   a classe não casava com nada e o gap virava 0 — título colado na grade. */
+.u-gap-5 { gap: var(--s-5); }
+.u-gap-6 { gap: var(--s-6); }
 .u-between { justify-content: space-between; }
 .u-center { justify-content: center; align-items: center; }
 .u-wrap { flex-wrap: wrap; }
@@ -132,14 +136,7 @@ svg.icon[data-fill] { fill: currentColor; stroke: none; }
 /* Entrada suave ao trocar de tela (aplicada pelo router ao nó montado) */
 .route-enter { animation: route-enter .26s cubic-bezier(0.2,0.8,0.3,1) both; }
 @keyframes route-enter { from { transform: translateY(8px); } }
-/* barra fina de carregamento no topo (sem esvaziar a tela = sem flash preto) */
-.view.is-route-loading::after {
-  content: ""; position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 9999; pointer-events: none;
-  background: linear-gradient(90deg, transparent, var(--accent, #7c5cff), transparent);
-  background-size: 45% 100%; background-repeat: no-repeat;
-  animation: route-load .9s linear infinite;
-}
-@keyframes route-load { 0% { background-position: -45% 0; } 100% { background-position: 145% 0; } }
+/* barra de loading do topo removida (a pedido) — troca de aba é instantânea via cache */
 
 /* Cross-fade de cores ao alternar tema claro/escuro (transitório) */
 .theme-anim,
@@ -168,13 +165,19 @@ svg.icon[data-fill] { fill: currentColor; stroke: none; }
 .update-banner {
   position: fixed; top: 0; left: 50%; z-index: 9999;
   transform: translate(-50%, -130%);
-  display: inline-flex; align-items: center; gap: 10px;
-  padding: 11px 22px; border-radius: 0 0 16px 16px;
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  /* eram 10/11/22 — nenhum na escala 4/8/12/16/24. A razao pretendida
+     22/11 = 2.0 fica preservada em 24/12 = 2.0, agora com degraus reais. */
+  padding: var(--s-3) var(--s-5); border-radius: 0 0 16px 16px;
   /* degradê derivado da cor do fundo: topo levemente mais escuro, base mais clara */
   background: linear-gradient(180deg,
     color-mix(in srgb, var(--bg, #f4f5fb) 86%, #000 14%),
     color-mix(in srgb, var(--bg, #f4f5fb) 92%, #fff 8%));
   color: var(--text, #16181f); font-weight: 600; font-size: 14px; letter-spacing: -0.01em;
+  /* SEMPRE 1 linha. Com left:50% a largura disponível do fixed é METADE da
+     viewport, e o texto quebrava. Com nowrap o bloco pode exceder essa largura
+     e o translateX(-50%) recentra — sem mexer na animação de descida. */
+  white-space: nowrap;
   border: 1px solid var(--border, rgba(0,0,0,.08)); border-top: none;
   box-shadow: 0 10px 30px rgba(0,0,0,.18);
   transition: transform .5s cubic-bezier(.22,1,.36,1);
@@ -183,7 +186,7 @@ svg.icon[data-fill] { fill: currentColor; stroke: none; }
 .update-banner__spin {
   width: 16px; height: 16px; flex: none; border-radius: 50%;
   border: 2px solid color-mix(in srgb, var(--text, #888) 22%, transparent);
-  border-top-color: var(--accent, #7c5cff);
+  border-top-color: var(--accent, #3f3f46);
   animation: ub-spin .7s linear infinite;
 }
 @keyframes ub-spin { to { transform: rotate(360deg); } }

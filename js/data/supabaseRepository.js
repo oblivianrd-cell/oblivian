@@ -18,8 +18,27 @@
   function SupabaseRepository() {
     if (!App.config || !App.config.supabase) throw new Error("App.config.supabase ausente (veja config.example.js)");
     if (typeof window.supabase === "undefined") throw new Error("supabase-js não carregado");
+    // Backend fora do ar (projeto pausado/quota → HTTP 402, ou DNS/rede caiu como em 14/jul):
+    // avisa o usuário 1x/min em vez de deixar telas quebradas com erro silencioso.
+    var _downAt = 0;
+    function _warnDown(msg) {
+      var now = Date.now();
+      if (now - _downAt < 60000) return;
+      _downAt = now;
+      if (App.ui && App.ui.toast) App.ui.toast(msg, "danger");
+    }
+    function _watchedFetch(input, init) {
+      return fetch(input, init).then(function (res) {
+        if (res.status === 402) _warnDown("Servidor excedeu a cota — tente novamente mais tarde");
+        return res;
+      }).catch(function (err) {
+        _warnDown("Sem conexão com o servidor — verifique sua internet");
+        throw err;
+      });
+    }
     this.sb = window.supabase.createClient(App.config.supabase.url, App.config.supabase.anonKey, {
-      auth: { persistSession: true, autoRefreshToken: true }
+      auth: { persistSession: true, autoRefreshToken: true },
+      global: { fetch: _watchedFetch }
     });
     // ---- caches p/ métodos síncronos ----
     this._meId = null;
@@ -121,7 +140,7 @@
     return {
       id: row.id, name: row.name, slug: row.slug || null, icon: row.icon || null, cover: row.cover || null,
       description: row.description || "", ownerId: row.owner_id, tags: row.tags || [],
-      theme: row.theme || { accent: "#7c59ec" }, settings: row.settings || {},
+      theme: row.theme || { accent: "#3f3f46" }, settings: row.settings || {},
       memberCount: row.members_count != null ? row.members_count : (row.memberCount || 0),
       createdAt: ms(row.created_at)
     };
@@ -484,7 +503,7 @@
   P.createCommunity = function (data) {
     var self = this, me = this._meId;
     var autoSlug = (App.models.slugify(data.name) + "-" + Math.random().toString(36).slice(2, 6));
-    var ins = { name: data.name, slug: data.slug || autoSlug, description: data.description || "", icon: data.icon || null, cover: data.cover || null, owner_id: me, tags: data.tags || [], theme: data.theme || { accent: "#7c59ec" }, settings: data.settings || {} };
+    var ins = { name: data.name, slug: data.slug || autoSlug, description: data.description || "", icon: data.icon || null, cover: data.cover || null, owner_id: me, tags: data.tags || [], theme: data.theme || { accent: "#3f3f46" }, settings: data.settings || {} };
     return this.sb.from("communities").insert(ins).select().single().then(function (r) {
       var c = self._mapCommunity(pick(r));
       return self.sb.from("community_profiles").insert({ community_id: c.id, user_id: me, role: "owner", titles: ["Fundador(a)"] })
@@ -669,6 +688,14 @@
             .map(function (p) { return { post: self._mapPost(p), user: self._userOr(p.author, p.user_id) }; });
         });
       });
+  };
+  // UM post (com autor + hidratação) — abre a tela do post sem baixar o feed inteiro
+  P.getPost = function (postId) {
+    var self = this;
+    return this.sb.from("posts").select("*, author:profiles!user_id(*)").eq("id", postId).maybeSingle().then(function (r) {
+      var row = r.data; if (!row) return null;
+      return self._hydratePosts([row]).then(function () { return { post: self._mapPost(row), user: self._userOr(row.author, row.user_id) }; });
+    });
   };
   P.createPost = function (communityId, data) {
     if (typeof data === "string") data = { text: data };
@@ -1305,7 +1332,7 @@
   P.addImage = function (dataURL) { if (!dataURL) return Promise.reject(new Error("Imagem inválida")); return Promise.resolve(dataURL); };
   P.getImage = function (code) {
     code = String(code || "");
-    if (code.indexOf("data:") === 0) return code;   // dataURL embutido (novo, cross-user)
+    if (code.indexOf("data:") === 0 || /^https?:\/\//.test(code)) return code;   // dataURL embutido ou URL do Storage
     try { return localStorage.getItem("oblivian.media." + code) || localStorage.getItem("obliviny.media." + code) || null; } catch (e) { return null; }  // legado
   };
 

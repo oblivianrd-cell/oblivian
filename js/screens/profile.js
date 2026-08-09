@@ -201,9 +201,21 @@
     document.body.appendChild(scrim);
     document.addEventListener("keydown", onKey);
 
-    // registro da comunidade: união das tags de todos os membros (nome + cor)
+    // Títulos padrão: sempre no catálogo, mesmo em comunidade nova. Sem eles a
+    // área ficava VAZIA enquanto ninguém tivesse tags — e quem tem 1 membro só
+    // (o dono) nunca via sugestão nenhuma, porque paintSugg filtra o que o
+    // membro já possui. Cor vazia = usa a cor padrão do chip.
+    var DEFAULTS = [
+      { name: "Boas-vindas", color: "" },
+      { name: "Veterano(a)", color: "" },
+      { name: "Colaborador(a)", color: "" }
+    ];
+    ed.setSuggestions(DEFAULTS);   // aparece na hora, sem esperar a rede
+
+    // registro da comunidade: união dos padrões + tags de todos os membros
     App.repo.listMembers(community.id).then(function (list) {
       var seen = {}, catalog = [];
+      DEFAULTS.forEach(function (d) { seen[d.name] = d.color; catalog.push({ name: d.name, color: d.color }); });
       (list || []).forEach(function (it) {
         var m = it.membership; if (!m) return;
         (m.tags || []).forEach(function (t) {
@@ -1162,7 +1174,7 @@
       sw.style.background = colorVal || "";
       function paintSw() { sw.classList.toggle("is-set", !!colorVal); sw.style.background = colorVal || ""; }
       sw.addEventListener("click", function () {
-        ui.pickColor(colorVal || "#7c59ec", function (hex) { colorVal = hex || ""; paintSw(); refreshPreview(); }, { title: "Cor do perfil", allowClear: true });
+        ui.pickColor(colorVal || "#3f3f46", function (hex) { colorVal = hex || ""; paintSw(); refreshPreview(); }, { title: "Cor do perfil", allowClear: true });
       });
       var clrBtn = ui.Button({ label: "Sem cor", icon: "close", size: "sm", variant: "ghost", onClick: function () { colorVal = ""; paintSw(); refreshPreview(); } });
 
@@ -1517,7 +1529,7 @@
           var list = demo ? ["__g1", "__g2", "__g3"] : imgs;
           list.forEach(function (s, i) {
             var img = el("div", { class: "cover-slide__img" });
-            if (s === "__g1") img.style.background = "linear-gradient(135deg,#7c59ec,#3b82f6)";
+            if (s === "__g1") img.style.background = "linear-gradient(135deg,#3f3f46,#3b82f6)";
             else if (s === "__g2") img.style.background = "linear-gradient(135deg,#ff5fa2,#f59e0b)";
             else if (s === "__g3") img.style.background = "linear-gradient(135deg,#22c55e,#14b8a6)";
             else { img.style.backgroundImage = "url(" + s + ")"; img.style.backgroundSize = "cover"; img.style.backgroundPosition = "center"; }

@@ -62,6 +62,8 @@
       var covers = (seed && Array.isArray(seed.cover)) ? seed.cover.slice(0, 4) : [];
 
       var fieldsHost = el("div", { class: "cpost__fields" });
+      // Título tem host PRÓPRIO, montado antes dos demais campos no cpost__body.
+      var titleHost = el("div", { class: "cpost__fields" });
       var previewHost = el("div", { class: "cpost__preview" });
 
       // ---- coletores de payload por tipo ----
@@ -69,10 +71,11 @@
 
       function buildFields() {
         App.util.clear(fieldsHost);
+        App.util.clear(titleHost);
         collectors = {};
         var t = type;
-        // título — toda publicação tem
-        fieldsHost.appendChild(field("Título", titleInput));
+        // título — toda publicação tem. Vai no titleHost (acima da capa).
+        titleHost.appendChild(field("Título", titleInput));
         // corpo
         bodyInput.placeholder = t === "question" ? "Detalhe sua pergunta..." : "Conteúdo...";
         // ---- barra de formatação (abre ao clicar) ----
@@ -127,16 +130,63 @@
           });
           setTimeout(function () { try { (label ? urlInp : nameInp).focus(); } catch (er) {} }, 30);
         }
+        /* ---------- Câmera: overlay em tela cheia ----------
+           HUD no topo (voltar + separador) e, no corpo, o gerenciador das imagens
+           do conteúdo (payload.cover, até 4): dropzone grande + grade de
+           miniaturas com trocar/remover. Reusa .tagfs-* (overlay sólido de
+           "Editar Títulos"), então não há CSS novo de scrim. */
+        function openCamera() {
+          var closed = false;
+          function close() {
+            if (closed) return; closed = true;
+            camSync = null;
+            document.removeEventListener("keydown", onKey);
+            scrim.classList.add("is-closing");
+            setTimeout(function () { if (scrim.parentNode) scrim.remove(); }, 180);
+          }
+          function onKey(e) { if (e.key === "Escape") close(); }
+          var top = el("div", { class: "tagfs-top cam-top" },
+            ui.IconButton("back", { title: "Voltar", onClick: close }),
+            el("div", { class: "tagfs-top__title" }, "Câmera"),
+            el("div", { class: "cam-count" }, ""));
+          var drop = el("button", { class: "cam-drop", type: "button" },
+            App.icon("image"),
+            el("span", { class: "cam-drop__t" }, "Adicionar imagem"),
+            el("span", { class: "cam-drop__s" }, "PNG, JPG, WEBP ou GIF"));
+          drop.addEventListener("click", function () { pickCover(null); });
+          var count = top.querySelector(".cam-count");
+          var empty = el("div", { class: "cam-empty" }, "Nenhuma imagem ainda.");
+          // renderCovers() chama camSync() → contador, dropzone e vazio acompanham a lista
+          camSync = function () {
+            count.textContent = covers.length + "/4";
+            drop.hidden = covers.length >= 4;
+            empty.hidden = covers.length > 0;
+          };
+          var body = el("div", { class: "cam-body cam-body--pad" },
+            el("div", { class: "cam-hint" }, "Até 4 imagens. A primeira vira a capa do conteúdo."),
+            drop, coverHost, empty);
+          camSync();
+          var screen = el("div", { class: "tagfs-screen cam-screen" }, top, body);
+          var scrim = el("div", { class: "scrim scrim--full tagfs-scrim" }, screen);
+          document.body.appendChild(scrim);
+          document.addEventListener("keydown", onKey);
+        }
+
         function toolBtn(label, title, onClick) {
-          var b = el("button", { class: "fmt-btn", type: "button", title: title || label }, label);
+          // data-tip (tooltip do app) em vez de title (nativo, sem estilo e lento).
+          // aria-label mantém a acessibilidade que o title dava.
+          var b = el("button", { class: "fmt-btn", type: "button",
+            "data-tip": title || "", "aria-label": title || "" }, label);
           // mousedown preventDefault → o textarea NÃO perde foco/seleção ao clicar no botão,
           // então o trecho selecionado continua destacado enquanto se formata.
           b.addEventListener("mousedown", function (e) { e.preventDefault(); });
           b.addEventListener("click", function (e) { e.preventDefault(); onClick(); });
           return b;
         }
-        // barra de formatação SEMPRE aberta, em coluna (vertical), ao lado da escrita.
-        var toolbar = el("div", { class: "fmt-bar fmt-bar--v is-open" },
+        // Barra SEMPRE aberta, HORIZONTAL e abaixo da escrita (era vertical ao lado:
+        // roubava largura do texto e empilhava 8 botões numa coluna alta).
+        // .fmt-bar sem --v é a mesma variante horizontal usada na bio do perfil.
+        var toolbar = el("div", { class: "fmt-bar is-open" },
           toolBtn(el("strong", "B"), "Negrito", function () { wrapSel("B"); }),
           toolBtn(el("em", "I"), "Itálico", function () { wrapSel("I"); }),
           toolBtn(el("u", "U"), "Sublinhado", function () { wrapSel("U"); }),
@@ -144,10 +194,13 @@
           toolBtn(App.icon("forward", { size: "sm" }), "Centralizar", function () { wrapSel("C"); }),
           el("span", { class: "fmt-sep" }),
           toolBtn(App.icon("globe", { size: "sm" }), "Inserir link", insertLink),
-          toolBtn(App.icon("image", { size: "sm" }), "Imagem no texto", function () { imgFile.click(); }));
+          toolBtn(App.icon("image", { size: "sm" }), "Imagem no texto", function () { imgFile.click(); }),
+          toolBtn(App.icon("camera", { size: "sm" }), "Câmera", openCamera));
+        // ordem: textarea → barra → contador. Sem fmt-field--v (aquela classe é
+        // que punha o editor em linha, com a barra na lateral).
         fieldsHost.appendChild(field(t === "link" ? "Descrição" : "Conteúdo",
-          el("div", { class: "fmt-field fmt-field--v" },
-            el("div", { class: "fmt-editor" }, toolbar, bodyInput),
+          el("div", { class: "fmt-field fmt-field--post" },
+            bodyInput, toolbar,
             imgFile, el("div", { class: "fmt-field__foot" }, bodyCounter))));
 
         if (t === "image") {
@@ -304,9 +357,10 @@
         return el("div", { class: "cpost__field" }, el("div", { class: "cpost__label" }, label), control);
       }
 
-      // ---- CAPA do conteúdo (até 4) — galeria visual: adicionar / visualizar / trocar / remover.
+      // ---- CAPA do conteúdo (até 4) — mora DENTRO do overlay da câmera (linha "Adicionar imagem").
       // Lógica SEPARADA da imagem inserida no texto: a capa NÃO vira [IMG|n], vai em payload.cover. ----
-      var coverHost = el("div", { class: "cpost-cover__gal" });
+      var coverHost = el("div", { class: "cpost-cover__gal cam-gal" });
+      var camSync = null;   // setado enquanto o overlay da câmera está aberto
       function pickCover(idx) {
         var ip = C.ImagePicker({ value: null, hint: "Imagem de capa do conteúdo.", aspect: 16 / 9 });
         var ref = ui.openModal({ title: idx == null ? "Adicionar capa" : "Trocar capa", scrimClass: "scrim--centered", body: ip.node, actions: [
@@ -320,19 +374,12 @@
           var th = el("div", { class: "cpost-cover__thumb", style: { backgroundImage: "url(" + src + ")" } },
             el("button", { class: "cpost-cover__rm", type: "button", title: "Remover", onClick: function () { covers.splice(i, 1); renderCovers(); } }, App.icon("close", { size: "sm" })),
             el("button", { class: "cpost-cover__swap", type: "button", title: "Trocar", onClick: function () { pickCover(i); } }, App.icon("edit", { size: "sm" })));
+          if (i === 0) th.appendChild(el("span", { class: "cam-thumb__badge" }, "Capa"));
           coverHost.appendChild(th);
         });
-        if (covers.length < 4) {
-          var add = el("button", { class: "cpost-cover__add", type: "button", title: "Adicionar capa" }, App.icon("plus"), el("span", "Capa"));
-          add.addEventListener("click", function () { pickCover(null); });
-          coverHost.appendChild(add);
-        }
+        if (camSync) camSync();
       }
       renderCovers();
-      var coverField = el("div", { class: "cpost__field" },
-        el("div", { class: "cpost__label" }, "Capa do conteúdo (até 4)"),
-        el("div", { class: "cpost-cover__hint" }, "A capa aparece no topo do conteúdo — diferente das imagens inseridas no texto."),
-        coverHost);
 
       function buildPost() {
         var payload = collectors.payload ? collectors.payload() : {};
@@ -455,7 +502,7 @@
         ui.IconButton("check", { title: "Publicar", onClick: publish }));
 
       var page = el("div", { class: "editp2 cpost" }, header,
-        el("div", { class: "cpost__body" }, typeBar, coverField, fieldsHost));
+        el("div", { class: "cpost__body" }, typeBar, titleHost, fieldsHost));
       page.style.setProperty("--accent", accent);
       buildFields();
       App.util.mount(inner, page);

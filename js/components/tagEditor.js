@@ -78,10 +78,17 @@
       suggHost.appendChild(row);
     }
     function add() {
-      var v = input.value.trim().slice(0, CHARS);
-      if (!v) return;
+      var raw = input.value;
+      // trim DEPOIS do slice também: o corte em CHARS podia terminar em espaço e
+      // gravar a tag com espaço no fim (invisível na tela, presente no banco).
+      // Também colapsa espaços internos repetidos p/ não criar "A  B" e "A B".
+      var v = raw.trim().replace(/\s+/g, " ").slice(0, CHARS).trim();
+      if (!v) {
+        // digitou algo que virou nada (só espaços) → avisa. Campo vazio → silêncio.
+        if (raw.length) { ui.toast("Dê um nome à tag (só espaços não vale)", "danger"); input.value = ""; }
+        return;
+      }
       if (tags.length >= max) { ui.toast("Máximo de " + max + " tags", "danger"); return; }
-      if (v.length > CHARS) { ui.toast("Máx " + CHARS + " caracteres por tag", "danger"); return; }
       if (tags.indexOf(v) < 0) tags.push(v); else { ui.toast("Tag já adicionada", "danger"); }
       input.value = "";
       paint(); updateCount(); paintSugg();

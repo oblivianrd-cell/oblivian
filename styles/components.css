@@ -4,9 +4,9 @@
    ============================================================ */
 
 /* ---------------- Marcação de texto (App.markup) ---------------- */
-.mk-link { color: var(--accent); text-decoration: none; font-weight: var(--fw-semibold); word-break: break-word; }
+.mk-link { color: var(--accent-fg); text-decoration: none; font-weight: var(--fw-semibold); word-break: break-word; }
 .mk-link:hover { text-decoration: underline; }
-.mk-mention { color: var(--accent); font-weight: var(--fw-semibold); }
+.mk-mention { color: var(--accent-fg); font-weight: var(--fw-semibold); }
 .mk-img { display: block; max-width: 100%; height: auto; border-radius: var(--r-md); margin: var(--s-2) 0; cursor: zoom-in; }
 .mk-img-missing { display: inline-flex; align-items: center; gap: 4px; color: var(--text-mute); font-size: var(--fs-sm); background: var(--surface-2); padding: 2px 8px; border-radius: var(--r-sm, 6px); }
 /* tag [C] = código inline */
@@ -109,7 +109,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
   font-size: var(--fs-xs);
   font-weight: var(--fw-semibold);
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-fg);
   border: 1px solid transparent;
 }
 .tag--neutral { background: var(--surface-2); color: var(--text-dim); }
@@ -141,7 +141,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 .tageditor__suggchips { display: flex; flex-wrap: wrap; gap: var(--s-2); }
 .tageditor__suggchip {
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 7px 13px; border-radius: var(--r-pill);
+  padding: var(--s-3); border-radius: var(--r-pill);
   background: var(--surface); color: var(--text-dim);
   border: 1.5px solid var(--border); font-weight: var(--fw-semibold); font-size: var(--fs-sm);
   cursor: pointer; transition: transform .1s, background var(--t-fast), box-shadow var(--t-fast);
@@ -160,7 +160,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
   padding: var(--s-3) var(--s-4);
   background: var(--surface); border-bottom: 1px solid var(--border);
 }
-.tagfs-top__x { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; color: var(--text); flex: none; background: var(--surface-2); transition: background var(--t-fast); }
+.tagfs-top__x { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; color: var(--text); flex: none; background: var(--surface-2); transition: background var(--t-fast); }
 .tagfs-top__x:hover { background: var(--surface-3); }
 .tagfs-top__x .icon { width: 20px; height: 20px; stroke-width: 2.4; }
 .tagfs-top__title { flex: 1; text-align: center; font-weight: var(--fw-bold); font-size: var(--fs-lg); }
@@ -209,7 +209,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
   background: var(--surface); color: var(--text); font-weight: var(--fw-bold); cursor: pointer;
   transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
 }
-.tageditor__dashed:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+.tageditor__dashed:hover { border-color: var(--accent-fg); color: var(--accent-fg); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
 .tageditor__dashed .icon { width: 18px; height: 18px; }
 .tagfs-body .tageditor__add { margin-top: var(--s-2); }
 
@@ -242,7 +242,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 /* tela cheia: olho no header → sem botão expandir/separador extra */
 .fmt-field--full .fmt-btn--expand,
 .fmt-field--full .fmt-sep--xtra { display: none; }
-.tagfs-top__eye { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 50%; color: var(--text); background: var(--surface-2); transition: background var(--t-fast); }
+.tagfs-top__eye { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 50%; color: var(--text); background: var(--surface-2); transition: background var(--t-fast); }
 .tagfs-top__eye:hover { background: var(--surface-3); }
 .tagfs-top__eye .icon { width: 20px; height: 20px; }
 
@@ -276,7 +276,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
   transition: border-color var(--t-fast), background var(--t-fast);
 }
 .textarea { height: auto; min-height: 96px; padding: var(--s-3); resize: vertical; line-height: var(--lh-normal); }
-.input:focus, .textarea:focus, .select:focus { border-color: var(--accent); outline: none; }
+.input:focus, .textarea:focus, .select:focus { border-color: var(--accent-fg); outline: none; }
 .input::placeholder, .textarea::placeholder { color: var(--text-mute); }
 .select { appearance: none; cursor: pointer; }
 
@@ -292,7 +292,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 .searchbar input { background: none; border: none; outline: none; width: 100%; color: var(--text); }
 /* variante GATILHO: parece campo, age como botão (abre /busca) */
 .searchbar--trigger { width: 100%; cursor: pointer; text-align: left; font: inherit; transition: border-color var(--t-fast); }
-.searchbar--trigger:hover { border-color: var(--accent); }
+.searchbar--trigger:hover { border-color: var(--accent-fg); }
 .searchbar__ph { color: var(--text-mute); }
 
 .switch {
@@ -312,7 +312,10 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 .upload {
   display: flex; align-items: center; gap: var(--s-4);
   padding: var(--s-3); border: 1px solid var(--border);
-  border-radius: var(--r-lg); background: var(--surface-2);
+  /* RAIO ANINHADO: externo = interno + padding. Pai e filho com o MESMO raio
+     ficam CONCENTRICOS e o canto do filho le mais fechado que o do pai. */
+  border-radius: var(--r-xl);   /* 24 = 12 (preview) + 12 (padding) */
+  background: var(--surface-2);
   min-width: 0;
 }
 .upload > .u-col { min-width: 0; }
@@ -326,14 +329,14 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
   display: grid; place-items: center;
   transition: border-color var(--t-fast), transform .08s ease;
 }
-.upload__preview:hover { border-color: var(--accent); }
+.upload__preview:hover { border-color: var(--accent-fg); }
 .upload__preview:active { transform: scale(.98); }
 .upload__preview.is-empty { border: 1.5px dashed var(--border-strong); background: var(--surface); }
 /* proporção do tipo (ícone 1:1 / fundo 16:9 / painel 9:16) */
 .upload__preview--frame { width: auto; height: 110px; }
 /* estado vazio: zona de upload clara */
 .upload__empty { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-mute); font-size: var(--fs-xs); font-weight: var(--fw-semibold); padding: 0 8px; text-align: center; }
-.upload__empty .icon { width: 26px; height: 26px; color: var(--accent); }
+.upload__empty .icon { width: 26px; height: 26px; color: var(--accent-fg); }
 /* hover sobre preview com imagem: overlay "Trocar" */
 .upload__overlay {
   position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
@@ -369,7 +372,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 }
 /* controles de zoom: − [slider] + */
 .cropper__ctrl { display: flex; align-items: center; gap: var(--s-3); width: 100%; max-width: 380px; }
-.cropper__zoom { flex: 1; accent-color: var(--accent); height: 30px; cursor: pointer; }
+.cropper__zoom { flex: 1; accent-color: var(--accent-fg); height: 30px; cursor: pointer; }
 .cropper__zbtn {
   flex: none; width: 40px; height: 40px; border-radius: var(--r-pill);
   border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text);
@@ -411,7 +414,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 .imgview__spin {
   width: 34px; height: 34px; border-radius: 50%;
   border: 3px solid var(--surface-3, rgba(255,255,255,0.18));
-  border-top-color: var(--accent, #7c5cff);
+  border-top-color: var(--accent, #3f3f46);
   animation: imgview-spin 0.7s linear infinite;
 }
 @keyframes imgview-spin { to { transform: rotate(360deg); } }
@@ -491,7 +494,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
   transition: color var(--t-fast);
 }
 .tabs__item:hover { color: var(--text); }
-.tabs__item.is-active { color: var(--accent); border-bottom-color: var(--accent); }
+.tabs__item.is-active { color: var(--accent-fg); border-bottom-color: var(--accent-fg); }
 
 /* segmented control */
 .segmented {
@@ -599,6 +602,10 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 
 @media (max-width: 639px) {
   .scrim { align-items: flex-end; padding: 0; }
+  /* .scrim--sheet (l.567) tem a MESMA especificidade da regra acima e é declarada
+     ANTES → o padding:0 ganhava e o botão Cancelar da action-sheet encostava na
+     borda, por baixo do indicador de home. 2 classes p/ vencer + o inset. */
+  .scrim.scrim--sheet { padding: 0 0 calc(env(safe-area-inset-bottom, 0px) + var(--s-4)); }
   .modal {
     width: 100%;
     max-height: 92vh;
@@ -645,9 +652,15 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 }
 
 /* ---------------- Toast ---------------- */
+/* left:0/right:0 + align-items:center em vez de left:50% + translateX:
+   com left:50% a largura DISPONÍVEL do elemento fixed virava metade da viewport
+   (o translateX recentra visualmente mas não devolve espaço), então o texto
+   quebrava em 2 linhas mesmo sobrando tela dos lados.
+   Fica ACIMA, logo abaixo da topbar. */
 .toast-host {
-  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
-  display: flex; flex-direction: column; gap: var(--s-2);
+  position: fixed; left: 0; right: 0; top: calc(var(--topbar-h) + var(--s-3));
+  display: flex; flex-direction: column; align-items: center; gap: var(--s-2);
+  padding: 0 var(--s-4);
   z-index: var(--z-toast); pointer-events: none;
 }
 .toast {
@@ -657,11 +670,13 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
   border-radius: var(--r-pill); box-shadow: var(--shadow-pop);
   border: 1px solid var(--border);
   animation: pop var(--t-mid);
+  /* 1 linha; só quebra se não couber mesmo na tela */
+  white-space: nowrap; max-width: 100%;
 }
+.toast > span { overflow: hidden; text-overflow: ellipsis; }
+.toast svg.icon { flex: none; }   /* ícone não encolhe nem desalinha */
 .toast--ok { color: var(--ok); }
 .toast--danger { color: var(--danger); }
-
-@media (max-width: 639px) { .toast-host { bottom: calc(var(--bottomnav-h) + 16px); } }
 
 /* ---------------- Menu de contexto (dropdown) ---------------- */
 .menu {
@@ -710,11 +725,11 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
   width: min(420px, 100%); background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--r-xl); padding: var(--s-6) var(--s-5); text-align: center;
   display: flex; flex-direction: column; align-items: center; gap: var(--s-3);
-  box-shadow: var(--shadow-strong, 0 20px 60px rgba(0,0,0,.4)); animation: pop .25s ease both;
+  box-shadow: var(--shadow-pop); animation: pop .25s ease both;   /* token do app (era --shadow-strong, indefinido → fog 20/60) */
 }
 .onb__icon {
   width: 72px; height: 72px; border-radius: var(--r-lg); display: grid; place-items: center;
-  background: var(--accent-soft); color: var(--accent);
+  background: var(--accent-soft); color: var(--accent-fg);
 }
 .onb__title { font-size: var(--fs-xl); }
 .onb__text { color: var(--text-mute); font-size: var(--fs-sm); line-height: var(--lh-normal); }
@@ -730,8 +745,8 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
   padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-md);
   background: var(--surface-2); color: var(--text); cursor: pointer;
 }
-.onb__checkrow:hover { border-color: var(--accent); }
-.onb__checkicon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--r-sm); background: var(--accent-soft); color: var(--accent); flex: none; }
+.onb__checkrow:hover { border-color: var(--accent-fg); }
+.onb__checkicon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--r-sm); background: var(--accent-soft); color: var(--accent-fg); flex: none; }
 
 /* Contador de caracteres (anti-abuso) */
 .char-counter {
@@ -775,7 +790,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 @keyframes shimmer { to { background-position: -200% 0; } }
 
 /* ---------------- Spinner (App.ui.Spinner — técnica stroke-dashoffset) ---------------- */
-.spinner { width: 30px; height: 30px; color: var(--accent); animation: spin-rot 1s linear infinite; }
+.spinner { width: 30px; height: 30px; color: var(--accent-fg); animation: spin-rot 1s linear infinite; }
 .spinner--sm { width: 18px; height: 18px; }
 .spinner--lg { width: 46px; height: 46px; }
 .spinner__track { stroke: currentColor; opacity: .15; }
@@ -802,3 +817,34 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
   .spinner { animation-duration: 2s; }
   .spinner__arc { animation: none; stroke-dasharray: 25 75; }
 }
+
+/* ===== Tooltip (data-tip) — ver App.ui showTip em ui.js =====
+   No BODY e position:fixed de propósito: escapa do overflow das barras que
+   rolam (ex.: .fmt-bar), onde um tooltip interno seria recortado. */
+.tip {
+  position: fixed; z-index: var(--z-toast);
+  max-width: 220px; padding: 6px 10px;
+  border-radius: var(--r-sm, 8px);
+  background: var(--surface-3); color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-pop);
+  font-size: var(--fs-xs); font-weight: var(--fw-semibold);
+  line-height: 1.3; white-space: nowrap;
+  pointer-events: none;                       /* nunca rouba o hover do botão */
+  opacity: 0; transform: translateY(4px);
+  transition: opacity .12s ease, transform .12s ease;
+}
+.tip.is-on { opacity: 1; transform: translateY(0); }
+.tip--below { transform: translateY(-4px); }
+.tip--below.is-on { transform: translateY(0); }
+/* bico apontando pro elemento */
+.tip::after {
+  content: ""; position: absolute; left: 50%; margin-left: -4px;
+  width: 8px; height: 8px; transform: rotate(45deg);
+  background: var(--surface-3); border: 1px solid var(--border);
+}
+.tip::after { bottom: -5px; border-top: none; border-left: none; }
+.tip--below::after { bottom: auto; top: -5px; border-bottom: none; border-right: none; }
+@media (prefers-reduced-motion: reduce) { .tip { transition: none; } }
+/* touch: sem hover real, o tooltip nunca deve aparecer */
+@media (hover: none), (pointer: coarse) { .tip { display: none !important; } }

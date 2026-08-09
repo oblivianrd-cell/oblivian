@@ -73,7 +73,7 @@
   color: var(--text-dim); font-size: 28px; line-height: 1;
   transition: border-color var(--t-fast), color var(--t-fast);
 }
-.mychats__fav--add:hover .mychats__favadd { border-color: var(--accent); color: var(--accent); }
+.mychats__fav--add:hover .mychats__favadd { border-color: var(--accent-fg); color: var(--accent-fg); }
 
 /* ---- lista de salas ---- */
 .mychats__list { display: flex; flex-direction: column; }

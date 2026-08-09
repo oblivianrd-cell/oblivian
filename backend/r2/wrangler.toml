@@ -1,0 +1,19 @@
+# Worker de upload R2 (ver upload-worker.js).
+# Deploy:  cd backend/r2 && npx wrangler deploy
+# Segredo: echo <JWT_SECRET> | npx wrangler secret put SUPABASE_JWT_SECRET
+#          (Supabase → Settings → API → JWT Secret; re-rodar após rotacionar)
+# conta Oblivianrd@gmail.com (mesma do Pages "obliviny"). Sem isto o wrangler
+# pode mirar a conta errada se houver mais de um login.
+account_id = "b851193bcdd9a4fe035662c44485cca5"
+name = "oblivian-upload"
+main = "upload-worker.js"
+compatibility_date = "2025-01-01"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "oblivian-media"
+
+[vars]
+ALLOWED_ORIGIN = "https://oblivian.net"
+# domínio público do bucket (custom domain cdn.oblivian.net; até anexar, use o r2.dev do bucket)
+PUBLIC_BASE = "https://cdn.oblivian.net"

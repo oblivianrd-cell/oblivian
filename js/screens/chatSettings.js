@@ -265,7 +265,7 @@
         var palette = el("button", { class: "wp-sw wp-sw--palette" + (customOn ? " is-on" : ""), type: "button", title: "Cor personalizada",
           style: customOn ? { background: wpDraft.value } : {} }, App.icon("edit", { size: "sm" }));
         palette.addEventListener("click", function () {
-          ui.pickColor(customOn ? wpDraft.value : "#7c59ec", function (hex) {
+          ui.pickColor(customOn ? wpDraft.value : "#3f3f46", function (hex) {
             if (!hex) return; wpDraft = { kind: "css", key: "custom", value: hex }; paint();
           }, { title: "Cor do papel de parede", allowClear: false });
         });
@@ -389,7 +389,7 @@
           : view === "transfer" ? transferView()
           : mainView();
         var root = el("div", { class: "cset cset--chat" }, node);
-        var accent = (community && community.theme && community.theme.accent) || App.store.get("accent") || "#7c59ec";
+        var accent = (community && community.theme && community.theme.accent) || App.store.get("accent") || "#3f3f46";
         root.style.setProperty("--accent", accent);
         App.util.mount(inner, root);
       }

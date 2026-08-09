@@ -39,7 +39,7 @@
         "• Chats públicos e privados\n" +
         "• Destaques semanais escolhidos pela equipe\n\n" +
         "Regras simples: respeito sempre e nada de spam. Puxe uma cadeira e participe.",
-      ownerId: theo.id, tags: ["Comunidade", "Geral", "Conversa"], theme: { accent: "#7c59ec" },
+      ownerId: theo.id, tags: ["Comunidade", "Geral", "Conversa"], theme: { accent: "#3f3f46" },
       memberCount: 6
     }));
 
@@ -165,15 +165,15 @@
       item({ id: "frame_aqua", category: "frame", name: "Moldura Aqua", description: "Anel azul-piscina no avatar.", price: 500, rarity: "comum", value: "#22d3ee", icon: "profile" }),
       item({ id: "frame_rose", category: "frame", name: "Moldura Rosé", description: "Anel rosa suave.", price: 500, rarity: "comum", value: "#ec4899", icon: "profile" }),
       item({ id: "frame_gold", category: "frame", name: "Moldura Dourada", description: "Anel dourado raro.", price: 1500, rarity: "raro", value: "#f5c542", icon: "crown" }),
-      item({ id: "frame_prism", category: "frame", name: "Moldura Prisma", description: "Anel gradiente épico.", price: 3000, rarity: "especial", value: "linear-gradient(135deg,#7c59ec,#22d3ee,#ec4899)", icon: "star" }),
+      item({ id: "frame_prism", category: "frame", name: "Moldura Prisma", description: "Anel gradiente épico.", price: 3000, rarity: "especial", value: "linear-gradient(135deg,#3f3f46,#22d3ee,#ec4899)", icon: "star" }),
       // temas de perfil (theme) — acento aplicado ao próprio perfil
-      item({ id: "theme_violet", category: "theme", name: "Tema Violeta", description: "Acento violeta no seu perfil.", price: 1000, rarity: "comum", value: "#7c59ec", icon: "palette" }),
+      item({ id: "theme_violet", category: "theme", name: "Tema Violeta", description: "Acento violeta no seu perfil.", price: 1000, rarity: "comum", value: "#3f3f46", icon: "palette" }),
       item({ id: "theme_emerald", category: "theme", name: "Tema Esmeralda", description: "Acento verde-esmeralda.", price: 1000, rarity: "comum", value: "#10b981", icon: "palette" }),
       // bolhas de chat (bubble) — cor do balão
       item({ id: "bubble_blue", category: "bubble", name: "Bolha Azul", description: "Balão de chat azul.", price: 700, rarity: "comum", value: "#3b82f6", icon: "chat" }),
       item({ id: "bubble_amber", category: "bubble", name: "Bolha Âmbar", description: "Balão de chat âmbar.", price: 700, rarity: "comum", value: "#f59e0b", icon: "chat" }),
       // destaques
-      item({ id: "hl_post", category: "postHighlight", name: "Destaque de Postagem", description: "Brilho nas suas postagens por 7 dias.", price: 300, rarity: "comum", value: "#7c59ec", icon: "featured" }),
+      item({ id: "hl_post", category: "postHighlight", name: "Destaque de Postagem", description: "Brilho nas suas postagens por 7 dias.", price: 300, rarity: "comum", value: "#3f3f46", icon: "featured" }),
       item({ id: "hl_profile", category: "profileHighlight", name: "Destaque de Perfil", description: "Selo de destaque no seu perfil.", price: 800, rarity: "raro", value: "#f5c542", icon: "star" }),
       // especial
       item({ id: "special_founder", category: "special", name: "Selo Fundador", description: "Item especial raríssimo.", price: 5000, rarity: "especial", value: "#f5c542", icon: "shield" })
@@ -192,7 +192,7 @@
       notifications: notifications,
       // economia
       storeItems: storeItems,
-      wallet: { balance: 200 },          // saldo inicial de cortesia
+      wallet: { balance: 0 },            // começa zerado (ganha moedas assistindo anúncio)
       userItems: [],                     // itens possuídos
       equipped: {},                      // { frame, theme, bubble, ... }: itemId
       coinTx: [],                        // histórico de transações

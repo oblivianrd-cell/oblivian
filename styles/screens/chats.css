@@ -18,6 +18,29 @@
   background: var(--surface-2);
   border-right: 1px solid var(--border);
   overflow-y: auto;
+  /* rolagem por arraste (chats.js) sem selecionar texto no caminho */
+  scrollbar-width: none; overscroll-behavior: contain;
+}
+.chats-rail::-webkit-scrollbar { width: 0; height: 0; }
+.chats-rail.is-dragging { cursor: grabbing; user-select: none; }
+/* separador entre os botões de escopo e as comunidades */
+.chats-rail__sep {
+  width: 24px; height: 1px; flex: none; margin: var(--s-1) 0;
+  background: var(--border-strong);
+}
+/* quadrado de comunidade: mesma caixa dos botões, com a capa/ícone dentro */
+.chats-rail__comm {
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+  overflow: hidden; flex: none;
+  transition: filter var(--t-fast), transform var(--t-fast);
+}
+/* hover próprio: a imagem cobre o quadrado, então mudar cor de fundo não se vê.
+   Clareia e cresce de leve — feedback visível sem apagar o ícone. */
+.chats-rail__comm:hover { filter: brightness(1.15); transform: scale(1.06); }
+.chats-rail__comm:active { transform: scale(0.98); }
+.chats-rail__initial {
+  font-weight: var(--fw-bold); font-size: var(--fs-lg); color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,.45);
 }
 .chats-rail__btn {
   position: relative;
@@ -27,11 +50,15 @@
   color: var(--text-dim);
   transition: background var(--t-fast), color var(--t-fast), border-radius var(--t-fast);
 }
-.chats-rail__btn:hover { background: var(--surface-3); color: var(--text); }
-.chats-rail__btn.is-active { background: var(--accent-soft); color: var(--accent); }
+/* background-COLOR, não o atalho `background`: o atalho reseta background-image
+   e apagava o ícone da comunidade justamente no hover / no estado ativo. */
+.chats-rail__btn:hover { background-color: var(--surface-3); color: var(--text); }
+.chats-rail__btn.is-active { background-color: var(--accent-soft); color: var(--accent-fg); }
 .chats-rail__btn.is-active::before {
   content: ""; position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
-  width: 4px; height: 22px; border-radius: var(--r-pill); background: var(--accent);
+  /* accent-fg: barra de 4px precisa CONTRASTAR com o surface-2 do rail; o
+     accent cru (grafite) era mais escuro que o fundo e sumia. */
+  width: 4px; height: 22px; border-radius: var(--r-pill); background: var(--accent-fg);
 }
 .chats-rail__btn .avatar { width: 38px; height: 38px; }
 .chats-rail__badge {
@@ -86,7 +113,7 @@
 .chat-entry__name { font-weight: var(--fw-semibold); display: flex; align-items: center; gap: 6px; }
 .chat-entry__time { color: var(--text-mute); font-size: var(--fs-xs); flex: none; }
 .chat-entry__preview { color: var(--text-mute); font-size: var(--fs-sm); }
-.chat-entry__community { color: var(--accent); font-size: var(--fs-xs); font-weight: var(--fw-semibold); }
+.chat-entry__community { color: var(--accent-fg); font-size: var(--fs-xs); font-weight: var(--fw-semibold); }
 .chat-entry__unread {
   min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--r-pill);
   background: var(--accent); color: var(--on-accent); font-size: var(--fs-xs);
@@ -128,7 +155,7 @@
   border-radius: var(--r-md);
   border-top-left-radius: 4px;
 }
-.msg__author { font-size: var(--fs-xs); font-weight: var(--fw-bold); color: var(--accent); margin-bottom: 2px; }
+.msg__author { font-size: var(--fs-xs); font-weight: var(--fw-bold); color: var(--accent-fg); margin-bottom: 2px; }
 .msg__text { font-size: var(--fs-sm); word-break: break-word; }
 .msg__time { font-size: 10px; color: var(--text-mute); margin-top: 4px; text-align: right; }
 .msg--mine { align-self: flex-end; flex-direction: row-reverse; }
@@ -217,7 +244,10 @@
 /* DM / grupo: hero simples sem card de fundo (só avatar + nome) */
 .cset-hero--plain { padding: var(--s-4) 0 var(--s-3); gap: var(--s-3); }
 .cset-hero__av .avatar { border: 2px solid var(--border); box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
-.cset-hero__name { font-size: var(--fs-2xl); font-weight: var(--fw-bold); text-align: center; }
+/* line-height explícita: é uma DIV (chatSettings.js:97), não heading, então a regra
+   h1..h4 { line-height: var(--lh-tight) } do base.css nunca pega — herdava 1.5 e
+   dava 42px de entrelinha num título de 28px. */
+.cset-hero__name { font-size: var(--fs-2xl); font-weight: var(--fw-bold); text-align: center; line-height: var(--lh-tight); }
 .cset-hero__sub { font-size: var(--fs-md); }
 .cset-group { display: flex; flex-direction: column; gap: var(--s-2); }
 .cset-group__title { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: .06em; color: var(--text-mute); padding: 0 var(--s-2); }
@@ -225,12 +255,15 @@
 .cset-row {
   display: flex; align-items: center; gap: var(--s-3); width: 100%; text-align: left;
   padding: var(--s-4); background: none; border: none; color: var(--text); cursor: pointer;
-  border-bottom: 1px solid var(--border);
+  /* divisor RECUADO ao eixo do texto: 16 (padding) + 40 (icwrap) + 12 (gap) = 68.
+     De borda a borda ele cortava o canto arredondado do card e ignorava o ícone. */
+  border-bottom: none;
+  box-shadow: inset 68px -1px 0 var(--border);
   transition: background var(--t-fast);
 }
 .cset-row:last-child { border-bottom: none; }
 .cset-row:hover { background: var(--surface-2); }
-.cset-row__icwrap { flex: none; width: 38px; height: 38px; border-radius: var(--r-md); display: grid; place-items: center; background: var(--surface-2); color: var(--text); }
+.cset-row__icwrap { flex: none; width: 40px; height: 40px; border-radius: var(--r-md); display: grid; place-items: center; background: var(--surface-2); color: var(--text); }
 .cset-row__ic { color: inherit; }
 .cset-row__label { font-size: var(--fs-md); font-weight: var(--fw-medium); }
 .cset-row__chev { flex: none; }
@@ -259,7 +292,7 @@
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   background: var(--surface-2);
 }
-.wp-tile.is-on { border-color: var(--accent); }
+.wp-tile.is-on { border-color: var(--accent-fg); }
 .wp-tile__lbl { font-size: var(--fs-xs); font-weight: var(--fw-semibold); text-shadow: 0 1px 3px rgba(0,0,0,.5); }
 .wp-tile__chk { position: absolute; top: 6px; right: 6px; color: #fff; background: var(--accent); border-radius: 50%; padding: 2px; }
 .wp-prev {
@@ -322,9 +355,9 @@
 /* balão */
 .bub-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-2); }
 .bub-tile { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3); border-radius: var(--r-md); border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-weight: var(--fw-semibold); font-size: var(--fs-sm); }
-.bub-tile.is-on { border-color: var(--accent); background: var(--surface-2); }
+.bub-tile.is-on { border-color: var(--accent-fg); background: var(--surface-2); }
 .bub-tile__dot { width: 18px; height: 18px; border-radius: 50%; flex: none; }
-.bub-tile__chk { margin-left: auto; color: var(--accent); }
+.bub-tile__chk { margin-left: auto; color: var(--accent-fg); }
 
 .chat-day {
   align-self: center; font-size: var(--fs-xs); color: var(--text-mute);
@@ -375,8 +408,8 @@
   font-size: var(--fs-sm); font-weight: var(--fw-medium); cursor: pointer;
   transition: border-color var(--t-fast), background var(--t-fast), color var(--t-fast);
 }
-.cd-chip:hover { border-color: var(--accent); }
-.cd-chip.is-on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.cd-chip:hover { border-color: var(--accent-fg); }
+.cd-chip.is-on { background: var(--accent); border-color: var(--accent-fg); color: var(--on-accent); }
 .cset-hint { font-size: var(--fs-sm); line-height: var(--lh-normal); margin: 0; }
 
 /* ---- Config: palavras proibidas ---- */

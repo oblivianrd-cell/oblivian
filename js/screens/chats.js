@@ -350,18 +350,65 @@
     var scope = "recent"; // recent | requests | contacts
 
     var rail = el("nav", { class: "chats-rail" });
+    // arrastar p/ rolar o rail (a roda do mouse já funciona pelo overflow-y).
+    // Só ativa depois de 4px de movimento, senão engoliria o clique nos botões.
+    (function dragScroll() {
+      var down = false, startY = 0, startTop = 0, moved = false;
+      rail.addEventListener("pointerdown", function (e) {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        down = true; moved = false; startY = e.clientY; startTop = rail.scrollTop;
+      });
+      rail.addEventListener("pointermove", function (e) {
+        if (!down) return;
+        var dy = e.clientY - startY;
+        if (!moved && Math.abs(dy) < 4) return;
+        moved = true;
+        rail.classList.add("is-dragging");
+        rail.scrollTop = startTop - dy;
+      });
+      function end() { down = false; rail.classList.remove("is-dragging"); }
+      rail.addEventListener("pointerup", end);
+      rail.addEventListener("pointercancel", end);
+      rail.addEventListener("pointerleave", end);
+      // se arrastou, cancela o clique que viria depois
+      rail.addEventListener("click", function (e) {
+        if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
+      }, true);
+    })();
     function railBtn(opts) {
       var b = el("button", { class: "chats-rail__btn" + (opts.active ? " is-active" : "") + (opts.cls ? " " + opts.cls : ""), type: "button", title: opts.title }, App.icon(opts.icon, { fill: opts.iconFill }));
       if (opts.badge) b.appendChild(el("span", { class: "chats-rail__badge" }, opts.badge > 9 ? "9+" : String(opts.badge)));
       b.addEventListener("click", opts.onClick || function () { scope = opts.value; rebuildRail(); refreshList(); });
       return b;
     }
+    // quadrado de comunidade no rail: ícone da comunidade (ou inicial) → abre ela
+    function railComm(c) {
+      var accent = (c.theme && c.theme.accent) || "var(--accent)";
+      var b = el("button", {
+        class: "chats-rail__btn chats-rail__comm", type: "button", title: c.name,
+        style: c.icon
+          ? { backgroundImage: "url(" + c.icon + ")" }
+          : { background: accent }
+      }, c.icon ? null : el("span", { class: "chats-rail__initial" }, (c.name || "?").charAt(0).toUpperCase()));
+      b.addEventListener("click", function () { App.router.navigate("/c/" + c.id); });
+      return b;
+    }
+
     function rebuildRail() {
-      App.repo.listConversationRequests().then(function (reqs) {
+      Promise.all([
+        App.repo.listConversationRequests(),
+        App.repo.getMyCommunities ? App.repo.getMyCommunities() : Promise.resolve([])
+      ]).then(function (r) {
+        var reqs = r[0] || [], mine = r[1] || [];
         App.util.clear(rail);
         rail.appendChild(railBtn({ value: "recent", icon: "chats", title: "Conversas", active: scope === "recent" }));
         rail.appendChild(railBtn({ value: "requests", icon: "bell", title: "Solicitações", active: scope === "requests", badge: reqs.length }));
         rail.appendChild(railBtn({ value: "contacts", icon: "members", title: "Contatos", active: scope === "contacts" }));
+        // minhas comunidades: 1 quadrado por comunidade, quantas houver
+        if (mine.length) {
+          rail.appendChild(el("div", { class: "chats-rail__sep" }));
+          mine.forEach(function (c) { rail.appendChild(railComm(c)); });
+        }
         rail.appendChild(el("div", { class: "u-grow" }));
         rail.appendChild(railBtn({ icon: "addround", iconFill: true, cls: "chats-rail__btn--new", title: "Nova conversa / grupo", onClick: function (e) {
           App.ui.openMenu(e ? e.currentTarget : rail.lastChild, [

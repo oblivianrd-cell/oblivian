@@ -140,7 +140,7 @@
     var el = App.util.el;
     var b = el("div", { id: "update-banner", class: "update-banner", role: "status", "aria-live": "polite" },
       el("span", { class: "update-banner__spin", "aria-hidden": "true" }),
-      el("span", { class: "update-banner__txt" }, "Nova versão — atualizando…"));
+      el("span", { class: "update-banner__txt" }, "Atualizando…"));
     document.body.appendChild(b);
     requestAnimationFrame(function () { b.classList.add("is-in"); });
   }

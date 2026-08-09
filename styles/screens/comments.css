@@ -18,7 +18,7 @@
 .cmt-wall__composer .cmt-composer { position: relative; bottom: auto; z-index: auto; border-top: none; border-bottom: 1px solid var(--border); }
 /* botão "+" (círculo) → abre emojis */
 .cmt-addbtn { width: 38px; height: 38px; border-radius: 50%; flex: none; display: grid; place-items: center;
-  background: var(--surface-2); color: var(--accent); border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--accent-fg); border: 1px solid var(--border);
   transition: transform .14s ease, background .14s ease; }
 .cmt-addbtn:hover { background: color-mix(in srgb, var(--accent) 16%, var(--surface-2)); transform: scale(1.06); }
 .cmt-addbtn:active { transform: scale(.95); }
@@ -131,7 +131,7 @@
   transition: color var(--t-fast);
 }
 .cmt__act:hover { color: var(--text); }
-.cmt__act.is-on { color: var(--accent); }
+.cmt__act.is-on { color: var(--accent-fg); }
 
 .cmt__replies {
   margin-top: var(--s-2);

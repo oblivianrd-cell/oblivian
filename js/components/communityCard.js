@@ -12,7 +12,7 @@
      badge de presença no topo, nome grande + tags coloridas na base. */
   function CommunityCard(community, opts) {
     opts = opts || {};
-    var accent = (community.theme && community.theme.accent) || "#7c59ec";
+    var accent = (community.theme && community.theme.accent) || "#3f3f46";
     var coverStyle = community.cover
       ? { backgroundImage: "url(" + community.cover + ")" }
       : { background: "linear-gradient(160deg, " + accent + ", " + App.store.color.shade(accent, -30) + ")" };
@@ -44,8 +44,9 @@
   function CreateCommunityCard() {
     var card = el("button", { class: "create-card", type: "button" },
       el("span", { class: "create-card__plus" }, App.icon("plus")),
-      el("strong", "Criar comunidade"),
-      el("span", { class: "u-muted", style: { fontSize: "var(--fs-sm)" } }, "Comece a sua própria"));
+      // Sem legenda: "Criar comunidade" já diz tudo. A linha extra só repetia o
+      // título ou informava algo dispensável, e forçava o card a caber 2 textos.
+      el("strong", "Criar comunidade"));
     card.addEventListener("click", function () { App.router.navigate("/criar"); });
     return card;
   }

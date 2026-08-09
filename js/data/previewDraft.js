@@ -28,7 +28,7 @@
         id: DRAFT_ID, name: payload.name, slug: null,
         icon: payload.icon || null, cover: payload.cover || null,
         description: payload.description || "", ownerId: me.id, tags: payload.tags || [],
-        theme: payload.theme || { accent: "#7c59ec" }, settings: payload.settings || {},
+        theme: payload.theme || { accent: "#3f3f46" }, settings: payload.settings || {},
         memberCount: 1, createdAt: Date.now()
       };
     },
@@ -64,19 +64,25 @@
     showBar: function () {
       if (this._bar) return;
       var el = App.util.el, ui = App.ui, self = this;
-      var confirmBtn = ui.Button({ label: "Confirmar e criar", icon: "check", variant: "primary" });
+      var confirmBtn = ui.Button({ label: "Criar", icon: "check", variant: "primary" });
       confirmBtn.addEventListener("click", function () { self.confirm(confirmBtn); });
+      // Barra no TOPO: "✕" fecha (volta a editar, mantém o rascunho) e "Criar"
+      // grava. Era um rodapé com dois botões de texto — cobria o fim da tela.
+      var closeBtn = ui.IconButton("close", { title: "Fechar pré-visualização", onClick: function () { self.backToEdit(); } });
       var bar = el("div", { class: "preview-bar" },
+        closeBtn,
         el("div", { class: "preview-bar__tag" }, App.icon("eye", { size: "sm" }), el("span", "Pré-visualização")),
-        el("div", { class: "preview-bar__actions" },
-          ui.Button({ label: "Voltar a editar", variant: "ghost", onClick: function () { self.backToEdit(); } }),
-          confirmBtn));
-      var ac = (this.draft && this.draft.theme && this.draft.theme.accent) || "#7c59ec";
+        el("div", { class: "preview-bar__actions" }, confirmBtn));
+      var ac = (this.draft && this.draft.theme && this.draft.theme.accent) || "#3f3f46";
       bar.style.setProperty("--accent", ac);
       this._bar = bar;
       document.body.appendChild(bar);
+      document.body.classList.add("has-preview-bar");
     },
-    hideBar: function () { if (this._bar) { this._bar.remove(); this._bar = null; } },
+    hideBar: function () {
+      if (this._bar) { this._bar.remove(); this._bar = null; }
+      document.body.classList.remove("has-preview-bar");
+    },
 
     // instala os interceptadores na instância do repo
     install: function (repo) {

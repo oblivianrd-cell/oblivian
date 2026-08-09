@@ -11,7 +11,7 @@
   color: var(--text); font-weight: var(--fw-bold); font-size: var(--fs-sm);
   transition: border-color var(--t-fast), background var(--t-fast);
 }
-.coin-pill:hover { border-color: var(--accent); background: var(--surface-3); }
+.coin-pill:hover { border-color: var(--accent-fg); background: var(--surface-3); }
 .coin-pill svg.icon { color: #f5c542; }
 .coin-pill__num { font-variant-numeric: tabular-nums; }
 
@@ -45,12 +45,13 @@
 }
 .store-item {
   display: flex; flex-direction: column; gap: var(--s-2);
-  padding: var(--s-3); border-radius: var(--r-lg);
+  padding: var(--s-3);
+  border-radius: var(--r-xl);   /* 24 = 12 (preview) + 12 (padding) — raio aninhado */
   position: relative; overflow: hidden;
   transition: transform var(--t-fast), border-color var(--t-fast);
 }
 .store-item:hover { transform: translateY(-2px); }
-.store-item.is-equipped { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.store-item.is-equipped { border-color: var(--accent-fg); box-shadow: inset 0 0 0 1px var(--accent); }
 .store-item__preview {
   height: 92px; border-radius: var(--r-md); display: grid; place-items: center;
   background: var(--surface-2); color: #fff; position: relative;
@@ -108,7 +109,12 @@
 /* ---- Banner discreto ---- */
 .ad-banner {
   display: flex; align-items: center; gap: var(--s-3);
-  padding: var(--s-2) var(--s-3); border-radius: var(--r-md);
+  /* relative + padding-right: o "X" de fechar agora é filho do banner (ver
+     adBanner.js/withClose) — precisa deste contexto e da faixa reservada. */
+  position: relative;
+  padding: var(--s-2) var(--s-3);
+  padding-right: 34px;
+  border-radius: var(--r-md);
   background: var(--surface-2); border: 1px dashed var(--border-strong);
   color: var(--text-dim); font-size: var(--fs-sm);
 }
@@ -125,7 +131,7 @@
 .ad-banner--net .ad-banner__tag { align-self: flex-start; }
 .ad-frame { display: block; margin: 0 auto; max-width: 100%; }
 /* wrapper com botão de fechar (anúncio dispensável) */
-.ad-wrap { position: relative; }
+.ad-wrap { position: relative; }   /* mantido: o wrap ainda é o nó removido ao fechar */
 .ad-wrap__close {
   position: absolute; top: 6px; right: 6px; z-index: 3;
   width: 22px; height: 22px; border-radius: 50%; padding: 0;
@@ -138,7 +144,11 @@
 /* ---- House ad (auto-promo first-party, preenche o slot sem rede) ---- */
 .house-ad {
   display: flex; align-items: center; gap: var(--s-3);
-  padding: var(--s-3) var(--s-4); border-radius: var(--r-lg);
+  /* padding-right maior: o "X" de fechar é absoluto no canto (.ad-wrap__close)
+     e passava por cima do botão "Abrir". Reserva a faixa dele. */
+  padding: var(--s-3) var(--s-4);
+  padding-right: 34px;
+  border-radius: var(--r-lg);
   background: linear-gradient(120deg, color-mix(in srgb, var(--ha-accent) 26%, var(--surface)), var(--surface) 70%);
   border: 1px solid color-mix(in srgb, var(--ha-accent) 35%, var(--border));
   box-shadow: 0 6px 18px rgba(0,0,0,0.18);
@@ -159,11 +169,13 @@
   box-shadow: 0 4px 12px color-mix(in srgb, var(--ha-accent) 40%, transparent);
 }
 .house-ad__promo {
-  position: absolute; top: 6px; right: 8px;
+  /* estava em top:6px right:8px — MESMA coordenada do "X" de fechar, um sobre o
+     outro. Foi pro rodapé esquerdo, onde não disputa espaço com nada. */
+  position: absolute; bottom: 4px; left: var(--s-4);
   font-size: 9px; text-transform: uppercase; letter-spacing: .06em;
-  color: var(--text-mute); opacity: .7;
+  color: var(--text-mute); opacity: .7; pointer-events: none;
 }
-.house-ad--compact { padding: var(--s-2) var(--s-3); }
+.house-ad--compact { padding: var(--s-2) var(--s-3); padding-right: 34px; }
 .house-ad--compact .house-ad__emoji { font-size: 22px; }
 .house-ad--compact .house-ad__cta { padding: 4px var(--s-2); }
 @media (max-width: 639px) { .house-ad__cta { font-size: var(--fs-xs); } }

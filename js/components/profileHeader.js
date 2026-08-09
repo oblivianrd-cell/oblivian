@@ -130,7 +130,7 @@
     var tc = (isCommunity ? mem.textColors : user.textColors) || {};
     function tcStyle(key) { return tc[key] ? { color: tc[key] } : null; }
     // cor da capa: comunidade usa acento da comunidade; global deriva do id (cor própria por usuário)
-    var palette = ["#7c59ec", "#ff5fa2", "#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#14b8a6", "#a855f7"];
+    var palette = ["#3f3f46", "#ff5fa2", "#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#14b8a6", "#a855f7"];
     function hashColor(id) { var h = 0; for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0; return palette[h % palette.length]; }
     // cor base da capa: cor escolhida pelo usuário (panelColor) > acento da comunidade > hash
     var chosenColor = (isCommunity && mem && mem.panelColor) ? mem.panelColor : (!isCommunity && user.panelColor ? user.panelColor : "");

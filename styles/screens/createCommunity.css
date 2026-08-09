@@ -12,10 +12,26 @@
    aqui usamos campos de formulário, então damos padding e espaçamento. */
 .cc-create .cc-section { padding: var(--s-4); gap: var(--s-4); }
 
-/* ícone + capa lado a lado (empilha no estreito) */
-.cc-create .cc-media { display: grid; grid-template-columns: 1fr; gap: var(--s-4); }
+/* cores de destaque centradas — a última quebrava sozinha, encostada à esquerda */
+.cc-create .swatches { justify-content: center; }
+
+/* ícone + capa lado a lado; empilha só quando não couber.
+   auto-fit decide pelo espaço REAL do container — antes era @media 640px, que
+   media a janela: numa janela de 637px sobrava espaço de sobra e mesmo assim
+   empilhava. 170px é a largura mínima confortável do ImagePicker. */
+.cc-create .cc-media {
+  display: grid; gap: var(--s-4);
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
 .cc-create .cc-media > * { min-width: 0; }   /* colunas encolhem — evita a Capa estourar pra direita */
-@media (min-width: 640px) { .cc-create .cc-media { grid-template-columns: 1fr 1fr; } }
+/* dentro de cada coluna: prévia e botão empilhados e CENTRADOS.
+   Antes o .upload era flex-row e sobrava um vão morto à direita da prévia. */
+.cc-create .cc-media .upload {
+  flex-direction: column; align-items: center; gap: var(--s-3);
+}
+.cc-create .cc-media .upload > .u-col { width: 100%; align-items: center; }
+.cc-create .cc-media .upload .u-row { justify-content: center; width: 100%; }
+.cc-create .cc-media .upload .btn { width: 100%; }   /* botão acompanha a largura da coluna */
 
 /* ---------- Preview do INTERIOR da comunidade ---------- */
 .ccp {
@@ -41,7 +57,7 @@
 }
 .ccp-tab.is-active { background: var(--accent); color: var(--on-accent); }
 .ccp-post { margin: 0 var(--s-4) var(--s-4); padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); display: flex; flex-direction: column; gap: 4px; }
-.ccp-post__pin { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); }
+.ccp-post__pin { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-fg); }
 .ccp-post__title { font-weight: var(--fw-semibold); font-size: var(--fs-sm); }
 .ccp-post__text { color: var(--text-dim); font-size: var(--fs-xs); line-height: var(--lh-normal); }
 
@@ -101,9 +117,9 @@
 @keyframes ccpv-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .ccpv__tabs { display: flex; gap: 8px; padding: 0 20px 12px; flex-wrap: wrap; }
 .ccpv__tab { font-size: var(--fs-sm); padding: 6px 12px; border-radius: 999px; background: var(--surface-2); color: var(--text-dim); }
-.ccpv__tab.is-active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.ccpv__tab.is-active { background: var(--accent-soft); color: var(--accent-fg); font-weight: 600; }
 .ccpv__post { margin: 0 20px 16px; padding: 14px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); }
-.ccpv__pin { display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-xs); font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+.ccpv__pin { display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-xs); font-weight: 700; color: var(--accent-fg); text-transform: uppercase; letter-spacing: 0.06em; }
 .ccpv__post-title { font-weight: var(--fw-semibold); margin: 6px 0 4px; }
 .ccpv__post-text { color: var(--text-dim); font-size: var(--fs-sm); line-height: 1.5; }
 .ccpv__footer {
@@ -120,22 +136,30 @@
 }
 .ccpv__actions > .btn { flex: 1; }
 
-/* ---------- Barra flutuante da PRÉ-VISUALIZAÇÃO real ---------- */
-/* fica fixa no rodapé sobre a tela real da comunidade (z acima do dock) */
+/* ---------- Barra flutuante da PRÉ-VISUALIZAÇÃO real ----------
+   Vive no TOPO (era rodapé, cobria o fim do conteúdo). `body` ganha
+   padding-top via .has-preview-bar p/ não esconder o header da comunidade. */
 .preview-bar {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1200;
+  position: fixed; left: 0; right: 0; top: 0; z-index: 1200;
   display: flex; align-items: center; gap: var(--s-3);
-  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+  /* topo/dir/baixo/esq: o inset-TOP estava caindo no padding de BAIXO (atalho de
+     4 valores), inflando a barra em aparelhos com notch. A linha extra de
+     padding-top consertava o topo e deixava o erro de baixo. */
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px;
   background: var(--surface);
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.28);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
+/* empurra o app pra baixo enquanto a barra existe — sem isto ela tapa o header */
+/* 56 = 8 + 40 (altura do .icon-btn / .btn) + 8. O inset entra porque a barra é
+   fixed em top:0 e cresce com o notch — empurrão fixo deixaria ela tapando o topo. */
+body.has-preview-bar { padding-top: calc(56px + env(safe-area-inset-top, 0px)); }
 .preview-bar__tag {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: 0.04em;
-  text-transform: uppercase; color: var(--accent);
+  text-transform: uppercase; color: var(--accent-fg);
   white-space: nowrap;
 }
 .preview-bar__actions { display: flex; gap: 8px; margin-left: auto; }

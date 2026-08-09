@@ -55,7 +55,7 @@
     code = String(code == null ? "" : code).trim();
     var src = null;
     if (media && Object.prototype.hasOwnProperty.call(media, code)) src = media[code];
-    if (!src && code.indexOf("data:") === 0) src = code;
+    if (!src && (code.indexOf("data:") === 0 || /^https?:\/\//.test(code))) src = code;   // dataURL ou URL do Storage
     if (!src && App.repo && App.repo.getImage) src = App.repo.getImage(code);
     if (!src) return document.createTextNode("");
     return el("img", { class: "mk-img", src: src, alt: "", loading: "lazy" });

@@ -17,7 +17,10 @@
   padding: var(--s-5);
   color: #fff;
   background: var(--surface-3);
-  border: 1px solid var(--border);
+  /* era border: 1px solid var(--border) — com a paleta neutra --border virou
+     #313131 (cinza médio) e desenhava uma linha CLARA em volta do card colorido.
+     Translúcido escuro acompanha qualquer capa, sem risco visível. */
+  border: 1px solid rgba(0,0,0,0.22);
 }
 .featured__bg {
   position: absolute; inset: 0;
@@ -104,6 +107,6 @@
   padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-md);
   background: var(--surface); color: var(--text); text-decoration: none;
 }
-.search-user:hover, .search-post:hover { border-color: var(--accent); }
+.search-user:hover, .search-post:hover { border-color: var(--accent-fg); }
 .search-post > .u-grow { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .search-post strong { font-size: var(--fs-sm); }

@@ -200,9 +200,10 @@ begin
     raise exception 'already owned';
   end if;
 
-  update public.wallets set balance = balance - it.price, updated_at = now()
-    where user_id = uid and balance >= it.price
-    returning balance into new_balance;
+  -- "balance" qualificado em TODA expressão: solto é ambíguo com o OUT param → toda compra falhava
+  update public.wallets set balance = wallets.balance - it.price, updated_at = now()
+    where user_id = uid and wallets.balance >= it.price
+    returning wallets.balance into new_balance;
   if not found then raise exception 'insufficient coins'; end if;
 
   insert into public.user_items(user_id, item_id) values (uid, p_item_id);
@@ -216,7 +217,7 @@ end; $$;
 create or replace function public.ensure_wallet()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  insert into public.wallets(user_id, balance) values (new.id, 200)
+  insert into public.wallets(user_id, balance) values (new.id, 0)
     on conflict (user_id) do nothing;
   return new;
 end; $$;
