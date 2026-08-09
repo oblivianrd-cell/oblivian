@@ -1,6 +1,6 @@
 {
   "appId": "com.obliviny.app",
-  "appName": "Obliviny",
+  "appName": "Oblivian",
   "webDir": "www",
   "android": {
     "allowMixedContent": false
